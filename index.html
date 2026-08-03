@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>서동임 · 이커머스 MD</title>
+<meta name="description" content="팔리는 것을 만들고, 파는 과정을 자동화합니다. 이커머스 MD 서동임의 포트폴리오.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css">
+
+<style>
+:root{
+  --paper:#EDF0EF;
+  --panel:#FFFFFF;
+  --ink:#141F1C;
+  --ink-soft:#4C5A56;
+  --ink-faint:#7C8884;
+  --rule:#CBD3D0;
+  --green:#12694A;
+  --amber:#9C6209;
+  --maxw:1080px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:'Pretendard Variable',Pretendard,-apple-system,sans-serif;
+  font-size:16px;
+  line-height:1.7;
+  -webkit-font-smoothing:antialiased;
+}
+
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 28px}
+
+.mono{font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums}
+.disp{font-family:'IBM Plex Sans KR','Pretendard Variable',sans-serif}
+
+a{color:inherit}
+:focus-visible{outline:2px solid var(--green);outline-offset:3px;border-radius:2px}
+
+/* ─── 상단 바 ─── */
+.bar{
+  position:sticky;top:0;z-index:50;
+  background:rgba(237,240,239,.88);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--rule);
+}
+.bar .wrap{display:flex;align-items:center;justify-content:space-between;height:56px}
+.bar-name{font-weight:600;letter-spacing:-.01em}
+.bar-name span{color:var(--ink-faint);font-weight:400;margin-left:10px;font-size:13px}
+.bar-links{display:flex;gap:20px;font-size:13px}
+.bar-links a{text-decoration:none;color:var(--ink-soft);border-bottom:1px solid transparent;padding-bottom:1px}
+.bar-links a:hover{color:var(--green);border-bottom-color:var(--green)}
+
+/* ─── 히어로 ─── */
+.hero{padding:88px 0 64px}
+.eyebrow{
+  font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-faint);display:flex;align-items:center;gap:10px;margin-bottom:28px
+}
+.eyebrow::after{content:"";height:1px;flex:1;background:var(--rule)}
+
+.thesis{
+  font-family:'IBM Plex Sans KR',sans-serif;
+  font-weight:600;
+  font-size:clamp(30px,5.4vw,58px);
+  line-height:1.28;
+  letter-spacing:-.035em;
+  max-width:16em;
+}
+.thesis em{font-style:normal;color:var(--green)}
+
+.lede{
+  margin-top:26px;max-width:34em;color:var(--ink-soft);font-size:16px;line-height:1.85
+}
+
+/* 지표 스트립 */
+.stats{
+  margin-top:52px;
+  border-top:1px solid var(--ink);
+  border-bottom:1px solid var(--rule);
+  display:grid;grid-template-columns:repeat(4,1fr);
+}
+.stat{padding:20px 22px 22px;border-left:1px solid var(--rule)}
+.stat:first-child{border-left:none;padding-left:0}
+.stat-n{font-family:'IBM Plex Mono',monospace;font-size:29px;font-weight:500;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.stat-n small{font-size:15px;color:var(--ink-soft);margin-left:2px}
+.stat-l{font-size:12.5px;color:var(--ink-faint);margin-top:3px;letter-spacing:.01em}
+
+/* ─── 섹션 공통 ─── */
+.sec{padding:72px 0}
+.sec-head{display:flex;align-items:baseline;gap:16px;margin-bottom:8px}
+.sec-title{font-family:'IBM Plex Sans KR',sans-serif;font-size:21px;font-weight:600;letter-spacing:-.02em}
+.sec-note{font-size:13px;color:var(--ink-faint)}
+
+/* ─── 필터 ─── */
+.filter{display:flex;gap:8px;margin:26px 0 34px;flex-wrap:wrap}
+.fbtn{
+  font-family:'IBM Plex Mono',monospace;font-size:12.5px;
+  padding:7px 15px;border:1px solid var(--rule);background:transparent;
+  color:var(--ink-soft);cursor:pointer;border-radius:999px;
+  transition:background .18s,color .18s,border-color .18s;
+}
+.fbtn:hover{border-color:var(--ink-soft);color:var(--ink)}
+.fbtn[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.fcount{color:var(--ink-faint);font-size:12.5px;font-family:'IBM Plex Mono',monospace;align-self:center;margin-left:6px}
+
+/* ─── 프로젝트 ─── */
+.projects{display:flex;flex-direction:column;gap:14px}
+.card{
+  background:var(--panel);
+  border:1px solid var(--rule);
+  padding:28px 30px 26px;
+  transition:opacity .28s ease,transform .28s ease,border-color .2s;
+}
+.card:hover{border-color:var(--ink-soft)}
+.card.hide{display:none}
+.card.fade{opacity:0;transform:translateY(6px)}
+
+.c-top{display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.c-year{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink-faint)}
+.tag{
+  font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.04em;
+  padding:2.5px 9px;border-radius:3px;
+}
+.tag.commerce{background:rgba(18,105,74,.1);color:var(--green)}
+.tag.system{background:rgba(156,98,9,.11);color:var(--amber)}
+
+.c-title{font-family:'IBM Plex Sans KR',sans-serif;font-size:20px;font-weight:600;letter-spacing:-.025em;line-height:1.4}
+.c-sum{color:var(--ink-soft);margin-top:7px;font-size:15px;max-width:46em}
+
+.c-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:26px;
+  margin-top:22px;padding-top:20px;border-top:1px solid var(--rule);
+}
+.c-col h4{
+  font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:500;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:7px
+}
+.c-col p{font-size:14.5px;line-height:1.72;color:var(--ink)}
+.c-col strong{font-weight:600;color:var(--green);font-family:'IBM Plex Mono',monospace;font-size:14px}
+
+.c-tools{display:flex;gap:7px;flex-wrap:wrap;margin-top:20px}
+.tool{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--ink-faint);border:1px solid var(--rule);padding:2px 8px;border-radius:3px}
+
+.c-link{
+  display:inline-flex;align-items:center;gap:6px;margin-top:18px;
+  font-size:13.5px;font-weight:500;text-decoration:none;color:var(--green);
+  border-bottom:1px solid rgba(18,105,74,.35);padding-bottom:1px
+}
+.c-link:hover{border-bottom-color:var(--green)}
+
+/* ─── 스킬 ─── */
+.skills{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid var(--ink);margin-top:26px}
+.skill{padding:24px 24px 26px;border-left:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.skill:first-child{border-left:none;padding-left:0}
+.skill h3{font-family:'IBM Plex Sans KR',sans-serif;font-size:15px;font-weight:600;margin-bottom:12px}
+.skill ul{list-style:none;font-size:14px;color:var(--ink-soft);line-height:1.95}
+.skill li::before{content:"—";color:var(--ink-faint);margin-right:8px}
+
+/* ─── 이력 ─── */
+.hist{margin-top:24px;border-top:1px solid var(--rule)}
+.hrow{display:grid;grid-template-columns:120px 1fr;gap:20px;padding:16px 0;border-bottom:1px solid var(--rule)}
+.hrow dt{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--ink-faint)}
+.hrow dd{font-size:15px}
+.hrow dd span{display:block;color:var(--ink-soft);font-size:13.5px;margin-top:2px}
+
+/* ─── 연락처 ─── */
+.contact{padding:76px 0 96px;border-top:1px solid var(--ink);margin-top:20px}
+.c-head{font-family:'IBM Plex Sans KR',sans-serif;font-size:clamp(24px,3.6vw,36px);font-weight:600;letter-spacing:-.03em;line-height:1.35}
+.c-list{display:flex;gap:34px;margin-top:28px;flex-wrap:wrap}
+.c-item{font-size:14px}
+.c-item span{display:block;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:4px}
+.c-item a{text-decoration:none;border-bottom:1px solid var(--rule);padding-bottom:2px}
+.c-item a:hover{border-bottom-color:var(--green);color:var(--green)}
+
+.foot{font-size:12px;color:var(--ink-faint);margin-top:56px;font-family:'IBM Plex Mono',monospace}
+
+/* ─── 스크롤 등장 ─── */
+.reveal{opacity:0;transform:translateY(14px);transition:opacity .6s ease,transform .6s ease}
+.reveal.in{opacity:1;transform:none}
+
+/* ─── 반응형 ─── */
+@media(max-width:820px){
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .stat:nth-child(3){border-left:none;padding-left:0}
+  .stat{border-top:1px solid var(--rule)}
+  .stat:nth-child(-n+2){border-top:none}
+  .c-grid{grid-template-columns:1fr;gap:18px}
+  .skills{grid-template-columns:1fr}
+  .skill{border-left:none;padding-left:0}
+}
+@media(max-width:560px){
+  .wrap{padding:0 20px}
+  .hero{padding:56px 0 44px}
+  .sec{padding:52px 0}
+  .card{padding:22px 20px}
+  .bar-links{gap:14px}
+  .hrow{grid-template-columns:1fr;gap:4px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+  .reveal{opacity:1;transform:none}
+  html{scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <div class="wrap">
+    <div class="bar-name disp">서동임 <span>이커머스 MD</span></div>
+    <nav class="bar-links">
+      <a href="#work">프로젝트</a>
+      <a href="#skill">역량</a>
+      <a href="#contact">연락처</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<!-- 히어로 -->
+<section class="hero">
+  <div class="wrap">
+    <p class="eyebrow mono">Portfolio 2026</p>
+    <h1 class="thesis">팔리는 것을 만들고,<br><em>파는 과정을 자동화</em>합니다.</h1>
+    <p class="lede">
+      상품 기획부터 QC·물류·콘텐츠·광고까지 직접 운영하면서, 반복되는 일은 도구로 만들어 없앴습니다.
+      숫자를 읽는 MD이자 그 숫자를 모으는 시스템을 짜는 사람입니다.
+    </p>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-n">14<small>개</small></div>
+        <div class="stat-l">운영 판매 채널</div>
+      </div>
+      <div class="stat">
+        <div class="stat-n">4<small>년</small></div>
+        <div class="stat-l">이커머스 MD 경력</div>
+      </div>
+      <div class="stat">
+        <div class="stat-n">6<small>+</small></div>
+        <div class="stat-l">직접 구축한 사내 도구</div>
+      </div>
+      <div class="stat">
+        <div class="stat-n">00<small>%</small></div>
+        <div class="stat-l">수기 업무 시간 단축</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 프로젝트 -->
+<section class="sec" id="work">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2 class="sec-title">프로젝트</h2>
+      <p class="sec-note">보고 싶은 축을 골라주세요</p>
+    </div>
+
+    <div class="filter" role="group" aria-label="프로젝트 분류 필터">
+      <button class="fbtn" data-f="all" aria-pressed="true">전체</button>
+      <button class="fbtn" data-f="commerce" aria-pressed="false">커머스</button>
+      <button class="fbtn" data-f="system" aria-pressed="false">시스템</button>
+      <span class="fcount" id="fcount" aria-live="polite"></span>
+    </div>
+
+    <div class="projects" id="projects">
+
+      <!-- 1 -->
+      <article class="card reveal" data-axis="commerce system">
+        <div class="c-top">
+          <span class="c-year">2022 — 2026</span>
+          <span class="tag commerce">커머스</span>
+          <span class="tag system">시스템</span>
+        </div>
+        <h3 class="c-title">14개 판매 채널 통합 운영</h3>
+        <p class="c-sum">채널마다 다른 상품 등록 규격·정산 주기·CS 흐름을 하나의 운영 기준으로 묶고, 주문·재고 연동을 자동화했습니다.</p>
+        <div class="c-grid">
+          <div class="c-col"><h4>문제</h4><p>채널이 늘수록 수기 작업이 배수로 증가. 재고 오차와 품절 취소가 반복됨.</p></div>
+          <div class="c-col"><h4>실행</h4><p>OMS·WMS 연동 구조 설계, 채널별 등록 템플릿 표준화, 정산 대사 자동화.</p></div>
+          <div class="c-col"><h4>결과</h4><p><strong>[수치 입력]</strong> 주문 처리 시간 단축, 재고 오차 감소</p></div>
+        </div>
+        <div class="c-tools">
+          <span class="tool">OMS/WMS</span><span class="tool">Python</span><span class="tool">Excel</span>
+        </div>
+      </article>
+
+      <!-- 2 -->
+      <article class="card reveal" data-axis="system">
+        <div class="c-top">
+          <span class="c-year">2025</span>
+          <span class="tag system">시스템</span>
+        </div>
+        <h3 class="c-title">품질 검수(QC) 관리 대시보드</h3>
+        <p class="c-sum">입고 검수 결과를 현장에서 바로 기록하고, 공급처별 불량 추이를 실시간으로 확인하는 웹 도구를 직접 만들어 배포했습니다.</p>
+        <div class="c-grid">
+          <div class="c-col"><h4>문제</h4><p>검수 기록이 종이와 개인 엑셀에 흩어져 불량 원인 추적이 불가능했음.</p></div>
+          <div class="c-col"><h4>실행</h4><p>관리자·검수자 권한을 나눈 단일 웹앱 설계. 로그인·세션 인증 구현 후 호스팅 배포.</p></div>
+          <div class="c-col"><h4>결과</h4><p><strong>[수치 입력]</strong> 검수 기록 소요시간 단축, 불량 이력 100% 축적</p></div>
+        </div>
+        <div class="c-tools">
+          <span class="tool">JavaScript</span><span class="tool">Firebase</span><span class="tool">Hosting</span>
+        </div>
+        <a class="c-link" href="#" target="_blank" rel="noopener">데모 보기 (더미 데이터) →</a>
+      </article>
+
+      <!-- 3 -->
+      <article class="card reveal" data-axis="system commerce">
+        <div class="c-top">
+          <span class="c-year">2025</span>
+          <span class="tag system">시스템</span>
+          <span class="tag commerce">커머스</span>
+        </div>
+        <h3 class="c-title">상품 수익성 분석 자동화 도구</h3>
+        <p class="c-sum">채널별 수수료·광고비·물류비를 반영해 상품 단위 실수익을 자동 산출하고, 판매 의사결정에 바로 쓰이도록 만들었습니다.</p>
+        <div class="c-grid">
+          <div class="c-col"><h4>문제</h4><p>채널마다 비용 구조가 달라 실제로 남는 상품과 아닌 상품을 구분하기 어려웠음.</p></div>
+          <div class="c-col"><h4>실행</h4><p>비용 항목을 표준화한 계산 로직 설계. 채널·상품별 수익성 순위를 자동 갱신.</p></div>
+          <div class="c-col"><h4>결과</h4><p><strong>[수치 입력]</strong> 수기 산출 대비 소요시간 단축</p></div>
+        </div>
+        <div class="c-tools">
+          <span class="tool">Python</span><span class="tool">데이터 분석</span><span class="tool">대시보드</span>
+        </div>
+      </article>
+
+      <!-- 4 -->
+      <article class="card reveal" data-axis="commerce">
+        <div class="c-top">
+          <span class="c-year">2025</span>
+          <span class="tag commerce">커머스</span>
+        </div>
+        <h3 class="c-title">신규 컬러웨이 상품 기획</h3>
+        <p class="c-sum">기존 단일 색상 제품의 판매 정체를 컬러 확장으로 풀었습니다. 소재 특성을 반영한 색상 사양을 정의해 생산까지 연결했습니다.</p>
+        <div class="c-grid">
+          <div class="c-col"><h4>문제</h4><p>단일 컬러로는 신규 유입이 한계. 경쟁사 대비 선택지 부족.</p></div>
+          <div class="c-col"><h4>실행</h4><p>수요 색상 조사 → 소재 발색 차이를 보정한 사양 확정 → 생산처 커뮤니케이션.</p></div>
+          <div class="c-col"><h4>결과</h4><p><strong>[수치 입력]</strong> 출시 후 매출 신장률</p></div>
+        </div>
+        <div class="c-tools">
+          <span class="tool">상품기획</span><span class="tool">소싱</span><span class="tool">중국어 커뮤니케이션</span>
+        </div>
+      </article>
+
+      <!-- 5 -->
+      <article class="card reveal" data-axis="commerce">
+        <div class="c-top">
+          <span class="c-year">2023 — 2026</span>
+          <span class="tag commerce">커머스</span>
+        </div>
+        <h3 class="c-title">브랜드 콘텐츠 · 광고 운영</h3>
+        <p class="c-sum">상세페이지와 배너 기획부터 인스타그램 운영, 광고 집행까지 직접 맡아 판매 흐름 전체를 설계했습니다.</p>
+        <div class="c-grid">
+          <div class="c-col"><h4>문제</h4><p>제작 인력 없이 콘텐츠 회전이 느려 신제품 출시 속도를 따라가지 못함.</p></div>
+          <div class="c-col"><h4>실행</h4><p>반복 사용 가능한 배너·상세 템플릿 구축. 광고 소재별 성과를 주 단위로 비교·교체.</p></div>
+          <div class="c-col"><h4>결과</h4><p><strong>[수치 입력]</strong> ROAS 개선, 제작 리드타임 단축</p></div>
+        </div>
+        <div class="c-tools">
+          <span class="tool">상세페이지</span><span class="tool">퍼포먼스 광고</span><span class="tool">SNS 운영</span>
+        </div>
+      </article>
+
+      <!-- 6 -->
+      <article class="card reveal" data-axis="system">
+        <div class="c-top">
+          <span class="c-year">2026</span>
+          <span class="tag system">시스템</span>
+        </div>
+        <h3 class="c-title">B2B 출고 관리 대시보드</h3>
+        <p class="c-sum">출고일이 여러 번으로 나뉘는 B2B 거래의 진행 상황을 한 화면에서 관리하도록 만든 도구입니다.</p>
+        <div class="c-grid">
+          <div class="c-col"><h4>문제</h4><p>분할 출고 건의 잔여 수량을 사람이 기억에 의존해 관리, 누락이 발생.</p></div>
+          <div class="c-col"><h4>실행</h4><p>거래 단위로 출고 회차를 쪼개 추적하는 데이터 구조 설계 후 화면 구현.</p></div>
+          <div class="c-col"><h4>결과</h4><p><strong>[수치 입력]</strong> 출고 누락 건수 감소</p></div>
+        </div>
+        <div class="c-tools">
+          <span class="tool">HTML/JS</span><span class="tool">Firestore</span>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- 역량 -->
+<section class="sec" id="skill">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2 class="sec-title">할 수 있는 일</h2>
+    </div>
+    <div class="skills">
+      <div class="skill reveal">
+        <h3>커머스</h3>
+        <ul>
+          <li>상품 기획 · 소싱</li>
+          <li>다채널 입점 및 운영</li>
+          <li>가격 · 프로모션 설계</li>
+          <li>상세페이지 · 배너 기획</li>
+          <li>퍼포먼스 광고 운영</li>
+        </ul>
+      </div>
+      <div class="skill reveal">
+        <h3>운영</h3>
+        <ul>
+          <li>입고 검수 · 품질 관리</li>
+          <li>재고 · 물류 관리</li>
+          <li>정산 대사</li>
+          <li>CS 프로세스 설계</li>
+          <li>중국 거래처 커뮤니케이션</li>
+        </ul>
+      </div>
+      <div class="skill reveal">
+        <h3>시스템</h3>
+        <ul>
+          <li>Python · JavaScript</li>
+          <li>Firebase · PostgreSQL</li>
+          <li>업무 자동화 스크립트</li>
+          <li>대시보드 설계 · 배포</li>
+          <li>데이터 분석 · 시각화</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="sec-head" style="margin-top:56px">
+      <h2 class="sec-title">경력</h2>
+    </div>
+    <dl class="hist">
+      <div class="hrow reveal">
+        <dt>2022.09 — 현재</dt>
+        <dd>진심감성 · MD<span>상품 기획, 다채널 운영, 사내 도구 개발</span></dd>
+      </div>
+    </dl>
+  </div>
+</section>
+
+</main>
+
+<!-- 연락처 -->
+<footer class="contact" id="contact">
+  <div class="wrap">
+    <h2 class="c-head">함께 일할 이야기가 있다면<br>편하게 연락 주세요.</h2>
+    <div class="c-list">
+      <div class="c-item"><span>Email</span><a href="mailto:이메일@주소.com">이메일@주소.com</a></div>
+      <div class="c-item"><span>GitHub</span><a href="#" target="_blank" rel="noopener">github.com/사용자명</a></div>
+      <div class="c-item"><span>Resume</span><a href="./portfolio.pdf">포트폴리오 PDF 내려받기</a></div>
+    </div>
+    <p class="foot">© 2026 서동임</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  // 필터
+  var btns = document.querySelectorAll('.fbtn');
+  var cards = Array.prototype.slice.call(document.querySelectorAll('.card'));
+  var countEl = document.getElementById('fcount');
+
+  function apply(f){
+    var n = 0;
+    cards.forEach(function(c){
+      var match = (f === 'all') || c.dataset.axis.split(' ').indexOf(f) !== -1;
+      if(match){ n++; c.classList.remove('hide'); c.classList.add('fade');
+        requestAnimationFrame(function(){ requestAnimationFrame(function(){ c.classList.remove('fade'); }); });
+      } else { c.classList.add('hide'); }
+    });
+    countEl.textContent = n + '건';
+  }
+
+  btns.forEach(function(b){
+    b.addEventListener('click', function(){
+      btns.forEach(function(x){ x.setAttribute('aria-pressed','false'); });
+      b.setAttribute('aria-pressed','true');
+      apply(b.dataset.f);
+    });
+  });
+  apply('all');
+
+  // 스크롤 등장
+  if('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(es){
+      es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+    },{threshold:.12, rootMargin:'0px 0px -40px 0px'});
+    document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
+  } else {
+    document.querySelectorAll('.reveal').forEach(function(el){ el.classList.add('in'); });
+  }
+})();
+</script>
+</body>
+</html>
