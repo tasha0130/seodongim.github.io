@@ -724,6 +724,13 @@ a{color:inherit}
 
 <script>
 (function(){
+  // ── 최초 진입 시 URL에 남은 해시(#work 등)로 인한 자동 점프만 차단 ──
+  // (페이지 안에서 내비게이션 클릭 시에는 정상 동작하도록, 진입 순간에만 1회 처리)
+  if(window.location.hash){
+    history.replaceState(null,'',window.location.pathname+window.location.search);
+    window.scrollTo(0,0);
+  }
+
   var btns=[].slice.call(document.querySelectorAll('.fbtn'));
   var blocks=[].slice.call(document.querySelectorAll('.catblock'));
   var countEl=document.getElementById('fcount');
