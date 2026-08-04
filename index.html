@@ -86,6 +86,7 @@ a{color:inherit}
   color:var(--green);margin-bottom:10px}
 .sec-title{font-size:29px;font-weight:800;letter-spacing:-.035em;line-height:1.25}
 .sec-desc{margin-top:12px;color:var(--ink-soft);font-size:15px}
+.sec-desc strong{color:var(--green);font-weight:700}
 
 /* ══ 필터 ══ */
 .filterbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;
@@ -158,6 +159,8 @@ a{color:inherit}
 .c-foot{display:flex;align-items:center;gap:16px;flex-wrap:wrap;
   padding:16px 28px;border-top:1px solid var(--rule-soft)}
 .c-tools{display:flex;gap:6px;flex-wrap:wrap}
+.tool-ai{color:var(--green)!important;border-color:var(--green)!important;
+  font-weight:500;background:var(--green-soft)}
 .tool{font-family:var(--mono);font-size:11px;color:var(--ink-faint);
   border:1px solid var(--rule-soft);padding:2.5px 8px;border-radius:3px}
 .c-link{margin-left:auto;display:inline-flex;align-items:center;gap:6px;
@@ -324,13 +327,18 @@ a{color:inherit}
         </ul>
       </div>
       <div class="skill reveal">
-        <p class="sk-n">Engineering</p>
-        <h3>시스템 · 데이터</h3>
+        <p class="sk-n">AI · Data</p>
+        <h3>AI 활용 · 데이터 분석</h3>
         <ul>
-          <li>Python · JavaScript</li><li>FastAPI · Firebase · SQL</li>
-          <li>대시보드 설계 · 배포</li><li>업무 자동화 스크립트</li>
-          <li>RFM · 연관분석 · 통계 검정</li><li>Excel 고급 · 자동화 시트</li>
-          <li>Photoshop · Illustrator · Figma</li>
+          <li>RFM 고객 세분화</li>
+          <li>장바구니 연관분석 (Apriori)</li>
+          <li>통계 검정 (t-test) · 상관분석</li>
+          <li>수요 예측 · 시즌성 분해</li>
+          <li>AI 도구 기반 시스템 구축</li>
+          <li>Antigravity · Cursor 활용</li>
+          <li>Gemini · ChatGPT · Claude</li>
+          <li>대시보드 기획 · 배포</li>
+          <li>Excel 고급 · 자동화 시트</li>
         </ul>
       </div>
     </div>
@@ -391,14 +399,14 @@ a{color:inherit}
     <div class="sec-head">
       <p class="sec-num">03 — Selected Work</p>
       <h2 class="sec-title">프로젝트</h2>
-      <p class="sec-desc">직무 영역별로 정리했습니다. 각 프로젝트는 문제 정의 · 실행 · 결과 순으로 구성했습니다.</p>
+      <p class="sec-desc">직무 영역별로 정리했습니다. 각 프로젝트는 문제 정의 · 실행 · 결과 순으로 구성했으며, <strong>AI 구현</strong> 표시가 있는 시스템은 AI 개발 도구를 활용해 직접 기획·구축·배포한 결과물입니다.</p>
     </div>
 
     <div class="filterbar" role="group" aria-label="프로젝트 분류 필터">
       <span class="flabel">Filter</span>
-      <button class="fbtn" data-f="all" aria-pressed="true">전체 <i>13</i></button>
+      <button class="fbtn" data-f="all" aria-pressed="true">전체 <i>15</i></button>
       <button class="fbtn" data-f="ops" aria-pressed="false">채널 · 운영 <i>3</i></button>
-      <button class="fbtn" data-f="md" aria-pressed="false">상품 · 브랜드 <i>3</i></button>
+      <button class="fbtn" data-f="md" aria-pressed="false">상품 · 브랜드 <i>5</i></button>
       <button class="fbtn" data-f="build" aria-pressed="false">시스템 구축 <i>5</i></button>
       <button class="fbtn" data-f="data" aria-pressed="false">데이터 분석 <i>2</i></button>
       <span class="fcount" id="fcount" aria-live="polite"></span>
@@ -457,7 +465,7 @@ a{color:inherit}
         </div>
         <div class="c-grid"><div class="c-col"><h4>문제</h4><p>채널별 어드민을 개별 순회하는 구조로 응대 지연·누락 발생. 채널 평점 리스크.</p></div><div class="c-col"><h4>실행</h4><p>문의 유형을 발송지연·불량·교환 등으로 표준 분류. 채널 연동 상태 모니터링 설계.</p></div><div class="c-col"><h4>결과</h4><p>단일 화면 처리로 전환. <strong>응대 누락 방지 · 채널 평점 방어</strong></p></div></div>
         <div class="c-foot">
-          <div class="c-tools"><span class="tool">JavaScript</span><span class="tool">채널 연동</span><span class="tool">CS 프로세스</span></div>
+          <div class="c-tools"><span class="tool tool-ai">AI 구현</span><span class="tool">JavaScript</span><span class="tool">채널 연동</span><span class="tool">CS 프로세스</span></div>
           <a class="c-link" href="./demo/b2c-cs/" target="_blank" rel="noopener">데모 열기 (더미 데이터) →</a>
         </div>
       </article>
@@ -468,11 +476,50 @@ a{color:inherit}
       <div class="cat-head">
         <div class="cat-mark"></div>
         <div>
-          <h3 class="cat-name">상품 · 브랜드 <em>3</em></h3>
+          <h3 class="cat-name">상품 · 브랜드 <em>5</em></h3>
           <p class="cat-desc">소싱·상품기획부터 브랜드 아이덴티티와 콘텐츠 디렉션까지 담당했습니다.</p>
         </div>
       </div>
       <div class="cat-cards">
+      <article class="card reveal" data-cat="md">
+        <div class="c-head">
+          <div class="c-headL">
+            <div class="c-top"><span class="c-year">2023 — 2025</span><span class="tag commerce">커머스</span></div>
+            <h3 class="c-title">데이터 기반 신제품 기획</h3>
+            <p class="c-sum">통계 데이터로 1인 가구 타겟을 정의하고, 경쟁사 리뷰를 정량 분석해 제품 사양을 도출하는 방식으로 리빙 신제품 라인업을 기획했습니다.</p>
+          </div>
+          <div class="c-kpi text-only"><div class="kl2">시장분석 → 사양도출 → 양산</div></div>
+        </div>
+        <div class="c-grid">
+          <div class="c-col"><h4>문제</h4><p>제한된 제품군으로 성장 시장 대응 한계. 감에 의존한 기획의 리스크.</p></div>
+          <div class="c-col"><h4>실행</h4><p>통계청 데이터로 타겟 정의, 경쟁사 리뷰 장단점 정량 분석, 컬러·소재 사양 확정.</p></div>
+          <div class="c-col"><h4>결과</h4><p>리뷰 기반으로 <strong>만들 제품과 배제할 제품을 선별</strong>. 매트리스커버·수납장·옷걸이 라인업 도출</p></div>
+        </div>
+        <div class="c-foot">
+          <div class="c-tools"><span class="tool">상품기획</span><span class="tool">리뷰 분석</span><span class="tool">시장조사</span><span class="tool">사양 정의</span></div>
+          <a class="c-link" href="./casestudy/product-planning.html">기획 케이스 스터디 →</a>
+        </div>
+      </article>
+      <article class="card reveal" data-cat="md">
+        <div class="c-head">
+          <div class="c-headL">
+            <div class="c-top"><span class="c-year">2024 — 2025</span><span class="tag commerce">커머스</span></div>
+            <h3 class="c-title">제품 · 매거진 촬영 디렉팅</h3>
+            <p class="c-sum">제품 촬영과 브랜드 매거진 촬영의 총괄 디렉팅을 맡아, 컨셉 정의부터 레퍼런스 구성, 스태프 협업, 현장 필수컷 관리까지 이끌었습니다.</p>
+          </div>
+          <div class="c-kpi text-only"><div class="kl2">컨셉 → 레퍼런스 → 현장 총괄</div></div>
+        </div>
+        <div class="c-grid">
+          <div class="c-col"><h4>문제</h4><p>촬영 방향이 사전 합의되지 않으면 제한된 촬영 시간에 필수컷 확보 실패.</p></div>
+          <div class="c-col"><h4>실행</h4><p>매거진 형식 레퍼런스를 모델별로 사전 구성, 타임테이블 설계, 외부 전문가 협업 조율.</p></div>
+          <div class="c-col"><h4>결과</h4><p>레퍼런스 사전 합의로 <strong>현장 커뮤니케이션 비용 절감 · 필수컷 누락 방지</strong></p></div>
+        </div>
+        <div class="c-foot">
+          <div class="c-tools"><span class="tool">촬영 디렉팅</span><span class="tool">컨셉 기획</span><span class="tool">협업 조율</span></div>
+          <a class="c-link" href="./casestudy/creative-direction.html">디렉팅 케이스 스터디 →</a>
+        </div>
+      </article>
+
       <article class="card reveal" data-cat="md">
         <div class="c-head">
           <div class="c-headL">
@@ -554,7 +601,7 @@ a{color:inherit}
         </div>
         <div class="c-grid"><div class="c-col"><h4>문제</h4><p>검수 데이터가 종이·개인 엑셀에 산재. 불량 원인 추적과 공급처 클레임 근거 확보 불가.</p></div><div class="c-col"><h4>실행</h4><p>관리자·검수자 권한 분리 설계, 인증·세션 처리 구현, 호스팅 배포까지 단독 수행.</p></div><div class="c-col"><h4>결과</h4><p>불량 이력 데이터화. <strong>공급처별 불량률 산출 · 클레임 근거 확보</strong></p></div></div>
         <div class="c-foot">
-          <div class="c-tools"><span class="tool">JavaScript</span><span class="tool">Firebase</span><span class="tool">Hosting</span></div>
+          <div class="c-tools"><span class="tool tool-ai">AI 구현</span><span class="tool">JavaScript</span><span class="tool">Firebase</span><span class="tool">Hosting</span></div>
           <a class="c-link" href="./demo/quality-control/" target="_blank" rel="noopener">데모 열기 (더미 데이터) →</a>
         </div>
       </article>
@@ -569,7 +616,7 @@ a{color:inherit}
         </div>
         <div class="c-grid"><div class="c-col"><h4>문제</h4><p>채널별 비용 구조 상이로 매출 상위 SKU와 수익 상위 SKU가 불일치. 판단 근거 부재.</p></div><div class="c-col"><h4>실행</h4><p>비용 항목 표준화 후 공헌이익 산식 설계. 채널·SKU별 수익성 랭킹 자동 갱신.</p></div><div class="c-col"><h4>결과</h4><p>매출이 아닌 <strong>공헌이익 기준 SKU 운영</strong>으로 전환. 저수익 SKU 조기 식별</p></div></div>
         <div class="c-foot">
-          <div class="c-tools"><span class="tool">Python</span><span class="tool">데이터 분석</span><span class="tool">대시보드</span></div>
+          <div class="c-tools"><span class="tool tool-ai">AI 구현</span><span class="tool">Python</span><span class="tool">데이터 분석</span><span class="tool">대시보드</span></div>
           <a class="c-link" href="./demo/promo-margin/" target="_blank" rel="noopener">데모 열기 (더미 데이터) →</a>
         </div>
       </article>
@@ -584,7 +631,7 @@ a{color:inherit}
         </div>
         <div class="c-grid"><div class="c-col"><h4>문제</h4><p>분할 출고 잔여 수량을 담당자 기억에 의존. 출고 누락과 거래처 클레임 발생.</p></div><div class="c-col"><h4>실행</h4><p>거래 단위 회차 추적 데이터 구조 설계 후 화면 구현.</p></div><div class="c-col"><h4>결과</h4><p>구글 스프레드시트 자동화로 수기 출고 작업 대체. <strong>출고 작업시간 50%+ 단축 · 출고 가능 재고 즉시 파악</strong></p></div></div>
         <div class="c-foot">
-          <div class="c-tools"><span class="tool">HTML/JS</span><span class="tool">Firestore</span></div>
+          <div class="c-tools"><span class="tool tool-ai">AI 구현</span><span class="tool">HTML/JS</span><span class="tool">Firestore</span></div>
           <a class="c-link" href="./demo/b2b-shipment/" target="_blank" rel="noopener">데모 열기 (더미 데이터) →</a>
         </div>
       </article>
@@ -599,7 +646,7 @@ a{color:inherit}
         </div>
         <div class="c-grid"><div class="c-col"><h4>문제</h4><p>OMS와 3PL WMS의 SKU 코드 체계 불일치로 재고 대사를 수기 진행. 가용재고 실시간 파악 불가.</p></div><div class="c-col"><h4>실행</h4><p>OMS API 연동, SKU 매핑 로직, 등급별(A·R·X) 재고 분리, 권한·인증 처리까지 구축.</p></div><div class="c-col"><h4>결과</h4><p>수기 대사를 API 연동으로 대체. <strong>가용재고 실시간 산출 · 안전재고 자동 알림</strong></p></div></div>
         <div class="c-foot">
-          <div class="c-tools"><span class="tool">Python</span><span class="tool">FastAPI</span><span class="tool">SQLite</span><span class="tool">JWT</span><span class="tool">Railway</span></div>
+          <div class="c-tools"><span class="tool tool-ai">AI 구현</span><span class="tool">Python</span><span class="tool">FastAPI</span><span class="tool">SQLite</span><span class="tool">JWT</span><span class="tool">Railway</span></div>
           <a class="c-link" href="./demo/stocksync/" target="_blank" rel="noopener">데모 열기 (더미 데이터) →</a>
         </div>
       </article>
@@ -626,7 +673,7 @@ a{color:inherit}
         </div>
         <div class="c-grid"><div class="c-col"><h4>문제</h4><p>매출 기준 채널 판단으로 수수료·광고비 반영 후 실제 기여도 파악 불가.</p></div><div class="c-col"><h4>실행</h4><p>시장 성장률 대조, 채널 믹스 분해, 계절성 분리, 반품 사유 4분류 설계.</p></div><div class="c-col"><h4>결과</h4><p>매출·수익 괴리 채널 식별 기준 확립. <strong>채널 믹스 조정 · 발주 시점 판단 근거</strong></p></div></div>
         <div class="c-foot">
-          <div class="c-tools"><span class="tool">Python</span><span class="tool">데이터 분석</span><span class="tool">시각화</span><span class="tool">공공데이터</span></div>
+          <div class="c-tools"><span class="tool tool-ai">AI 구현</span><span class="tool">Python</span><span class="tool">데이터 분석</span><span class="tool">시각화</span><span class="tool">공공데이터</span></div>
           <a class="c-link" href="./analysis/">분석 페이지 열기 →</a>
         </div>
       </article>
@@ -641,7 +688,7 @@ a{color:inherit}
         </div>
         <div class="c-grid"><div class="c-col"><h4>문제</h4><p>고객군 구분 없는 무차별 쿠폰 배포로 마케팅 예산 효율 저하. 이탈 조기 감지 기준 부재.</p></div><div class="c-col"><h4>실행</h4><p>t-검정으로 표본 대표성 검증, RFM 6개 세그먼트 설계, 연관규칙(Apriori) 추출, 대시보드 구현.</p></div><div class="c-col"><h4>결과</h4><p>이탈군 대비 활동군 <strong>3.7배</strong> 격차 확인. <strong>세그먼트별 타겟 쿠폰 전략 도출</strong></p></div></div>
         <div class="c-foot">
-          <div class="c-tools"><span class="tool">Python</span><span class="tool">pandas</span><span class="tool">Streamlit</span><span class="tool">RFM</span><span class="tool">Apriori</span><span class="tool">t-test</span></div>
+          <div class="c-tools"><span class="tool tool-ai">AI 구현</span><span class="tool">Python</span><span class="tool">pandas</span><span class="tool">Streamlit</span><span class="tool">RFM</span><span class="tool">Apriori</span><span class="tool">t-test</span></div>
           <a class="c-link" href="./casestudy/retail-analysis.html">분석 케이스 스터디 →</a>
         </div>
       </article>

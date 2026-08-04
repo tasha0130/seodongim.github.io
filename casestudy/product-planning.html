@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>신제품 기획 · 서동임</title>
+<meta name="description" content="시장 데이터 기반 신제품 라인업 도출과 경쟁사 리뷰 분석을 통한 사양 정의.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css">
+<style>
+:root{--paper:#EDF0EF;--panel:#FFF;--panel2:#F6F8F7;--ink:#141F1C;--ink-soft:#4C5A56;
+  --ink-faint:#7C8884;--rule:#CBD3D0;--rule-soft:#E0E5E3;--green:#12694A;--amber:#9C6209}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:'Pretendard Variable',Pretendard,-apple-system,sans-serif;
+  font-size:16px;line-height:1.8;-webkit-font-smoothing:antialiased;word-break:keep-all}
+.wrap{max-width:880px;margin:0 auto;padding:0 28px}
+a{color:var(--green)}
+:focus-visible{outline:2px solid var(--green);outline-offset:3px}
+
+.bar{position:sticky;top:0;z-index:50;background:rgba(237,240,239,.9);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--rule)}
+.bar .wrap{display:flex;align-items:center;justify-content:space-between;height:56px;max-width:1080px}
+.bn{font-weight:700;font-size:15px;letter-spacing:-.015em}
+.bk{font-size:13.5px;text-decoration:none;color:var(--ink-soft)}
+.bk:hover{color:var(--green)}
+
+.head{padding:72px 0 38px;border-bottom:1px solid var(--ink)}
+.eyebrow{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--ink-faint);margin-bottom:18px}
+.head h1{font-size:clamp(27px,4.4vw,40px);font-weight:800;letter-spacing:-.04em;line-height:1.3}
+.head .lede{margin-top:18px;color:var(--ink-soft);max-width:44em}
+.meta{display:flex;gap:26px;margin-top:26px;flex-wrap:wrap}
+.meta div{font-size:13.5px;font-weight:500}
+.meta span{display:block;font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink-faint);margin-bottom:3px;font-weight:400}
+.rolebox{background:var(--panel);border:1px solid var(--rule);border-left:2px solid var(--green);
+  padding:16px 20px;margin-top:24px;font-size:14px;line-height:1.75;color:var(--ink-soft)}
+.rolebox b{color:var(--ink);font-weight:600}
+
+section{padding:52px 0;border-bottom:1px solid var(--rule)}
+h2{font-size:21px;font-weight:700;letter-spacing:-.03em;margin-bottom:5px}
+.sub{font-size:13.5px;color:var(--ink-faint);margin-bottom:22px}
+h3{font-size:15px;font-weight:700;margin:26px 0 8px}
+p{margin:11px 0}
+ul{margin:11px 0 11px 20px}li{margin:5px 0}
+
+.flow{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--rule-soft);
+  border:1px solid var(--rule-soft);margin:22px 0}
+.flow-step{background:var(--panel);padding:18px 16px}
+.flow-n{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--green);margin-bottom:8px}
+.flow-t{font-size:14px;font-weight:700;margin-bottom:5px;letter-spacing:-.02em}
+.flow-d{font-size:12px;color:var(--ink-soft);line-height:1.6}
+@media(max-width:700px){.flow{grid-template-columns:repeat(2,1fr)}}
+
+.tw{overflow-x:auto;margin:18px 0}
+table{width:100%;border-collapse:collapse;background:var(--panel);font-size:14px}
+th,td{border:1px solid var(--rule);padding:9px 13px;text-align:left;vertical-align:top;line-height:1.65}
+th{background:rgba(18,105,74,.07);font-weight:600;white-space:nowrap}
+strong{font-weight:700;color:var(--green)}
+
+.card2{background:var(--panel);border:1px solid var(--rule);padding:18px 22px;margin:14px 0}
+.card2 h4{font-size:15px;font-weight:700;margin-bottom:8px}
+.card2 .pn{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-faint);margin-bottom:4px}
+.card2 p{font-size:13.5px;color:var(--ink-soft);margin:6px 0 0;line-height:1.72}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:640px){.grid2{grid-template-columns:1fr}}
+
+.note{padding:16px 20px;border:1px solid var(--rule);background:var(--panel);
+  font-size:13.5px;color:var(--ink-soft);line-height:1.75;margin-top:22px}
+.foot{padding:32px 0 60px;font-family:'IBM Plex Mono',monospace;font-size:12px;
+  color:var(--ink-faint);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.foot a{text-decoration:none}
+@media(max-width:640px){.wrap{padding:0 20px}.head{padding:46px 0 30px}section{padding:40px 0}}
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <div class="wrap">
+    <span class="bn">서동임</span>
+    <a class="bk" href="../index.html">← 포트폴리오로 돌아가기</a>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="head">
+    <p class="eyebrow">Case Study · Product Planning</p>
+    <h1>시장 데이터로 신제품 라인업을<br>도출하다</h1>
+    <p class="lede">감에 의존하지 않고 통계 데이터로 타겟을 정의하고, 경쟁사 리뷰를 정량 분석해 제품 사양을 도출하는 방식으로 신제품 기획을 진행했습니다.</p>
+    <div class="meta">
+      <div><span>Period</span>2023 — 2025</div>
+      <div><span>Role</span>상품 기획 · MD</div>
+      <div><span>Category</span>1인 가구 리빙</div>
+      <div><span>Scope</span>발굴 → 사양 → 양산</div>
+    </div>
+    <div class="rolebox">
+      <b>담당 역할</b> — 시장 조사, 타겟 정의, 제품 라인업 선정, 경쟁사 리뷰 분석, 컬러·소재 사양 확정, 생산처 협의까지 상품 기획 전 과정을 주도하였습니다.
+    </div>
+  </div>
+
+  <!-- 배경 -->
+  <section>
+    <h2>기획 배경</h2>
+    <p class="sub">왜 신제품이 필요했는가</p>
+    <p>브랜드가 보유한 제품군이 제한적이어서, 성장하는 시장에 대응할 라인업 확장이 필요한 상황이었습니다. 무엇을 만들지부터 데이터로 정하기로 했습니다.</p>
+    <ul>
+      <li>1인 가구가 전체 가구 중 가장 큰 비중을 차지하며 빠르게 증가하는 추세</li>
+      <li>주 타겟을 20~30대 1인 가구로 설정, 평균 주거 면적(약 14평) 기준 공간 효율 제품에 집중</li>
+      <li>1인 가구의 관심사(요리·청소·인테리어)와 연결되는 리빙 카테고리 우선 검토</li>
+    </ul>
+  </section>
+
+  <!-- 프로세스 -->
+  <section>
+    <h2>기획 프로세스</h2>
+    <p class="sub">시장 분석부터 양산까지</p>
+    <div class="flow">
+      <div class="flow-step"><div class="flow-n">01</div><div class="flow-t">시장 분석</div><div class="flow-d">통계청 데이터로 타겟·수요 정의</div></div>
+      <div class="flow-step"><div class="flow-n">02</div><div class="flow-t">라인업 선정</div><div class="flow-d">타겟 라이프스타일 기반 후보 도출</div></div>
+      <div class="flow-step"><div class="flow-n">03</div><div class="flow-t">리뷰 분석</div><div class="flow-d">경쟁사 리뷰 정량 분석으로 사양 도출</div></div>
+      <div class="flow-step"><div class="flow-n">04</div><div class="flow-t">사양 확정</div><div class="flow-d">컬러·소재 확정 후 생산처 협의</div></div>
+    </div>
+  </section>
+
+  <!-- 리뷰 분석 방법론 (핵심) -->
+  <section>
+    <h2>핵심: 경쟁사 리뷰 분석으로 사양 도출</h2>
+    <p class="sub">이 방식이 이 기획의 차별점입니다</p>
+
+    <p>신제품을 만들 때 가장 위험한 건 "잘 팔릴 것 같다"는 감입니다. 저는 이미 시장에 나와 있는 경쟁 제품의 리뷰를 체계적으로 모아, 소비자가 실제로 무엇에 만족하고 무엇에 불만인지를 정리한 뒤 그것을 자사 제품 사양으로 옮겼습니다.</p>
+
+    <h3>분석 방식</h3>
+    <ul>
+      <li>채널별(오늘의집 '리뷰 많은 순' 등) 경쟁 제품 리뷰를 장점·단점으로 분류</li>
+      <li>제품 유형별(PVC·플라스틱·원목·정장용 등)로 만족·불만 요인을 표로 정리</li>
+      <li>반복적으로 나오는 불만(어깨뿔·코팅 벗겨짐·배송 파손 등)을 개선 우선순위로 지정</li>
+      <li>한 달 사용 후기 기준으로 재검증해 초기 만족과 장기 만족의 차이 확인</li>
+    </ul>
+
+    <div class="tw">
+      <table>
+        <thead><tr><th>리뷰에서 확인한 불만</th><th>도출한 개선 방향</th></tr></thead>
+        <tbody>
+          <tr><td>배송 중 이물질·파손</td><td>포장 사양 강화, 완충 구조 반영</td></tr>
+          <tr><td>어깨뿔 발생·코팅 벗겨짐</td><td>논슬립 처리, 마감 사양 상향</td></tr>
+          <tr><td>내구성 부족(집게형 변형)</td><td>소재·구조 재설계, 미판매 제품군 배제</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="note">
+      리뷰 분석을 거치면 "무엇을 만들지"뿐 아니라 "무엇을 만들지 않을지"도 결정됩니다. 실제로 여러 후보 중 리뷰상 불만이 구조적인 제품군은 라인업에서 제외하였습니다.
+    </div>
+  </section>
+
+  <!-- 라인업 -->
+  <section>
+    <h2>도출한 라인업</h2>
+    <p class="sub">데이터가 가리킨 제품들</p>
+    <div class="grid2">
+      <div class="card2"><div class="pn">Line 1</div><h4>매트리스 커버 · 누빔 패드</h4><p>1인 가구 침구 수요와 인테리어 감도를 반영한 라인. 소재·컬러 사양을 정의해 개발.</p></div>
+      <div class="card2"><div class="pn">Line 2</div><h4>수납장 (3~5단)</h4><p>좁은 주거 면적의 공간 효율 수요에 대응하는 수납 라인.</p></div>
+      <div class="card2"><div class="pn">Line 3</div><h4>이동식 트롤리</h4><p>가변적 생활 동선에 맞춘 이동형 수납 솔루션.</p></div>
+      <div class="card2"><div class="pn">Line 4</div><h4>옷걸이 · 바지걸이 확장</h4><p>리뷰 분석 기반으로 논슬립·공간효율 사양을 반영한 라인업 확장.</p></div>
+    </div>
+    <p>이와 함께 폴딩박스는 팬톤 색상 기준으로 컬러를 여러 차수에 걸쳐 개발하여, 브랜드 톤에 맞는 컬러웨이를 확정하였습니다.</p>
+  </section>
+
+  <!-- 정리 -->
+  <section>
+    <h2>이 기획에서 중요했던 것</h2>
+    <p class="sub">MD로서의 판단</p>
+    <p>상품 기획은 결국 "무엇을 얼마나 자신 있게 밀 수 있는가"의 문제입니다. 저는 그 자신감의 근거를 감이 아니라 <b>시장 데이터와 소비자 리뷰</b>에서 찾았습니다. 통계로 타겟을 좁히고, 리뷰로 사양을 정하고, 안 될 제품은 미리 걸러내는 과정을 거치면, 출시 이후의 리스크가 눈에 띄게 줄어듭니다.</p>
+    <p>이 방식은 지금 제가 운영하는 12개 채널의 상품 구성에도 그대로 적용됩니다. 어떤 상품을 들일지, 어떤 사양으로 낼지를 데이터로 판단하는 습관입니다.</p>
+  </section>
+
+  <div class="note">
+    본 페이지는 상품 기획 방법론과 담당 역할을 정리한 것으로, 회사의 원가·가격·거래처 정보와 실제 디자인 시안·제품 이미지는 포함하지 않았습니다.
+  </div>
+
+  <div class="foot">
+    <span>© 2026 서동임</span>
+    <a href="../index.html">포트폴리오 →</a>
+  </div>
+</div>
+
+</body>
+</html>

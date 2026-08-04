@@ -97,6 +97,15 @@ ul{margin:12px 0 12px 20px}li{margin:5px 0}
   .brow{grid-template-columns:92px 1fr 54px;gap:8px;font-size:12.5px}
 }
 @media(prefers-reduced-motion:reduce){.bfill{transition:none}}
+
+.methods{margin:34px 0 10px;padding:24px 0;border-top:1px solid var(--ink);border-bottom:1px solid var(--rule)}
+.methods-label{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--green);margin-bottom:16px}
+.method-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--rule)}
+.method{background:var(--paper);padding:0 18px 0 0}
+.method b{display:block;font-size:15px;font-weight:800;letter-spacing:-.02em;margin-bottom:5px}
+.method span{font-size:12.5px;color:var(--ink-soft);line-height:1.6}
+@media(max-width:700px){.method-grid{grid-template-columns:repeat(2,1fr);gap:18px 1px}}
 </style>
 </head>
 <body>
@@ -114,6 +123,16 @@ ul{margin:12px 0 12px 20px}li{margin:5px 0}
     <p class="eyebrow">Data Analysis</p>
     <h1>시장은 이렇게 움직이고,<br>우리 채널은 이렇게 달랐다</h1>
     <p>공개 통계로 업계 흐름을 먼저 읽고, 그 위에 직접 운영한 채널 데이터를 겹쳐 차이를 찾습니다. 그래프를 그리는 것이 목적이 아니라, 무엇을 바꿀지 정하기 위한 분석입니다.</p>
+  </div>
+
+  <div class="methods">
+    <p class="methods-label">활용 분석 기법</p>
+    <div class="method-grid">
+      <div class="method"><b>RFM 세분화</b><span>최근성·빈도·구매액 기반 고객 6분류</span></div>
+      <div class="method"><b>연관분석</b><span>Apriori 장바구니 규칙 · 향상도 산출</span></div>
+      <div class="method"><b>통계 검정</b><span>t-검정 표본 검증 · 상관분석</span></div>
+      <div class="method"><b>수요 분해</b><span>시즌성 분리 · 채널 믹스 분석</span></div>
+    </div>
   </div>
 
   <!-- 01 -->
