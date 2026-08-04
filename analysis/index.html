@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>데이터 분석 · 서동임</title>
+<meta name="description" content="이커머스 운영 데이터 분석 사례. 시장 동향과 채널 운영 데이터를 함께 읽습니다.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css">
+<style>
+:root{--paper:#EDF0EF;--panel:#FFF;--ink:#141F1C;--ink-soft:#4C5A56;--ink-faint:#7C8884;
+  --rule:#CBD3D0;--green:#12694A;--amber:#9C6209;--blue:#2C5C8A}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:'Pretendard Variable',Pretendard,-apple-system,sans-serif;
+  font-size:16px;line-height:1.8;-webkit-font-smoothing:antialiased}
+.wrap{max-width:900px;margin:0 auto;padding:0 28px}
+a{color:var(--green)}
+:focus-visible{outline:2px solid var(--green);outline-offset:3px}
+.mono{font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums}
+
+.bar{position:sticky;top:0;z-index:50;background:rgba(237,240,239,.9);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--rule)}
+.bar .wrap{display:flex;align-items:center;justify-content:space-between;height:56px;max-width:1080px}
+.bn{font-weight:700;font-size:15px;letter-spacing:-.015em}
+.bk{font-size:13.5px;text-decoration:none;color:var(--ink-soft)}
+.bk:hover{color:var(--green)}
+
+.head{padding:76px 0 40px;border-bottom:1px solid var(--ink)}
+.eyebrow{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--ink-faint);margin-bottom:20px}
+.head h1{font-size:clamp(28px,4.6vw,42px);font-weight:800;letter-spacing:-.04em;line-height:1.3}
+.head p{margin-top:20px;color:var(--ink-soft);max-width:44em}
+
+section{padding:56px 0;border-bottom:1px solid var(--rule)}
+h2{font-size:22px;font-weight:700;letter-spacing:-.03em;margin-bottom:6px}
+.sub{font-size:13.5px;color:var(--ink-faint);margin-bottom:24px}
+h3{font-size:15px;font-weight:700;margin:28px 0 8px}
+
+.qa{background:var(--panel);border:1px solid var(--rule);border-left:2px solid var(--green);
+  padding:18px 22px;margin:20px 0}
+.qa dt{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink-faint);margin-bottom:4px}
+.qa dd{font-size:15px;line-height:1.75;margin-bottom:14px}
+.qa dd:last-child{margin-bottom:0}
+
+.chartbox{background:var(--panel);border:1px solid var(--rule);padding:22px;margin:22px 0}
+.chart-title{font-size:14px;font-weight:700;margin-bottom:2px}
+.chart-src{font-size:11.5px;color:var(--ink-faint);margin-bottom:18px}
+.chart-src a{color:var(--ink-faint)}
+
+/* 막대 차트 */
+.bars{display:flex;flex-direction:column;gap:9px}
+.brow{display:grid;grid-template-columns:120px 1fr 62px;align-items:center;gap:12px;font-size:13.5px}
+.blabel{color:var(--ink-soft);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.btrack{background:#DDE3E1;height:20px;position:relative;border-radius:2px;overflow:hidden}
+.bfill{height:100%;background:var(--green);border-radius:2px;transition:width .9s cubic-bezier(.2,.7,.3,1)}
+.bfill.alt{background:var(--blue)}
+.bfill.mut{background:#9BA8A4}
+.bval{font-family:'IBM Plex Mono',monospace;font-size:12.5px;text-align:right;font-variant-numeric:tabular-nums}
+
+/* 라인 차트 */
+.linewrap{position:relative}
+svg.line{width:100%;height:auto;display:block}
+.lgrid{stroke:#DDE3E1;stroke-width:1}
+.laxis{fill:var(--ink-faint);font-size:10px;font-family:'IBM Plex Mono',monospace}
+.lpath{fill:none;stroke:var(--green);stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round}
+.lpath.b{stroke:var(--blue);stroke-dasharray:5 4}
+.ldot{fill:var(--green)}
+.legend{display:flex;gap:18px;margin-top:14px;font-size:12.5px;color:var(--ink-soft);flex-wrap:wrap}
+.lg{display:flex;align-items:center;gap:6px}
+.lgc{width:14px;height:3px;border-radius:2px;background:var(--green)}
+.lgc.b{background:var(--blue)}
+
+/* 슬롯 */
+.slot{background:repeating-linear-gradient(45deg,#E6EAE9,#E6EAE9 8px,#DFE5E3 8px,#DFE5E3 16px);
+  border:1.5px dashed var(--ink-faint);padding:32px 24px;text-align:center;margin:22px 0}
+.slot b{display:block;font-size:14.5px;font-weight:700;margin-bottom:6px}
+.slot span{font-size:13px;color:var(--ink-soft);line-height:1.7}
+
+.tw{overflow-x:auto;margin:18px 0}
+table{width:100%;border-collapse:collapse;background:var(--panel);font-size:14px}
+th,td{border:1px solid var(--rule);padding:9px 13px;text-align:left;vertical-align:top;line-height:1.65}
+th{background:rgba(18,105,74,.07);font-weight:600;white-space:nowrap}
+td.num{text-align:right;font-family:'IBM Plex Mono',monospace}
+
+.note{padding:16px 20px;border:1px solid var(--rule);background:var(--panel);
+  font-size:13.5px;color:var(--ink-soft);line-height:1.75;margin-top:20px}
+ul{margin:12px 0 12px 20px}li{margin:5px 0}
+.foot{padding:34px 0 64px;font-family:'IBM Plex Mono',monospace;font-size:12px;
+  color:var(--ink-faint);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.foot a{text-decoration:none}
+
+@media(max-width:640px){
+  .wrap{padding:0 20px}.head{padding:48px 0 32px}section{padding:42px 0}
+  .brow{grid-template-columns:92px 1fr 54px;gap:8px;font-size:12.5px}
+}
+@media(prefers-reduced-motion:reduce){.bfill{transition:none}}
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <div class="wrap">
+    <span class="bn">서동임</span>
+    <a class="bk" href="../index.html">← 포트폴리오로 돌아가기</a>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="head">
+    <p class="eyebrow">Data Analysis</p>
+    <h1>시장은 이렇게 움직이고,<br>우리 채널은 이렇게 달랐다</h1>
+    <p>공개 통계로 업계 흐름을 먼저 읽고, 그 위에 직접 운영한 채널 데이터를 겹쳐 차이를 찾습니다. 그래프를 그리는 것이 목적이 아니라, 무엇을 바꿀지 정하기 위한 분석입니다.</p>
+  </div>
+
+  <!-- 01 -->
+  <section>
+    <h2>01. 온라인 쇼핑 시장 구조</h2>
+    <p class="sub">전문몰이 종합몰보다 빠르게 성장하는 국면</p>
+
+    <dl class="qa">
+      <dt>질문</dt>
+      <dd>브랜드가 자사몰·버티컬 채널에 투자할 여지가 시장에 남아 있는가?</dd>
+      <dt>데이터</dt>
+      <dd>국가데이터처 온라인쇼핑동향, 2026년 1~4월 취급상품범위별 거래액</dd>
+    </dl>
+
+    <div class="chartbox">
+      <div class="chart-title">종합몰 · 전문몰 전년동월대비 성장률</div>
+      <div class="chart-src">출처: 국가데이터처 온라인쇼핑동향 (2026.01~04)</div>
+      <div class="linewrap">
+        <svg class="line" viewBox="0 0 640 260" role="img" aria-label="종합몰과 전문몰의 월별 성장률 비교 선그래프">
+          <line class="lgrid" x1="52" y1="30"  x2="620" y2="30"/>
+          <line class="lgrid" x1="52" y1="75"  x2="620" y2="75"/>
+          <line class="lgrid" x1="52" y1="120" x2="620" y2="120"/>
+          <line class="lgrid" x1="52" y1="165" x2="620" y2="165"/>
+          <line class="lgrid" x1="52" y1="210" x2="620" y2="210"/>
+          <text class="laxis" x="44" y="34"  text-anchor="end">25%</text>
+          <text class="laxis" x="44" y="79"  text-anchor="end">20%</text>
+          <text class="laxis" x="44" y="124" text-anchor="end">15%</text>
+          <text class="laxis" x="44" y="169" text-anchor="end">10%</text>
+          <text class="laxis" x="44" y="214" text-anchor="end">5%</text>
+          <text class="laxis" x="95"  y="234" text-anchor="middle">1월</text>
+          <text class="laxis" x="265" y="234" text-anchor="middle">2월</text>
+          <text class="laxis" x="435" y="234" text-anchor="middle">3월</text>
+          <text class="laxis" x="600" y="234" text-anchor="middle">4월</text>
+          <!-- 전문몰 12.6 / 9.2 / 21.7 / 14.3 -->
+          <path class="lpath" d="M95,141.6 L265,172.2 L435,74.7 L600,141.3"/>
+          <circle class="ldot" cx="95"  cy="141.6" r="3.5"/>
+          <circle class="ldot" cx="265" cy="172.2" r="3.5"/>
+          <circle class="ldot" cx="435" cy="74.7"  r="3.5"/>
+          <circle class="ldot" cx="600" cy="141.3" r="3.5"/>
+          <!-- 종합몰 5.5 / 3.2 / 6.7 / 6.5 -->
+          <path class="lpath b" d="M95,205.5 L265,226.2 L435,194.7 L600,196.5"/>
+        </svg>
+      </div>
+      <div class="legend">
+        <span class="lg"><i class="lgc"></i> 전문몰</span>
+        <span class="lg"><i class="lgc b"></i> 종합몰</span>
+      </div>
+    </div>
+
+    <h3>읽은 것</h3>
+    <p><a href="https://mods.go.kr/board.es?act=view&bid=241&list_no=444909&mid=a10301120100&nPage=1&ref_bid=&tag=" target="_blank" rel="noopener">2026년 3월</a> 기준 전문몰 거래액은 전년동월대비 21.7% 늘어 6.7%에 그친 종합몰을 크게 앞섰습니다. 4개월 내내 같은 방향이 유지됩니다. 온·오프라인 병행몰도 3월에 26.5% 성장해, 브랜드가 직접 접점을 갖는 채널의 성장세가 뚜렷합니다.</p>
+
+    <h3>운영에 대입하면</h3>
+    <p>종합몰 의존도가 높은 구조라면 성장률이 시장 평균에 묶입니다. 버티컬 채널과 자사몰 비중을 올릴 근거가 됩니다. 다만 전문몰은 수수료·물류 조건이 채널마다 달라, 매출 비중과 수익 비중을 나눠 봐야 실제 판단이 가능합니다.</p>
+  </section>
+
+  <!-- 02 -->
+  <section>
+    <h2>02. 채널 포트폴리오 분석</h2>
+    <p class="sub">매출이 아니라 수익 기여도로 채널을 다시 줄 세우기</p>
+
+    <dl class="qa">
+      <dt>질문</dt>
+      <dd>매출 상위 채널이 수익도 상위인가? 아니라면 어디서 새는가?</dd>
+      <dt>데이터</dt>
+      <dd>직접 운영한 12개 채널의 매출·수수료·광고비·물류비 (비율 가공)</dd>
+    </dl>
+
+    <div class="slot">
+      <b>본인 운영 데이터 영역</b>
+      <span>채널별 매출 구성비와 수익 기여도를 대조하는 차트가 들어갑니다.<br>데이터 정리 후 반영 예정입니다.</span>
+    </div>
+
+    <h3>분석 설계</h3>
+    <p>매출 구성비와 수익 구성비를 같은 축에 놓으면 두 값이 벌어지는 채널이 드러납니다. 매출 비중은 높은데 수익 비중이 낮은 채널은 수수료 구조나 광고 의존도를 다시 볼 대상이고, 반대 경우는 투자를 늘릴 후보입니다.</p>
+
+    <div class="tw">
+      <table>
+        <thead><tr><th>지표</th><th>계산</th><th>보는 이유</th></tr></thead>
+        <tbody>
+          <tr><td>매출 구성비</td><td>채널 매출 ÷ 전체 매출</td><td>규모 파악</td></tr>
+          <tr><td>수익 구성비</td><td>채널 공헌이익 ÷ 전체 공헌이익</td><td>실제 기여도</td></tr>
+          <tr><td>괴리도</td><td>수익 구성비 − 매출 구성비</td><td>효율 판단 핵심</td></tr>
+          <tr><td>채널 공헌이익률</td><td>공헌이익 ÷ 채널 매출</td><td>채널 간 비교</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 03 -->
+  <section>
+    <h2>03. 시즌별 수요 패턴</h2>
+    <p class="sub">발주 시점을 정하기 위한 계절성 분해</p>
+
+    <dl class="qa">
+      <dt>질문</dt>
+      <dd>수요가 오르는 시점이 매년 반복되는가, 아니면 프로모션이 만든 착시인가?</dd>
+      <dt>데이터</dt>
+      <dd>월별 판매 지수(기준월=100) + 시장 동향 대조</dd>
+    </dl>
+
+    <div class="slot">
+      <b>본인 운영 데이터 영역</b>
+      <span>월별 판매 지수와 시장 평균을 겹친 선그래프가 들어갑니다.<br>데이터 정리 후 반영 예정입니다.</span>
+    </div>
+
+    <h3>분석 설계</h3>
+    <p>자사 판매 지수만 보면 프로모션 효과와 계절 수요가 섞입니다. 시장 지수를 함께 놓아야 "시장이 올라서 오른 달"과 "우리만 오른 달"이 구분됩니다. 후자가 실제 기획의 성과이고, 전자는 재고를 미리 확보해야 하는 구간입니다.</p>
+
+    <p>중국 생산·해상 운송 리드타임을 감안하면 성수기 8~10주 전에 발주가 확정돼야 합니다. 계절성이 확인된 SKU는 적정재고 산식에 계수를 넣어 분기 갱신에 반영할 수 있습니다.</p>
+  </section>
+
+  <!-- 04 -->
+  <section>
+    <h2>04. 반품 · 불량 요인 분석</h2>
+    <p class="sub">QC 대시보드에 쌓인 기록을 원인별로 분해</p>
+
+    <dl class="qa">
+      <dt>질문</dt>
+      <dd>반품이 상품 문제인가, 배송 문제인가, 상세페이지 기대치 문제인가?</dd>
+      <dt>데이터</dt>
+      <dd>QC 대시보드 검수 기록 + 채널별 반품 사유 (비율 가공)</dd>
+    </dl>
+
+    <div class="slot">
+      <b>본인 운영 데이터 영역</b>
+      <span>반품 사유 분포와 SKU별 반품률 차트가 들어갑니다.<br>데이터 정리 후 반영 예정입니다.</span>
+    </div>
+
+    <h3>분석 설계</h3>
+    <p>반품 사유를 <b>상품 결함 / 배송 파손 / 기대 불일치 / 단순 변심</b> 네 갈래로 나누면 각각 담당 부서가 달라집니다. 결함은 공급처, 파손은 포장 사양, 기대 불일치는 상세페이지, 변심은 가격·타겟의 문제입니다. 사유를 섞어 보면 어디를 고쳐야 할지 알 수 없습니다.</p>
+
+    <p>이 분류는 QC 대시보드 입력 항목과 연결돼 있어, 검수 단계에서 사유를 구조화해 기록하면 별도 집계 없이 바로 분석 가능합니다.</p>
+  </section>
+
+  <div class="note">
+    본 페이지의 시장 통계는 국가데이터처가 공개한 온라인쇼핑동향 자료를 인용했습니다.
+    운영 데이터 영역은 실제 집계 후 비율·지수 형태로만 반영하며, 절대 금액과 거래처 식별 정보는 포함하지 않습니다.
+  </div>
+
+  <div class="foot">
+    <span>© 2026 서동임</span>
+    <a href="../index.html">포트폴리오 →</a>
+  </div>
+</div>
+
+<script>
+(function(){
+  if(!('IntersectionObserver' in window))return;
+  var io=new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      if(e.isIntersecting){
+        e.target.querySelectorAll('.bfill').forEach(function(b){b.style.width=b.dataset.w+'%'});
+        io.unobserve(e.target);
+      }
+    });
+  },{threshold:.25});
+  document.querySelectorAll('.chartbox').forEach(function(c){
+    c.querySelectorAll('.bfill').forEach(function(b){b.dataset.w=parseFloat(b.style.width)||0;b.style.width='0%'});
+    io.observe(c);
+  });
+})();
+</script>
+</body>
+</html>
