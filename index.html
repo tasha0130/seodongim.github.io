@@ -52,7 +52,9 @@ a{color:inherit}
 .hname{font-size:clamp(42px,7vw,80px);font-weight:800;letter-spacing:-.05em;line-height:1}
 .hrole{font-size:clamp(17px,2.2vw,24px);font-weight:600;color:var(--green);
   letter-spacing:-.02em;margin-top:14px}
-.hlede{margin-top:26px;color:var(--ink-soft);font-size:15.5px;line-height:1.85;max-width:36em}
+.htag{margin-top:18px;font-size:clamp(16px,1.9vw,20px);font-weight:700;
+  letter-spacing:-.025em;line-height:1.5;color:var(--ink)}
+.hlede{margin-top:18px;color:var(--ink-soft);font-size:15.5px;line-height:1.85;max-width:36em}
 .hside{padding-bottom:6px}
 .hside dl{border-top:1px solid var(--ink)}
 .hrow{display:flex;justify-content:space-between;gap:14px;padding:11px 0;
@@ -115,6 +117,10 @@ a{color:inherit}
 .card{background:var(--panel);border:1px solid var(--rule);
   transition:border-color .2s,box-shadow .2s}
 .card:hover{border-color:var(--ink-soft);box-shadow:0 2px 14px rgba(17,28,25,.06)}
+.card-feature{border-color:var(--green);border-width:1.5px}
+.card-feature .c-kpi .kn{font-size:42px}
+.feat-badge{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.06em;
+  background:var(--green);color:var(--paper);padding:2.5px 9px;border-radius:3px}
 .card.hide{display:none}
 
 .c-head{display:grid;grid-template-columns:1fr 210px;gap:28px;
@@ -255,10 +261,11 @@ a{color:inherit}
         <p class="eyebrow">Portfolio 2026</p>
         <h1 class="hname">서동임</h1>
         <p class="hrole">E-commerce MD · 운영기획팀 팀장</p>
+        <p class="htag">발주·CX에서 시작해 12개 채널을 운영하고, 병목은 직접 시스템으로 없애는 MD입니다.</p>
         <p class="hlede">
           생활용품 브랜드에서 소싱·상품기획부터 12개 채널 입점 운영, 재고·물류·정산까지 총괄합니다.
-          발주·CX로 입사해 MD 전환 후 팀 리드까지, 커머스 밸류체인 전 구간을 실무로 다뤘습니다.
-          수기로 돌던 공정은 직접 대시보드와 자동화 도구로 전환했습니다.
+          기획전과 단독 상품 발굴로 담당 채널 매출을 전년 대비 두 자릿수 성장시켰고,
+          발주·출고 같은 반복 공정은 직접 시스템으로 만들어 최대 90%까지 단축했습니다.
         </p>
       </div>
       <div class="hside">
@@ -273,9 +280,9 @@ a{color:inherit}
 
     <div class="kpistrip">
       <div class="kpi"><div class="kpi-n">12<small>개</small></div><div class="kpi-l">운영 판매 채널</div></div>
-      <div class="kpi"><div class="kpi-n">5<small>종</small></div><div class="kpi-l">직접 구축·배포한 사내 시스템</div></div>
-      <div class="kpi"><div class="kpi-n">81<small>종</small></div><div class="kpi-l">패키징·배너 디자인 디렉션</div></div>
-      <div class="kpi"><div class="kpi-n">3<small>종</small></div><div class="kpi-l">OMS 운영 경험</div></div>
+      <div class="kpi"><div class="kpi-n">6<small>종</small></div><div class="kpi-l">직접 구축·배포한 사내 시스템</div></div>
+      <div class="kpi"><div class="kpi-n">+47<small>%</small></div><div class="kpi-l">담당 채널 1분기 매출 신장 (전년비)</div></div>
+      <div class="kpi"><div class="kpi-n">90<small>%</small></div><div class="kpi-l">발주 소요시간 단축 (OMS 도입)</div></div>
     </div>
   </div>
 </section>
@@ -313,7 +320,7 @@ a{color:inherit}
           <li>재고 · 물류 · 입출고 관리</li><li>입고 검수 · 품질 관리</li>
           <li>발주 · CX 프로세스 설계</li><li>매출 분석 · 정산 대사</li>
           <li>사내 가이드 문서화</li><li>팀 리드 · 인사 관리</li>
-          <li>중국 거래처 커뮤니케이션</li>
+          <li>중국 거래처 · 공장 직접 커뮤니케이션</li>
         </ul>
       </div>
       <div class="skill reveal">
@@ -389,10 +396,10 @@ a{color:inherit}
 
     <div class="filterbar" role="group" aria-label="프로젝트 분류 필터">
       <span class="flabel">Filter</span>
-      <button class="fbtn" data-f="all" aria-pressed="true">전체 <i>11</i></button>
-      <button class="fbtn" data-f="ops" aria-pressed="false">채널 · 운영 <i>2</i></button>
+      <button class="fbtn" data-f="all" aria-pressed="true">전체 <i>13</i></button>
+      <button class="fbtn" data-f="ops" aria-pressed="false">채널 · 운영 <i>3</i></button>
       <button class="fbtn" data-f="md" aria-pressed="false">상품 · 브랜드 <i>3</i></button>
-      <button class="fbtn" data-f="build" aria-pressed="false">시스템 구축 <i>4</i></button>
+      <button class="fbtn" data-f="build" aria-pressed="false">시스템 구축 <i>5</i></button>
       <button class="fbtn" data-f="data" aria-pressed="false">데이터 분석 <i>2</i></button>
       <span class="fcount" id="fcount" aria-live="polite"></span>
     </div>
@@ -402,11 +409,28 @@ a{color:inherit}
       <div class="cat-head">
         <div class="cat-mark"></div>
         <div>
-          <h3 class="cat-name">채널 · 운영 <em>2</em></h3>
+          <h3 class="cat-name">채널 · 운영 <em>3</em></h3>
           <p class="cat-desc">12개 채널의 입점부터 정산·CS까지 운영 기준을 세우고 자동화했습니다.</p>
         </div>
       </div>
       <div class="cat-cards">
+      <article class="card reveal card-feature" data-cat="ops">
+        <div class="c-head">
+          <div class="c-headL">
+            <div class="c-top"><span class="c-year">2025 — 2026</span><span class="tag commerce">커머스</span><span class="feat-badge">대표 성과</span></div>
+            <h3 class="c-title">채널 기획전 운영 · 매출 성장</h3>
+            <p class="c-sum">퀸잇·N배송 등 채널 MD와 협업해 메리트 있는 기획전과 단독 구성 상품을 지속 발굴, 광고비 최소화 상태로 매출을 끌어올렸습니다.</p>
+          </div>
+          <div class="c-kpi"><div class="kn">+47<small>%</small></div><div class="kl">N배송 1분기 매출 신장 (전년비)</div></div>
+        </div>
+        <div class="c-grid">
+          <div class="c-col"><h4>문제</h4><p>별도 광고 예산 없이 채널 내 노출과 매출을 끌어올려야 하는 상황.</p></div>
+          <div class="c-col"><h4>실행</h4><p>채널 MD와 상시 소통해 기획전 참여, 단독 구성 상품 발굴, 판매 데이터 기반 상품 운영.</p></div>
+          <div class="c-col"><h4>결과</h4><p>광고비 없이 채널 랭킹 1~3위 유지. <strong>N배송 월평균 매출 체급 상승 · 퀸잇 3월 매출 전년비 +52.5%</strong></p></div>
+        </div>
+        <div class="c-foot"><div class="c-tools"><span class="tool">기획전 운영</span><span class="tool">상품 발굴</span><span class="tool">판매 분석</span><span class="tool">채널 MD 협업</span></div></div>
+      </article>
+
       <article class="card reveal" data-cat="ops">
         <div class="c-head">
           <div class="c-headL">
@@ -416,7 +440,7 @@ a{color:inherit}
           </div>
           <div class="c-kpi"><div class="kn">12<small>개 채널</small></div><div class="kl">통합 운영</div></div>
         </div>
-        <div class="c-grid"><div class="c-col"><h4>문제</h4><p>채널 확장에 따라 수기 등록·재고 반영 공수가 선형 증가. 재고 불일치로 품절 취소와 페널티 발생.</p></div><div class="c-col"><h4>실행</h4><p>사방넷·이지어드민·플레이오토 연동 설계, 채널별 상품 등록 템플릿 표준화, 정산 대사 자동화.</p></div><div class="c-col"><h4>결과</h4><p>수기 공정을 API 연동으로 대체. <strong>품절 취소 방지 · 채널 확장 시 추가 공수 최소화</strong></p></div></div>
+        <div class="c-grid"><div class="c-col"><h4>문제</h4><p>채널 확장에 따라 수기 등록·재고 반영 공수가 선형 증가. 재고 불일치로 품절 취소와 페널티 발생.</p></div><div class="c-col"><h4>실행</h4><p>사방넷·이지어드민·플레이오토 연동 설계, 채널별 상품 등록 템플릿 표준화, 정산 대사 자동화.</p></div><div class="c-col"><h4>결과</h4><p>사방넷 도입으로 수기 공정 대체. <strong>발주 소요시간 90% 단축 · 인력 충원 없이 물량 대응</strong></p></div></div>
         <div class="c-foot">
           <div class="c-tools"><span class="tool">사방넷</span><span class="tool">이지어드민</span><span class="tool">플레이오토</span><span class="tool">카페24</span><span class="tool">Excel</span></div>
           
@@ -473,7 +497,7 @@ a{color:inherit}
           </div>
           <div class="c-kpi"><div class="kn">81<small>종</small></div><div class="kl">디자인 디렉션</div></div>
         </div>
-        <div class="c-grid"><div class="c-col"><h4>문제</h4><p>인하우스 제작 인력 부재로 콘텐츠 회전율 저하. 신규 SKU 출시 속도 미달.</p></div><div class="c-col"><h4>실행</h4><p>배너·상세 템플릿 자산화. 소재별 성과를 주 단위로 비교해 크리에이티브 교체 운영.</p></div><div class="c-col"><h4>결과</h4><p>템플릿 자산화로 <strong>제작 리드타임 단축 · 소재 교체 주기 단축</strong></p></div></div>
+        <div class="c-grid"><div class="c-col"><h4>문제</h4><p>인하우스 제작 인력 부재로 콘텐츠 회전율 저하. 신규 SKU 출시 속도 미달.</p></div><div class="c-col"><h4>실행</h4><p>배너·상세 템플릿 자산화. 소재별 성과를 주 단위로 비교해 크리에이티브 교체 운영.</p></div><div class="c-col"><h4>결과</h4><p>단독 구성 상품 발굴로 광고비 없이 채널 랭킹 <strong>1~3위 진입·유지</strong></p></div></div>
         <div class="c-foot">
           <div class="c-tools"><span class="tool">상세페이지</span><span class="tool">퍼포먼스 광고</span><span class="tool">SNS 운영</span></div>
           <a class="c-link" href="./casestudy/design-direction.html">디자인 디렉션 케이스 스터디 →</a>
@@ -501,11 +525,24 @@ a{color:inherit}
       <div class="cat-head">
         <div class="cat-mark"></div>
         <div>
-          <h3 class="cat-name">시스템 구축 <em>4</em></h3>
+          <h3 class="cat-name">시스템 구축 <em>5</em></h3>
           <p class="cat-desc">운영에서 발견한 병목을 직접 설계·개발·배포해 해결했습니다.</p>
         </div>
       </div>
       <div class="cat-cards">
+      <article class="card reveal" data-cat="build">
+        <div class="c-head">
+          <div class="c-headL">
+            <div class="c-top"><span class="c-year">2025</span><span class="tag system">시스템</span></div>
+            <h3 class="c-title">B2B 출고 PDA 시스템</h3>
+            <p class="c-sum">B2B 출고 현장의 쉽먼트 다운로드와 전달 작업을 PDA 기반으로 전환해, 수기 처리 공정을 제거했습니다.</p>
+          </div>
+          <div class="c-kpi"><div class="kn">95<small>%</small></div><div class="kl">출고 전달 작업시간 단축</div></div>
+        </div>
+        <div class="c-grid"><div class="c-col"><h4>문제</h4><p>쉽먼트 다운로드·전달을 수기로 처리해 시간 소모와 오류 발생.</p></div><div class="c-col"><h4>실행</h4><p>PDA 기반 출고 처리 플로우 설계·개발·도입.</p></div><div class="c-col"><h4>결과</h4><p>수기 공정 제거. <strong>전달 작업시간 95% 단축 · 처리 비용 절감</strong></p></div></div>
+        <div class="c-foot"><div class="c-tools"><span class="tool">PDA</span><span class="tool">업무 자동화</span></div></div>
+      </article>
+
       <article class="card reveal" data-cat="build">
         <div class="c-head">
           <div class="c-headL">
@@ -545,7 +582,7 @@ a{color:inherit}
           </div>
           <div class="c-kpi text-only"><div class="kl2">회차별 잔여 추적</div></div>
         </div>
-        <div class="c-grid"><div class="c-col"><h4>문제</h4><p>분할 출고 잔여 수량을 담당자 기억에 의존. 출고 누락과 거래처 클레임 발생.</p></div><div class="c-col"><h4>실행</h4><p>거래 단위 회차 추적 데이터 구조 설계 후 화면 구현.</p></div><div class="c-col"><h4>결과</h4><p>잔여 수량 시스템 추적. <strong>출고 누락 방지 · 거래처 리드타임 대응</strong></p></div></div>
+        <div class="c-grid"><div class="c-col"><h4>문제</h4><p>분할 출고 잔여 수량을 담당자 기억에 의존. 출고 누락과 거래처 클레임 발생.</p></div><div class="c-col"><h4>실행</h4><p>거래 단위 회차 추적 데이터 구조 설계 후 화면 구현.</p></div><div class="c-col"><h4>결과</h4><p>구글 스프레드시트 자동화로 수기 출고 작업 대체. <strong>출고 작업시간 50%+ 단축 · 출고 가능 재고 즉시 파악</strong></p></div></div>
         <div class="c-foot">
           <div class="c-tools"><span class="tool">HTML/JS</span><span class="tool">Firestore</span></div>
           <a class="c-link" href="./demo/b2b-shipment/" target="_blank" rel="noopener">데모 열기 (더미 데이터) →</a>
