@@ -38,6 +38,12 @@ a{color:var(--green)}
 .rolebox{background:var(--panel);border:1px solid var(--rule);border-left:2px solid var(--green);
   padding:16px 20px;margin-top:24px;font-size:14px;line-height:1.75;color:var(--ink-soft)}
 .rolebox b{color:var(--ink);font-weight:600}
+.highlight{background:var(--green);color:#EDF0EF;padding:20px 22px;margin-top:16px;border-radius:2px}
+.highlight .hl-badge{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:10.5px;
+  letter-spacing:.1em;text-transform:uppercase;background:rgba(255,255,255,.18);
+  padding:3px 10px;border-radius:3px;margin-bottom:10px}
+.highlight p{margin:0;font-size:14.5px;line-height:1.75;color:#DDE9E4}
+.highlight b{color:#fff;font-weight:700}
 
 section{padding:52px 0;border-bottom:1px solid var(--rule)}
 h2{font-size:21px;font-weight:700;letter-spacing:-.03em;margin-bottom:5px}
@@ -97,7 +103,12 @@ strong{font-weight:700;color:var(--green)}
       <div><span>Scope</span>발굴 → 사양 → 양산</div>
     </div>
     <div class="rolebox">
-      <b>담당 역할</b> — 시장 조사, 타겟 정의, 제품 라인업 선정, 경쟁사 리뷰 분석, 컬러·소재 사양 확정, 생산처 협의까지 상품 기획 전 과정을 주도하였습니다.
+      <b>담당 역할</b> — 시장 조사, 타겟 정의, 제품 라인업 선정, 경쟁사 리뷰 분석, CMF 조사, 컬러·소재·패키징 사양 확정, 생산처 협의까지 상품 기획 전 과정을 주도하였습니다.
+    </div>
+
+    <div class="highlight">
+      <div class="hl-badge">채택 성과</div>
+      <p>제가 제안한 <b>제품 네이밍이 채택</b>되어, 해당 명칭으로 <b>2026년 하반기 출시</b>가 예정되어 있습니다. 제품의 컨셉과 타겟을 정의하는 것을 넘어, 브랜드가 실제로 사용하는 이름을 만들어낸 성과입니다.</p>
     </div>
   </div>
 
@@ -118,10 +129,10 @@ strong{font-weight:700;color:var(--green)}
     <h2>기획 프로세스</h2>
     <p class="sub">시장 분석부터 양산까지</p>
     <div class="flow">
-      <div class="flow-step"><div class="flow-n">01</div><div class="flow-t">시장 분석</div><div class="flow-d">통계청 데이터로 타겟·수요 정의</div></div>
-      <div class="flow-step"><div class="flow-n">02</div><div class="flow-t">라인업 선정</div><div class="flow-d">타겟 라이프스타일 기반 후보 도출</div></div>
-      <div class="flow-step"><div class="flow-n">03</div><div class="flow-t">리뷰 분석</div><div class="flow-d">경쟁사 리뷰 정량 분석으로 사양 도출</div></div>
-      <div class="flow-step"><div class="flow-n">04</div><div class="flow-t">사양 확정</div><div class="flow-d">컬러·소재 확정 후 생산처 협의</div></div>
+      <div class="flow-step"><div class="flow-n">01</div><div class="flow-t">시장·환경 분석</div><div class="flow-d">통계 데이터 · STEEP로 타겟과 맥락 정의</div></div>
+      <div class="flow-step"><div class="flow-n">02</div><div class="flow-t">리뷰 분석</div><div class="flow-d">경쟁사 리뷰 정량 분석으로 사양 도출</div></div>
+      <div class="flow-step"><div class="flow-n">03</div><div class="flow-t">CMF 조사</div><div class="flow-d">소재·컬러·마감 심층 조사 후 확정</div></div>
+      <div class="flow-step"><div class="flow-n">04</div><div class="flow-t">사양·패키징</div><div class="flow-d">패키징 확정 후 생산처 협의·양산</div></div>
     </div>
   </section>
 
@@ -156,17 +167,42 @@ strong{font-weight:700;color:var(--green)}
     </div>
   </section>
 
+  <!-- STEEP / CMF -->
+  <section>
+    <h2>거시 환경 분석과 CMF 조사</h2>
+    <p class="sub">제품 하나를 내기 위해 확인한 것들</p>
+
+    <p>리뷰 분석이 "지금 시장의 목소리"라면, STEEP과 CMF는 "제품이 놓일 더 큰 맥락"입니다. 제품마다 수십 페이지 규모의 조사를 진행해, 트렌드에 흔들리지 않는 사양의 근거를 만들었습니다.</p>
+
+    <h3>STEEP 분석 — 거시 환경 프레임</h3>
+    <p>사회·기술·경제·환경·정치 다섯 영역으로 나눠 제품을 둘러싼 환경을 분석했습니다.</p>
+    <ul>
+      <li><b>사회</b> — 1인·소형 가구 증가, 미니멀리즘 인테리어 확산</li>
+      <li><b>경제</b> — 1인 가구 소득 수준, 소비자물가 상승에 따른 가격 민감도</li>
+      <li><b>환경·정치</b> — 플라스틱 폐기물 이슈와 사용 규제 흐름 → 소재 선택에 반영</li>
+    </ul>
+
+    <h3>CMF 조사 — 소재·컬러·마감</h3>
+    <p>Color·Material·Finish를 심층 조사해 제품의 감도와 사양을 정의했습니다. 예를 들어 패키징은 다양한 레퍼런스를 검토한 결과, 유광보다 무광이 제품 수령 시 더 깔끔하고 브랜드 아이덴티티를 잘 전달한다고 판단해 무광 사양으로 확정하였습니다.</p>
+
+    <div class="note">
+      환경·정치 요인(플라스틱 규제)까지 제품 기획에 반영한 이유는, 지금 잘 팔리는 사양이 2~3년 뒤에도 유효할지를 함께 보기 위해서입니다. 상품 기획은 출시 시점이 아니라 제품 수명 전체를 보는 일이라고 생각합니다.
+    </div>
+  </section>
+
   <!-- 라인업 -->
   <section>
     <h2>도출한 라인업</h2>
     <p class="sub">데이터가 가리킨 제품들</p>
     <div class="grid2">
-      <div class="card2"><div class="pn">Line 1</div><h4>매트리스 커버 · 누빔 패드</h4><p>1인 가구 침구 수요와 인테리어 감도를 반영한 라인. 소재·컬러 사양을 정의해 개발.</p></div>
-      <div class="card2"><div class="pn">Line 2</div><h4>수납장 (3~5단)</h4><p>좁은 주거 면적의 공간 효율 수요에 대응하는 수납 라인.</p></div>
-      <div class="card2"><div class="pn">Line 3</div><h4>이동식 트롤리</h4><p>가변적 생활 동선에 맞춘 이동형 수납 솔루션.</p></div>
-      <div class="card2"><div class="pn">Line 4</div><h4>옷걸이 · 바지걸이 확장</h4><p>리뷰 분석 기반으로 논슬립·공간효율 사양을 반영한 라인업 확장.</p></div>
+      <div class="card2"><div class="pn">Line 1</div><h4>매트리스 커버 · 베개 커버</h4><p>51p 규모 CMF 조사와 3개 국어 패키징 사양을 정의해 OEM 개발까지 연결한 침구 라인.</p></div>
+      <div class="card2"><div class="pn">Line 2</div><h4>빨래바구니</h4><p>STEEP·CMF 52p 조사로 소재·컬러를 정의. 플라스틱 규제 흐름까지 반영한 소재 선택.</p></div>
+      <div class="card2"><div class="pn">Line 3</div><h4>옷걸이 · 바지걸이 확장</h4><p>경쟁사 리뷰 정량 분석으로 논슬립·공간효율 사양을 반영한 라인업 확장.</p></div>
+      <div class="card2"><div class="pn">Line 4</div><h4>물티슈 케이스</h4><p>오늘의집·스마트스토어 경쟁 제품을 소재·컬러·가격대로 분해한 시장 조사 기반 기획.</p></div>
+      <div class="card2"><div class="pn">Line 5</div><h4>폴딩박스</h4><p>팬톤 색상 기준 4차에 걸친 컬러 개발로 브랜드 톤에 맞는 컬러웨이 확정.</p></div>
+      <div class="card2"><div class="pn">Line 6</div><h4>수납장 · 트롤리</h4><p>좁은 주거 면적의 공간 효율 수요에 대응하는 수납 라인.</p></div>
     </div>
-    <p>이와 함께 폴딩박스는 팬톤 색상 기준으로 컬러를 여러 차수에 걸쳐 개발하여, 브랜드 톤에 맞는 컬러웨이를 확정하였습니다.</p>
+    <p>2023년부터 2026년까지 여러 제품을 동시에 기획하였으며, 각 제품마다 시장 분석 · 리뷰 분석 · CMF 조사 · 패키징 정의의 동일한 프로세스를 적용하였습니다.</p>
   </section>
 
   <!-- 정리 -->
