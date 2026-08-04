@@ -1,0 +1,2942 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NOVA 불량 관리 대시보드</title>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+<style>
+:root {
+  --primary: #1D9E75;
+  --primary-light: #E1F5EE;
+  --primary-dark: #0F6E56;
+  --danger: #E24B4A;
+  --danger-light: #FCEBEB;
+  --warning: #BA7517;
+  --warning-light: #FAEEDA;
+  --info: #185FA5;
+  --info-light: #E6F1FB;
+  --gray: #888780;
+  --gray-light: #F1EFE8;
+  --bg: #F5F6F8;
+  --surface: #FFFFFF;
+  --border: rgba(0,0,0,0.08);
+  --border-strong: rgba(0,0,0,0.14);
+  --text: #1A1A1A;
+  --text-secondary: #6B7280;
+  --text-hint: #9CA3AF;
+  --sidebar-w: 220px;
+  --radius: 10px;
+  --radius-sm: 6px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+input, select, textarea, button, option, optgroup, table, th, td, .toast, .modal, .doc-modal, .lightbox {
+  font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+}
+body { font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif; background: var(--bg); color: var(--text); font-size: 14px; font-weight: 400; line-height: 1.5; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+/* 타이포 체계: 본문400 / 라벨500 / 제목600 / 숫자·강조700 */
+.page-title { font-weight: 700; letter-spacing: -0.02em; }
+.page-sub, .form-label, .stat-label, .nav-item { font-weight: 500; }
+.stat-value, .folder-count, .mini-stat-value { font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+th { font-weight: 600; }
+.badge { font-weight: 600; }
+.btn { font-weight: 500; }
+.btn-primary { font-weight: 600; }
+a { color: inherit; text-decoration: none; }
+
+/* Layout */
+#app { display: flex; min-height: 100vh; }
+.sidebar {
+  width: var(--sidebar-w); background: var(--surface); border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; position: fixed; top: 0; left: 0; height: 100vh; z-index: 10;
+}
+.main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; }
+.content { flex: 1; padding: 24px 28px 16px; display: flex; flex-direction: column; min-height: 0; }
+
+/* Sidebar */
+.sidebar-brand {
+  padding: 20px 20px 16px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 10px;
+}
+.brand-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--primary); flex-shrink: 0; }
+.brand-name { font-size: 15px; font-weight: 700; color: var(--text); letter-spacing: 0.02em; }
+/* ── JS 로고 (데일리홈) ── */
+.js-logo { width:30px; height:30px; border-radius:9px; background:linear-gradient(135deg,#1D9E75 0%,#0F6E56 100%);
+  display:flex; align-items:center; justify-content:center; flex-shrink:0; cursor:pointer;
+  border:none; padding:0; font-family:inherit; transition:transform .15s, box-shadow .15s;
+  box-shadow:0 2px 6px rgba(29,158,117,.28); }
+.js-logo:hover { transform:translateY(-1px); box-shadow:0 4px 12px rgba(29,158,117,.4); }
+.js-logo:active { transform:translateY(0); }
+.js-logo span { font-size:12.5px; font-weight:800; color:#fff; letter-spacing:0.03em; line-height:1; }
+.sidebar-brand-btn { display:flex; align-items:center; gap:10px; background:none; border:none; padding:0; cursor:pointer; text-align:left; font-family:inherit; width:100%; }
+.sidebar-brand-btn:hover .brand-name { color:var(--primary-dark); }
+.brand-sub { font-size: 11px; color: var(--text-secondary); margin-top: 1px; }
+.sidebar-nav { flex: 1; padding: 12px 10px; display: flex; flex-direction: column; gap: 2px; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: var(--radius-sm);
+  cursor: pointer; color: var(--text-secondary); font-size: 13px; font-weight: 500; transition: all .15s;
+  border: none; background: none; width: 100%; text-align: left;
+}
+.nav-item:hover { background: var(--bg); color: var(--text); }
+.nav-item.active { background: var(--primary-light); color: var(--primary-dark); }
+.nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+.sidebar-footer { padding: 14px 16px; border-top: 1px solid var(--border); }
+.sync-status { display: flex; align-items: center; gap: 7px; font-size: 11px; color: var(--text-secondary); }
+.sync-dot { width: 7px; height: 7px; border-radius: 50%; background: #ccc; flex-shrink: 0; }
+.sync-dot.connected { background: var(--primary); animation: pulse 2.5s infinite; }
+.sync-dot.error { background: var(--danger); }
+@keyframes pulse { 0%,100%{opacity:1}50%{opacity:.4} }
+
+/* Header */
+.page-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 16px; gap: 16px; flex-wrap: wrap;
+}
+.page-title { font-size: 20px; font-weight: 600; }
+.page-sub { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+
+/* Buttons */
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 18px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; cursor: pointer; border: none; transition: all .15s; }
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-primary:hover { background: var(--primary-dark); }
+.btn-ghost { background: var(--surface); color: var(--text); border: 1px solid var(--border-strong); }
+.btn-ghost:hover { background: var(--bg); }
+.btn-danger-ghost { background: none; color: var(--danger); border: 1px solid var(--danger); }
+.btn-danger-ghost:hover { background: var(--danger-light); }
+.btn-sm { padding: 5px 12px; font-size: 12px; }
+.btn-icon { padding: 8px; border-radius: var(--radius-sm); background: var(--surface); border: 1px solid var(--border-strong); color: var(--text-secondary); cursor: pointer; display:inline-flex; align-items:center; justify-content:center; transition: all .15s;}
+.btn-icon:hover { background: var(--bg); color: var(--text); }
+
+/* Cards */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 14px; margin-bottom: 24px; }
+.stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; }
+.stat-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; }
+.stat-label { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px; }
+.stat-value { font-size: 28px; font-weight: 600; line-height: 1; }
+
+/* Badges */
+.badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+.badge-red { background: var(--danger-light); color: #A32D2D; }
+.badge-amber { background: var(--warning-light); color: #854F0B; }
+.badge-teal { background: var(--primary-light); color: var(--primary-dark); }
+.badge-gray { background: var(--gray-light); color: #5F5E5A; }
+.badge-blue { background: var(--info-light); color: var(--info); }
+
+/* Forms */
+.form-group { margin-bottom: 16px; }
+.form-label { display: block; font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .04em; }
+.form-control {
+  width: 100%; padding: 9px 12px; border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
+  font-size: 13px; color: var(--text); background: var(--surface); font-family: inherit;
+  transition: border-color .15s, box-shadow .15s; outline: none;
+}
+.form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(29,158,117,.12); }
+textarea.form-control { resize: vertical; min-height: 90px; }
+.form-row { display: grid; gap: 14px; }
+.form-row.cols-2 { grid-template-columns: 1fr 1fr; }
+.form-row.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+/* Table */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { text-align: left; padding: 10px 14px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: var(--text-secondary); border-bottom: 1px solid var(--border); white-space: nowrap; }
+td { padding: 12px 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--bg); }
+tr { cursor: pointer; }
+
+/* Image upload */
+.upload-area {
+  border: 1.5px dashed var(--border-strong); border-radius: var(--radius-sm); padding: 20px;
+  text-align: center; cursor: pointer; transition: border-color .15s; position: relative;
+}
+.upload-area:hover { border-color: var(--primary); }
+.upload-area input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+.upload-area svg { width: 28px; height: 28px; color: var(--text-hint); margin: 0 auto 8px; display: block; }
+.upload-area p { font-size: 12px; color: var(--text-secondary); }
+.other-input { margin-top: 8px; display: none; }
+.other-input.show { display: block; }
+.export-actions { display: flex; gap: 8px; }
+.export-actions .btn { padding: 8px 14px; }
+.export-loading { opacity: .6; pointer-events: none; }
+.record-view-tabs { display:flex; gap:0; border-bottom:1px solid var(--border); margin-bottom:14px; }
+.rec-tab { background:none; border:none; border-bottom:2px solid transparent; padding:8px 18px; font-size:13px; font-weight:500; color:var(--text-secondary); cursor:pointer; transition:color .15s,border-color .15s; }
+.rec-tab.active { color:var(--text); border-bottom-color:var(--primary); }
+.folder-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:14px; }
+.folder-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:18px 20px; cursor:pointer; transition:border-color .15s,box-shadow .15s; overflow:hidden; min-width:0; }
+.folder-card:hover { border-color:var(--primary); box-shadow:0 2px 12px rgba(29,158,117,.1); }
+.folder-num { font-size:15px; font-weight:700; color:#185FA5; margin-bottom:4px; font-variant-numeric:tabular-nums; letter-spacing:-0.01em;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
+.folder-head { min-width:0; flex:1; overflow:hidden; }
+.folder-badges { min-width:0; }
+.folder-badges > * { max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.folder-badges { display:flex; gap:6px; flex-wrap:wrap; margin:8px 0; }
+.folder-count { font-size:26px; font-weight:700; margin-bottom:2px; }
+
+/* ── 조치 상태 ── */
+.st-badge { display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:600; padding:3px 9px; border-radius:999px; white-space:nowrap; }
+.st-sla { display:inline-flex; align-items:center; gap:3px; font-size:10px; font-weight:700; padding:2px 7px; border-radius:4px; background:#FCEBEB; color:#A32D2D; white-space:nowrap; }
+.st-select { font-size:12px; padding:5px 8px; border:1px solid var(--border-strong); border-radius:var(--radius-sm); background:var(--surface); cursor:pointer; font-weight:500; }
+.st-flow { display:flex; gap:6px; flex-wrap:wrap; margin:10px 0 14px; }
+.st-step { flex:1; min-width:64px; text-align:center; padding:8px 4px; border-radius:var(--radius-sm); font-size:11px; font-weight:600; border:1px solid var(--border); cursor:pointer; transition:all .15s; background:var(--surface); font-family:inherit; }
+.st-step:hover { border-color:var(--primary); }
+.st-step.on { border-width:2px; }
+.st-log { border-left:2px solid var(--border); padding-left:13px; margin-top:4px; }
+.st-log-item { position:relative; padding-bottom:12px; font-size:12px; }
+.st-log-item:last-child { padding-bottom:0; }
+.st-log-item::before { content:''; position:absolute; left:-18px; top:4px; width:7px; height:7px; border-radius:50%; background:var(--primary); }
+.st-log-t { font-size:10.5px; color:var(--text-hint); font-weight:500; }
+.st-log-b { color:var(--text-secondary); line-height:1.55; margin-top:2px; }
+.st-note-box { display:flex; gap:7px; margin-top:10px; }
+.st-note-box input { flex:1; font-size:12px; padding:7px 11px; border:1px solid var(--border-strong); border-radius:var(--radius-sm); font-family:inherit; }
+
+/* ── AI 분석 탭 ── */
+.ins-kpi-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:14px; }
+.ins-kpi { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px 18px; position:relative; overflow:hidden; }
+.ins-kpi::after { content:''; position:absolute; right:-10px; top:-10px; width:56px; height:56px; border-radius:50%; opacity:.08; }
+.ins-kpi-label { font-size:11px; color:var(--text-secondary); font-weight:500; letter-spacing:.02em; }
+.ins-kpi-value { font-size:26px; font-weight:700; margin-top:4px; font-variant-numeric:tabular-nums; letter-spacing:-.02em; }
+.ins-kpi-delta { font-size:11px; font-weight:500; margin-top:3px; }
+.ins-main-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px; }
+.ins-card { display:flex; flex-direction:column; min-height:220px; }
+.ins-title { font-size:14px; font-weight:600; margin-bottom:2px; }
+.ins-sub { font-size:11px; color:var(--text-secondary); margin-bottom:14px; }
+.ins-body { flex:1; min-height:0; }
+.ins-risk-row { display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid var(--border); }
+.ins-risk-row:last-child { border-bottom:none; }
+.ins-rank { width:22px; height:22px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; flex-shrink:0; }
+.ins-risk-name { font-size:12.5px; font-weight:600; color:#185FA5; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0; flex:1; }
+.ins-risk-bar { height:6px; border-radius:3px; background:var(--bg); overflow:hidden; width:70px; flex-shrink:0; }
+.ins-risk-fill { height:100%; border-radius:3px; }
+.ins-score { font-size:12px; font-weight:700; width:30px; text-align:right; flex-shrink:0; font-variant-numeric:tabular-nums; }
+.ins-alert { display:flex; align-items:flex-start; gap:10px; border-radius:var(--radius); padding:12px 16px; margin-bottom:10px; font-size:13px; line-height:1.5; }
+.ins-alert-warn { background:#FFF7ED; border:1px solid #FDBA74; color:#9A3412; }
+.ins-alert-danger { background:#FFF5F5; border:1px solid #FCA5A5; color:#A32D2D; }
+.ins-alert-info { background:#EFF6FF; border:1px solid #93C5FD; color:#1E40AF; }
+.ins-pattern { background:var(--bg); border-radius:var(--radius-sm); padding:11px 13px; margin-bottom:8px; font-size:12.5px; line-height:1.55; }
+.ins-pattern b { color:var(--primary-dark); font-weight:600; }
+.ins-kw { display:inline-flex; align-items:center; gap:5px; background:var(--bg); border:1px solid var(--border); border-radius:999px; padding:5px 12px; margin:0 6px 7px 0; font-size:12px; font-weight:500; }
+.ins-kw-n { font-size:11px; font-weight:700; color:var(--primary); }
+.ins-chat-quick { display:flex; flex-wrap:wrap; gap:7px; margin-bottom:12px; }
+.ins-chat-btn { background:var(--surface); border:1px solid var(--border-strong); border-radius:999px; padding:6px 14px; font-size:12px; font-weight:500; cursor:pointer; transition:all .15s; font-family:inherit; color:var(--text); }
+.ins-chat-btn:hover { border-color:var(--primary); color:var(--primary-dark); background:var(--primary-light); }
+.ins-chat-log { max-height:300px; overflow-y:auto; }
+.ins-msg { margin-bottom:10px; }
+.ins-msg-q { background:var(--primary-light); color:var(--primary-dark); border-radius:12px 12px 3px 12px; padding:9px 14px; font-size:12.5px; font-weight:500; margin-left:auto; max-width:75%; width:fit-content; }
+.ins-msg-a { background:var(--bg); border-radius:12px 12px 12px 3px; padding:11px 14px; font-size:12.5px; line-height:1.6; max-width:85%; }
+.ins-msg-a b { font-weight:600; color:var(--primary-dark); }
+.ins-empty { text-align:center; padding:32px 0; color:var(--text-secondary); font-size:12.5px; }
+@media (max-width:1000px) { .ins-kpi-grid { grid-template-columns:repeat(2,1fr); } .ins-main-grid { grid-template-columns:1fr; } }
+@media (max-width:700px) { .ins-kpi-grid { grid-template-columns:repeat(2,1fr); } }
+
+/* ── 모달 (설명서/업데이트) ── */
+.doc-modal { position:fixed; inset:0; background:rgba(15,23,42,.5); display:none; align-items:center; justify-content:center; z-index:200; padding:24px; }
+.doc-modal.show { display:flex; }
+.doc-box { background:var(--surface); border-radius:14px; max-width:660px; width:100%; max-height:82vh; display:flex; flex-direction:column; box-shadow:0 20px 60px rgba(0,0,0,.2); }
+.doc-head { padding:20px 24px 16px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+.doc-title { font-size:17px; font-weight:700; }
+.doc-body { padding:20px 24px 24px; overflow-y:auto; flex:1; }
+.doc-sec { margin-bottom:22px; }
+.doc-sec:last-child { margin-bottom:0; }
+.doc-h { font-size:13px; font-weight:600; margin-bottom:9px; display:flex; align-items:center; gap:6px; }
+.doc-p { font-size:12.5px; line-height:1.7; color:var(--text-secondary); }
+.doc-list { font-size:12.5px; line-height:1.85; color:var(--text-secondary); padding-left:17px; margin:0; }
+.doc-list li { margin-bottom:2px; }
+.doc-cred { background:var(--bg); border-radius:var(--radius-sm); padding:13px 15px; font-size:12.5px; line-height:1.9; }
+.doc-cred code { background:var(--surface); border:1px solid var(--border); border-radius:4px; padding:1px 7px; font-size:12px; font-weight:600; }
+.doc-ver { border-left:2px solid var(--primary); padding:0 0 16px 15px; position:relative; }
+.doc-ver:last-child { padding-bottom:0; }
+.doc-ver::before { content:''; position:absolute; left:-5px; top:4px; width:8px; height:8px; border-radius:50%; background:var(--primary); }
+.doc-ver-t { font-size:12.5px; font-weight:700; margin-bottom:3px; }
+.doc-ver-d { font-size:11px; color:var(--text-hint); margin-bottom:6px; font-weight:500; }
+.doc-ver ul { font-size:12px; line-height:1.75; color:var(--text-secondary); padding-left:15px; margin:0; }
+.doc-badge-new { background:var(--danger-light); color:#A32D2D; font-size:9px; font-weight:700; padding:2px 6px; border-radius:3px; margin-left:6px; vertical-align:middle; }
+.img-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+.img-wrap { position: relative; display: inline-block; }
+.img-wrap img { width: 80px; height: 80px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border); display: block; }
+.img-wrap .img-del { position: absolute; top: -6px; right: -6px; background: var(--danger); border: none; border-radius: 50%; width: 20px; height: 20px; color: #fff; cursor: pointer; font-size: 13px; display: flex; align-items: center; justify-content: center; line-height: 1; }
+
+/* Modal */
+.modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.4); display: flex; align-items: center; justify-content: center; z-index: 200; padding: 20px; }
+.modal { background: var(--surface); border-radius: var(--radius); width: 100%; max-width: 580px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,.18); }
+.modal-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px 0; margin-bottom: 20px; }
+.modal-header h2 { font-size: 16px; font-weight: 600; }
+.modal-body { padding: 0 24px; }
+.modal-footer { display: flex; justify-content: flex-end; gap: 8px; padding: 20px 24px; border-top: 1px solid var(--border); margin-top: 20px; }
+
+/* Filter bar */
+.filter-bar { display: flex; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; align-items: center; }
+.filter-bar .form-control { height: 36px; padding: 0 10px; font-size: 13px; }
+.filter-bar .search { flex: 1; min-width: 180px; }
+
+/* Bar chart (CSS) */
+.chart-bar-wrap { display: flex; flex-direction: column; gap: 10px; }
+.chart-bar-row { display: flex; align-items: center; gap: 10px; }
+.chart-bar-label { width: 80px; font-size: 12px; color: var(--text-secondary); text-align: right; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.chart-bar-track { flex: 1; height: 8px; background: var(--bg); border-radius: 4px; overflow: hidden; }
+.chart-bar-fill { height: 8px; border-radius: 4px; background: var(--primary); transition: width .4s; }
+.chart-bar-count { width: 32px; font-size: 12px; font-weight: 600; color: var(--text); flex-shrink: 0; }
+
+/* === FULL VIEWPORT HEIGHT LAYOUT === */
+html, body { height: 100%; overflow: hidden; }
+#app { height: 100vh; display: flex; overflow: hidden; }
+
+/* Sidebar: fixed full height */
+.sidebar { height: 100vh; overflow-y: auto; flex-shrink: 0; }
+
+/* Main: scrollable for non-dashboard pages */
+.main { flex: 1; display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
+.content { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+
+/* Dashboard page: fills all remaining space without scroll */
+#page-dashboard { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+#page-dashboard .page-header { flex-shrink: 0; }
+.stat-grid { flex-shrink: 0; }
+.this-month-row { flex-shrink: 0; }
+.urgent-banner { flex-shrink: 0; }
+
+/* Cards grid: flex:1 fills everything below stats */
+.dash-grid { flex: 1; min-height: 0; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+.dash-grid .card { display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+.dash-card-body { flex: 1; min-height: 0; overflow-y: auto; }
+
+/* Other pages: scrollable */
+#page-records, #page-stats, #page-add { overflow-y: auto; flex: 1; padding-bottom: 24px; }
+
+/* Stat cards */
+.stat-grid { grid-template-columns: repeat(5, 1fr); }
+.stat-card { padding: 16px; }
+.stat-value { font-size: 28px; }
+
+/* Urgent banner */
+.urgent-banner { background: #FFF5F5; border: 1px solid #FCA5A5; border-radius: var(--radius); padding: 10px 14px; display: flex; align-items: center; gap: 10px; margin-bottom: 12px; font-size: 13px; color: #A32D2D; font-weight: 500; }
+
+/* Mini stats row */
+.this-month-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 12px; }
+.mini-stat { background: var(--bg); border-radius: var(--radius-sm); padding: 10px 14px; }
+.mini-stat-label { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: .04em; }
+.mini-stat-value { font-size: 20px; font-weight: 700; margin-top: 2px; }
+
+@media (max-width: 1000px) { .dash-grid { grid-template-columns: 1fr 1fr; } .stat-grid { grid-template-columns: repeat(3,1fr); } }
+@media (max-width: 700px) {
+  .dash-grid { grid-template-columns: 1fr; }
+  .stat-grid { grid-template-columns: repeat(2,1fr); }
+  .form-row.cols-2,.form-row.cols-3 { grid-template-columns: 1fr; }
+  #app { flex-direction: column; }
+  .sidebar { position:fixed; bottom:0; left:0; right:0; top:auto; width:100%; height:auto; flex-direction:row;
+    border-top:1px solid var(--border); border-right:none; z-index:90; overflow:visible; background:var(--surface); }
+  .sidebar .sidebar-brand, .sidebar-footer { display:none; }
+  .sidebar nav { display:flex; flex:1; padding:0; gap:0; }
+  .sidebar nav > div { display:flex; flex:1; border:none !important; padding:0 !important; margin:0 !important; }
+  .nav-item { flex:1; flex-direction:column; gap:3px; font-size:10px; padding:9px 2px; border-radius:0; justify-content:center; }
+  .nav-item svg { width:18px; height:18px; }
+  .main { margin-left:0; padding-bottom:58px; }
+  .content { padding:16px 14px 12px; }
+  .filter-bar { flex-wrap:wrap; }
+  .filter-bar .form-control { width:100% !important; }
+  .export-actions { flex-wrap:wrap; }
+  .folder-grid { grid-template-columns:1fr 1fr; }
+}
+
+/* Thumbnail in table */
+.tbl-thumb { width: 48px; height: 48px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border); }
+.tbl-no-img { width: 48px; height: 48px; border-radius: 6px; border: 1px dashed var(--border-strong); display: flex; align-items: center; justify-content: center; }
+.tbl-no-img svg { width: 18px; height: 18px; color: var(--text-hint); }
+
+/* Setup wizard */
+.setup-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; background: var(--bg); }
+.setup-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 40px; max-width: 520px; width: 100%; }
+.setup-step { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+.step-num { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; min-width: 22px; border-radius: 50%; background: var(--primary-light); color: var(--primary-dark); font-size: 11px; font-weight: 700; flex-shrink: 0; margin-top: 2px; }
+.step-text { flex: 1; }
+
+/* Detail view */
+.detail-meta { display: grid; grid-template-columns: auto 1fr; gap: 6px 16px; font-size: 13px; }
+.detail-meta .k { color: var(--text-secondary); }
+.detail-meta .v { font-weight: 500; }
+.detail-desc { background: var(--bg); border-radius: var(--radius-sm); padding: 12px 14px; font-size: 13px; line-height: 1.7; margin: 14px 0; }
+.detail-imgs { display: flex; flex-wrap: wrap; gap: 8px; }
+.detail-imgs img { width: 110px; height: 110px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; }
+
+/* Lightbox */
+.lightbox { position: fixed; inset: 0; background: rgba(0,0,0,.85); display: flex; align-items: center; justify-content: center; z-index: 300; cursor: pointer; }
+.lightbox img { max-width: 90vw; max-height: 90vh; border-radius: 8px; object-fit: contain; }
+
+/* Empty state */
+.empty { text-align: center; padding: 56px 20px; color: var(--text-secondary); }
+.empty svg { width: 40px; height: 40px; color: var(--text-hint); margin: 0 auto 12px; display: block; }
+
+/* Loading */
+.loading { display: flex; align-items: center; justify-content: center; padding: 60px; color: var(--text-secondary); gap: 10px; }
+.spinner { width: 20px; height: 20px; border: 2px solid var(--border-strong); border-top-color: var(--primary); border-radius: 50%; animation: spin .7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Stats page */
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+@media(max-width:700px){ .stats-grid{grid-template-columns:1fr;} }
+.donut-wrap { display: flex; align-items: center; gap: 20px; }
+.donut-legend { display: flex; flex-direction: column; gap: 8px; flex: 1; min-width: 0; }
+.legend-item { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+.legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.legend-label { flex: 1; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.legend-val { font-weight: 600; }
+
+/* Toast */
+.toast { position: fixed; bottom: 24px; right: 24px; background: var(--text); color: #fff; padding: 12px 18px; border-radius: var(--radius-sm); font-size: 13px; z-index: 500; opacity: 0; transition: opacity .3s; pointer-events: none; }
+.toast.show { opacity: 1; }
+.toast.success { background: var(--primary-dark); }
+.toast.error { background: #A32D2D; }
+/* ── Login Screen ── */
+.login-screen { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 24px; }
+.login-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 40px 44px; width: 100%; max-width: 440px; box-shadow: 0 8px 40px rgba(0,0,0,.10); }
+.login-brand { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+.login-brand-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--primary); }
+.login-brand-name { font-size: 20px; font-weight: 700; }
+.login-brand-sub { font-size: 12px; color: var(--text-secondary); margin-bottom: 28px; margin-left: 20px; }
+.login-notice { display: flex; align-items: flex-start; gap: 8px; background: #FFFBEB; border: 1px solid #FDE68A; border-radius: var(--radius-sm); padding: 10px 12px; font-size: 12px; color: #92400E; margin-bottom: 20px; line-height: 1.5; }
+.login-notice svg { flex-shrink: 0; margin-top: 1px; }
+.login-error { background: var(--danger-light); color: #A32D2D; border-radius: var(--radius-sm); padding: 10px 14px; font-size: 13px; margin-bottom: 14px; display: none; font-weight: 500; }
+.login-divider { border: none; border-top: 1px solid var(--border); margin: 18px 0; }
+.login-key-label { display: flex; align-items: center; justify-content: space-between; }
+.login-key-badge { font-size: 10px; background: var(--danger-light); color: #A32D2D; border-radius: 4px; padding: 2px 7px; font-weight: 600; }
+/* ── 구글 로그인 ── */
+.g-btn { width:100%; display:flex; align-items:center; justify-content:center; gap:10px; padding:12px 0; border:1px solid var(--border-strong); border-radius:var(--radius-sm); background:var(--surface); font-size:14px; font-weight:600; cursor:pointer; transition:all .15s; font-family:inherit; color:var(--text); }
+.g-btn:hover { background:var(--bg); border-color:var(--text-hint); }
+.g-btn:disabled { opacity:.55; cursor:not-allowed; }
+.g-domain { display:flex; align-items:center; gap:7px; background:var(--primary-light); border-radius:var(--radius-sm); padding:10px 13px; font-size:12px; color:var(--primary-dark); font-weight:500; margin-bottom:18px; line-height:1.5; }
+.g-or { display:flex; align-items:center; gap:12px; margin:20px 0 16px; color:var(--text-hint); font-size:11px; font-weight:500; }
+.g-or::before, .g-or::after { content:''; flex:1; height:1px; background:var(--border); }
+.g-admin-toggle { width:100%; background:none; border:none; font-size:12px; color:var(--text-secondary); cursor:pointer; padding:8px 0; font-family:inherit; font-weight:500; text-decoration:underline; text-underline-offset:3px; }
+.g-admin-toggle:hover { color:var(--text); }
+.g-user-chip { display:flex; align-items:center; gap:9px; background:var(--bg); border-radius:var(--radius-sm); padding:9px 12px; margin-bottom:8px; }
+.g-avatar { width:26px; height:26px; border-radius:50%; flex-shrink:0; background:var(--primary-light); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:var(--primary-dark); overflow:hidden; }
+.g-avatar img { width:100%; height:100%; object-fit:cover; }
+.gbtn { width:100%; display:flex; align-items:center; justify-content:center; gap:10px; padding:12px 0; border:1px solid var(--border-strong); border-radius:var(--radius-sm); background:var(--surface); font-size:14px; font-weight:600; cursor:pointer; transition:all .15s; font-family:inherit; color:var(--text); }
+.gbtn:hover { background:var(--bg); border-color:var(--text-hint); box-shadow:0 1px 6px rgba(0,0,0,.06); }
+.gbtn:disabled { opacity:.55; cursor:not-allowed; }
+.gbtn svg { width:19px; height:19px; flex-shrink:0; }
+.g-domain { text-align:center; font-size:11.5px; color:var(--text-secondary); margin-top:11px; line-height:1.6; }
+.g-domain code { background:var(--bg); border:1px solid var(--border); border-radius:4px; padding:1px 6px; font-size:11px; font-weight:600; color:var(--primary-dark); }
+.g-or { display:flex; align-items:center; gap:12px; margin:20px 0 16px; }
+.g-or::before, .g-or::after { content:''; flex:1; height:1px; background:var(--border); }
+.g-or span { font-size:11px; color:var(--text-hint); font-weight:500; }
+.g-user { display:flex; align-items:center; gap:8px; min-width:0; }
+.g-avatar { width:22px; height:22px; border-radius:50%; flex-shrink:0; object-fit:cover; border:1px solid var(--border); }
+</style>
+
+<style id="demo-banner-style">
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css');
+#demo-notice{
+  position:relative;z-index:99999;
+  font-family:'Pretendard Variable',Pretendard,-apple-system,sans-serif;
+  background:#141F1C;color:#EDF0EF;
+  padding:11px 20px;font-size:13px;line-height:1.6;
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+}
+#demo-notice b{font-weight:600;color:#6FD3AA}
+#demo-notice span{color:#A8B4B0;font-weight:400}
+#demo-notice a{
+  margin-left:auto;color:#EDF0EF;text-decoration:none;
+  font-size:12.5px;font-weight:500;border:1px solid #46534F;
+  padding:5px 12px;border-radius:999px;white-space:nowrap;
+}
+#demo-notice a:hover{border-color:#6FD3AA;color:#6FD3AA}
+@media(max-width:600px){#demo-notice{font-size:12px;padding:10px 14px}#demo-notice a{margin-left:0}}
+</style>
+</head>
+<body>
+<div id="demo-notice"><b>공개 데모</b><span>실제 운영본은 회사 구글 계정 인증 후 접근합니다. 데모에서는 로그인 단계를 제거했고, 표시되는 데이터는 모두 가상값입니다.</span><a href="../../index.html">← 포트폴리오로 돌아가기</a></div>
+
+<!-- ★ 통합 로그인 화면 (관리자 / 직원 공용) -->
+<div id="login-screen" class="login-screen" style="display:none">
+  <div class="login-card">
+    <div class="login-brand">
+      <span class="js-logo" style="width:34px;height:34px;border-radius:10px;cursor:default"><span style="font-size:14px">JS</span></span>
+      <div class="login-brand-name">NOVA</div>
+    </div>
+    <div class="login-brand-sub" style="margin-left:44px">DailyHome X NOVA 불량 관리 시스템</div>
+
+    <div id="login-error" class="login-error">⚠ 로그인에 실패했습니다.</div>
+
+    <!-- ★ 구글 로그인 (기본) -->
+    <div id="google-login-block">
+      <div class="g-domain">
+        <svg style="width:15px;height:15px;flex-shrink:0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span><b>@example.com</b> 계정으로만 접속할 수 있습니다.</span>
+      </div>
+      <button class="g-btn" id="google-btn" onclick="signInWithGoogle()">
+        <svg style="width:18px;height:18px;flex-shrink:0" viewBox="0 0 48 48">
+          <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+          <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+          <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24s.92 7.54 2.56 10.78l7.97-6.19z"/>
+          <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+        </svg>
+        <span id="google-btn-text">회사 구글 계정으로 로그인</span>
+      </button>
+      <div class="g-or">또는</div>
+      <button class="g-admin-toggle" onclick="showAdminLogin()">관리자 계정으로 로그인</button>
+    </div>
+
+    <!-- 관리자 로그인 (백업 경로) -->
+    <div id="admin-login-block" style="display:none">
+      <div class="g-domain" style="background:var(--danger-light);color:#A32D2D">
+        <svg style="width:15px;height:15px;flex-shrink:0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+        <span>관리자 전용 · ID · 비밀번호 · 관리자 키 모두 필요</span>
+      </div>
+      <div class="form-group">
+        <label class="form-label">관리자 ID</label>
+        <input class="form-control" id="login-id" type="text" placeholder="관리자 ID 입력" autocomplete="off">
+      </div>
+      <div class="form-group">
+        <label class="form-label">비밀번호</label>
+        <input class="form-control" id="login-pw" type="password" placeholder="비밀번호 입력">
+      </div>
+      <div class="form-group" style="margin-bottom:20px">
+        <label class="form-label login-key-label">
+          관리자 키
+          <span class="login-key-badge">매번 입력 필수</span>
+        </label>
+        <input class="form-control" id="login-key" type="password" placeholder="관리자 전용 키 입력" autocomplete="new-password">
+      </div>
+      <button class="btn btn-primary" id="login-btn" onclick="attemptLogin()" style="width:100%;justify-content:center;padding:11px 0;font-size:14px">
+        <svg style="width:16px;height:16px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14"/></svg>
+        관리자 로그인
+      </button>
+      <button class="g-admin-toggle" style="margin-top:12px" onclick="showGoogleLogin()">← 구글 로그인으로 돌아가기</button>
+    </div>
+  </div>
+</div>
+
+<!-- Setup Screen -->
+<div id="setup-screen" class="setup-screen" style="display:none">
+  <div class="setup-card">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+      <div style="width:10px;height:10px;border-radius:50%;background:var(--primary)"></div>
+      <span style="font-size:18px;font-weight:700">NOVA 불량 관리 설정</span>
+    </div>
+    <p style="font-size:13px;color:var(--text-secondary);margin-bottom:28px">처음 한 번만 Firebase 정보를 입력하면 전 직원이 공유합니다.</p>
+
+    <div style="background:var(--bg);border-radius:var(--radius-sm);padding:16px;margin-bottom:24px">
+      <p style="font-size:12px;font-weight:700;margin-bottom:10px;color:var(--text)">Firebase 무료 설정 방법 (5분)</p>
+      <div class="setup-step"><span class="step-num">1</span><span class="step-text"><a href="https://console.firebase.google.com" target="_blank" style="color:var(--primary);text-decoration:underline">console.firebase.google.com</a> 접속 후 [프로젝트 추가]</span></div>
+      <div class="setup-step"><span class="step-num">2</span><span class="step-text">좌측 메뉴 [빌드] → [Realtime Database] → [데이터베이스 만들기]</span></div>
+      <div class="setup-step"><span class="step-num">3</span><span class="step-text">[테스트 모드에서 시작] 선택 → 위치는 <strong>asia-southeast1</strong> 권장</span></div>
+      <div class="setup-step"><span class="step-num">4</span><span class="step-text">[프로젝트 설정] (톱니바퀴) → [내 앱] → 웹 앱 추가 → 아래 값 복사</span></div>
+    </div>
+
+    <div class="form-row cols-2" style="margin-bottom:14px">
+      <div class="form-group" style="margin:0"><label class="form-label">API Key</label><input class="form-control" id="cfg-apiKey" placeholder="AIza..."></div>
+      <div class="form-group" style="margin:0"><label class="form-label">Project ID</label><input class="form-control" id="cfg-projectId" placeholder="my-project-id"></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Database URL</label>
+      <input class="form-control" id="cfg-dbUrl" placeholder="https://my-project-default-rtdb.asia-southeast1.firebasedatabase.app">
+    </div>
+    <div class="form-group">
+      <label class="form-label">App ID</label>
+      <input class="form-control" id="cfg-appId" placeholder="1:123456789:web:abc123...">
+    </div>
+
+    <button class="btn btn-primary" onclick="saveConfig()" style="width:100%;justify-content:center;margin-top:4px">연결 시작</button>
+    <p id="cfg-error" style="color:var(--danger);font-size:12px;margin-top:10px;text-align:center;display:none"></p>
+  </div>
+</div>
+
+<!-- Main App -->
+<div id="app" style="display:none">
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <button class="sidebar-brand-btn" onclick="navigate('dashboard')" title="메인 대시보드로 이동">
+        <span class="js-logo"><span>JS</span></span>
+        <span>
+          <span class="brand-name" style="display:block">NOVA</span>
+          <span class="brand-sub" style="display:block">DailyHome X NOVA 불량 관리 시스템</span>
+        </span>
+      </button>
+    </div>
+    <nav class="sidebar-nav">
+      <button class="nav-item active" onclick="navigate('dashboard')">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zm10 0a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zm10 0a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"/></svg>
+        대시보드
+      </button>
+      <button class="nav-item" onclick="navigate('records')">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+        전체 기록
+      </button>
+      <button class="nav-item" onclick="navigate('insight')">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        인사이트
+      </button>
+      <button class="nav-item" onclick="navigate('stats')">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        통계 분석
+      </button>
+      <div style="margin-top:8px;border-top:1px solid var(--border);padding-top:8px">
+        <button class="nav-item" onclick="navigate('add')">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          불량 등록
+        </button>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sync-status">
+        <div class="sync-dot" id="sync-dot"></div>
+        <span id="sync-label">연결 중...</span>
+      </div>
+      <div style="margin-top:8px;display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+        <div class="g-avatar" id="user-avatar" style="display:none;width:22px;height:22px;font-size:10px"></div>
+        <span id="role-badge" style="font-size:10px;padding:2px 8px;border-radius:4px;font-weight:700"></span>
+        <span id="user-name-label" style="font-size:11px;color:var(--text-secondary);font-weight:500;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+        <button class="btn btn-ghost btn-sm" onclick="doLogout()" style="font-size:11px;padding:4px 10px;color:var(--text-secondary)">로그아웃</button>
+      </div>
+      <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
+        <button class="btn btn-ghost btn-sm" onclick="openGuide()" style="font-size:11px;padding:4px 9px;flex:1">📖 설명서</button>
+        <button class="btn btn-ghost btn-sm" onclick="openChangelog()" style="font-size:11px;padding:4px 9px;flex:1;position:relative">
+          🆕 업데이트<span id="update-dot" style="display:none;position:absolute;top:2px;right:2px;width:6px;height:6px;background:var(--danger);border-radius:50%"></span>
+        </button>
+      </div>
+      <div style="margin-top:6px">
+        <button class="btn btn-ghost btn-sm" onclick="navigate('trash')" style="font-size:11px;padding:4px 9px;width:100%;color:var(--text-secondary)">🗑 휴지통</button>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="content">
+
+      <!-- Dashboard -->
+      <section id="page-dashboard">
+        <div class="page-header">
+          <div>
+            <div class="page-title">대시보드</div>
+            <div class="page-sub" id="dash-updated">불량 현황을 한눈에 확인하세요</div>
+          </div>
+          <button class="btn btn-primary" onclick="navigate('add')">
+            <svg style="width:15px;height:15px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            불량 등록
+          </button>
+        </div>
+        <!-- 긴급 배너 -->
+        <div id="urgent-banner" class="urgent-banner" style="display:none">
+          <svg style="width:18px;height:18px;flex-shrink:0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+          <span id="urgent-banner-text"></span>
+          <div style="margin-left:auto;display:flex;gap:8px">
+            <button class="btn btn-sm" onclick="navigate('records');" style="background:none;color:#A32D2D;border:1px solid #A32D2D;border-radius:4px;padding:4px 12px;cursor:pointer;font-size:12px">목록 보기</button>
+            <button class="btn btn-sm" id="urgent-ack-btn" onclick="acknowledgeUrgent()" style="background:#A32D2D;color:#fff;border:none;border-radius:4px;padding:4px 12px;cursor:pointer;font-size:12px">✓ 확인 완료</button>
+          </div>
+        </div>
+        <!-- 전체 통계 카드 -->
+        <div class="stat-grid" id="stat-grid" style="margin-bottom:10px"></div>
+        <!-- 이번달 요약 -->
+        <div class="this-month-row" id="this-month-row"></div>
+        <!-- 3단 카드 -->
+        <div class="dash-grid">
+          <div class="card">
+            <div style="font-size:13px;font-weight:700;margin-bottom:14px">유형별 불량 현황</div>
+            <div class="dash-card-body">
+              <div class="chart-bar-wrap" id="type-chart"></div>
+            </div>
+          </div>
+          <div class="card">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+              <span style="font-size:13px;font-weight:700">최근 등록</span>
+              <button class="btn btn-ghost btn-sm" onclick="navigate('records')">전체 보기</button>
+            </div>
+            <div class="dash-card-body" id="recent-list"></div>
+          </div>
+          <div class="card">
+            <div style="font-size:13px;font-weight:700;margin-bottom:14px">담당자별 현황</div>
+            <div class="dash-card-body">
+              <div class="chart-bar-wrap" id="reporter-chart"></div>
+              <div id="reporter-empty" style="display:none;text-align:center;padding:40px 0;color:var(--text-secondary);font-size:13px">등록된 데이터가 없습니다.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Records -->
+      <section id="page-records" style="display:none">
+        <div class="page-header">
+          <div><div class="page-title">전체 기록</div><div class="page-sub" id="records-count"></div></div>
+          <div class="export-actions">
+            <button class="btn btn-ghost" id="btn-export-records-xlsx" onclick="exportRecordsExcel()">
+              <svg style="width:14px;height:14px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M4 16v3a1 1 0 001 1h14a1 1 0 001-1v-3M4 4h16v8H4V4z"/></svg>
+              엑셀 다운로드
+            </button>
+            <button class="btn btn-ghost" id="btn-export-records-pdf" onclick="exportRecordsPDF()">
+              <svg style="width:14px;height:14px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M4 16v3a1 1 0 001 1h14a1 1 0 001-1v-3M4 4h16v8H4V4z"/></svg>
+              PDF 다운로드
+            </button>
+            <button class="btn btn-primary" onclick="navigate('add')">
+              <svg style="width:15px;height:15px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+              불량 등록
+            </button>
+          </div>
+        </div>
+        <!-- 기록 탭 -->
+        <div class="record-view-tabs">
+          <button class="rec-tab active" id="tab-list" onclick="switchRecordView('list')">전체 목록</button>
+          <button class="rec-tab" id="tab-folder" onclick="switchRecordView('folder')">컨테이너별 보기</button>
+        </div>
+        <!-- 목록 뷰 -->
+        <div id="record-list-view">
+          <div class="filter-bar">
+            <input class="form-control search" id="search-input" placeholder="제품명, 담당자, 내용 검색..." oninput="debouncedRenderRecords()">
+            <select class="form-control" id="filter-container" onchange="renderRecords()" style="width:160px"></select>
+            <select class="form-control" id="filter-type" onchange="renderRecords()" style="width:130px"></select>
+            <select class="form-control" id="filter-status" onchange="renderRecords()" style="width:125px">
+              <option value="">상태 전체</option>
+              <option value="__open__">미처리만</option>
+              <option value="__sla__">기한초과만</option>
+              <option value="미확인">미확인</option>
+              <option value="확인">확인</option>
+              <option value="조치중">조치중</option>
+              <option value="완료">완료</option>
+              <option value="보류">보류</option>
+            </select>
+            <select class="form-control" id="filter-claim" onchange="renderRecords()" style="width:130px"></select>
+            <input class="form-control" type="date" id="filter-from" onchange="renderRecords()" style="width:140px">
+            <span style="color:var(--text-hint);font-size:12px;align-self:center">~</span>
+            <input class="form-control" type="date" id="filter-to" onchange="renderRecords()" style="width:140px">
+            <button class="btn-icon" onclick="clearFilters()" title="필터 초기화">
+              <svg style="width:15px;height:15px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+          </div>
+          <div class="card" id="records-capture-area" style="padding:0;overflow:hidden">
+            <div class="table-wrap">
+              <table id="records-table">
+                <thead><tr>
+                  <th>사진</th><th>컨테이너 번호</th><th>제품명</th><th>불량 유형</th><th>심각도</th><th>조치 상태</th>
+                  <th>담당자</th><th>날짜</th><th style="text-align:right">작업</th>
+                </tr></thead>
+                <tbody id="records-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <!-- 컨테이너 폴더 뷰 -->
+        <div id="record-folder-view" style="display:none">
+          <div class="folder-grid" id="folder-grid"></div>
+        </div>
+      </section>
+
+      <!-- AI 분석 -->
+      <section id="page-insight" style="display:none">
+        <div class="page-header">
+          <div><div class="page-title">인사이트</div><div class="page-sub">무엇을 먼저 조치해야 하는가 — 우선순위 · 예측 · 이상 감지</div></div>
+          <button class="btn btn-ghost" onclick="renderInsight()">
+            <svg style="width:14px;height:14px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            새로고침
+          </button>
+        </div>
+        <div id="insight-alerts"></div>
+        <div class="ins-kpi-grid" id="insight-kpi"></div>
+        <div class="ins-main-grid">
+          <div class="card ins-card">
+            <div class="ins-title">🔥 컨테이너 위험도 순위</div>
+            <div class="ins-sub">건수 × 심각도 가중치 (긴급3 · 중요2 · 일반1)</div>
+            <div class="ins-body" id="insight-risk"></div>
+          </div>
+          <div class="card ins-card">
+            <div class="ins-title">📈 다음 달 예측</div>
+            <div class="ins-sub">최근 추세 기반 선형 회귀</div>
+            <div class="ins-body" id="insight-forecast"></div>
+          </div>
+        </div>
+        <div class="ins-main-grid">
+          <div class="card ins-card">
+            <div class="ins-title">⚡ 조치 우선순위</div>
+            <div class="ins-sub">심각도 · 경과일수 · 기한초과를 종합한 처리 순서</div>
+            <div class="ins-body" id="insight-priority"></div>
+          </div>
+          <div class="card ins-card">
+            <div class="ins-title">🔁 반복 발생 감지</div>
+            <div class="ins-sub">같은 컨테이너에서 동일 불량이 재발한 케이스</div>
+            <div class="ins-body" id="insight-repeat"></div>
+          </div>
+        </div>
+        <div class="ins-main-grid">
+          <div class="card ins-card">
+            <div class="ins-title">🔍 자동 탐지 패턴</div>
+            <div class="ins-sub">교차 분석으로 발견된 유의미한 상관관계</div>
+            <div class="ins-body" id="insight-patterns"></div>
+          </div>
+          <div class="card ins-card">
+            <div class="ins-title">💬 자주 등장하는 키워드</div>
+            <div class="ins-sub">불량 내용 텍스트 빈도 분석</div>
+            <div class="ins-body" id="insight-keywords"></div>
+          </div>
+        </div>
+        <div class="card ins-card" style="margin-top:14px">
+          <div class="ins-title">🤖 데이터 질의</div>
+          <div class="ins-sub">궁금한 항목을 선택하면 실제 데이터를 조회해 답변합니다</div>
+          <div class="ins-chat-quick" id="insight-quick"></div>
+          <div class="ins-chat-log" id="insight-chat"></div>
+        </div>
+      </section>
+
+      <!-- 휴지통 -->
+      <section id="page-trash" style="display:none">
+        <div class="page-header">
+          <div><div class="page-title">휴지통</div><div class="page-sub" id="trash-count">삭제된 기록 · 복구 가능</div></div>
+        </div>
+        <div class="card" style="padding:0;overflow:hidden">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>사진</th><th>컨테이너</th><th>제품명</th><th>불량 유형</th><th>담당자</th><th>삭제일시</th><th style="text-align:right">작업</th></tr></thead>
+              <tbody id="trash-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Stats -->
+      <section id="page-stats" style="display:none">
+        <div class="page-header">
+          <div><div class="page-title">리포트</div><div class="page-sub">기간별 집계 현황 — 보고 · 다운로드용</div></div>
+          <div class="export-actions">
+            <button class="btn btn-ghost" id="btn-export-stats-xlsx" onclick="exportStatsExcel()">
+              <svg style="width:14px;height:14px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M4 16v3a1 1 0 001 1h14a1 1 0 001-1v-3M4 4h16v8H4V4z"/></svg>
+              엑셀 다운로드
+            </button>
+            <button class="btn btn-ghost" id="btn-export-stats-pdf" onclick="exportStatsPDF()">
+              <svg style="width:14px;height:14px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M4 16v3a1 1 0 001 1h14a1 1 0 001-1v-3M4 4h16v8H4V4z"/></svg>
+              PDF 다운로드
+            </button>
+          </div>
+        </div>
+        <div id="stats-capture-area">
+        <div class="stat-grid" id="stats-summary"></div>
+        <div class="stats-grid">
+          <div class="card">
+            <div style="font-size:13px;font-weight:700;margin-bottom:16px">불량 유형 분포</div>
+            <div class="chart-bar-wrap" id="stats-type-chart"></div>
+          </div>
+          <div class="card">
+            <div style="font-size:13px;font-weight:700;margin-bottom:16px">심각도 분포</div>
+            <div class="chart-bar-wrap" id="stats-severity-chart"></div>
+          </div>
+          <div class="card">
+            <div style="font-size:13px;font-weight:700;margin-bottom:16px">담당자별 등록 건수</div>
+            <div class="chart-bar-wrap" id="stats-reporter-chart"></div>
+          </div>
+          <div class="card">
+            <div style="font-size:13px;font-weight:700;margin-bottom:16px">월별 발생 추이</div>
+            <div class="chart-bar-wrap" id="stats-monthly-chart"></div>
+          </div>
+          <div class="card">
+            <div style="font-size:13px;font-weight:700;margin-bottom:16px">조치 상태 분포</div>
+            <div class="chart-bar-wrap" id="stats-status-chart"></div>
+          </div>
+          <div class="card">
+            <div style="font-size:13px;font-weight:700;margin-bottom:16px">클레임 접수 경로</div>
+            <div class="chart-bar-wrap" id="stats-claim-chart"></div>
+          </div>
+        </div>
+        <div class="card" style="margin-top:14px;padding:0;overflow:hidden">
+          <div style="font-size:13px;font-weight:700;padding:18px 20px 14px">컨테이너별 집계표</div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>컨테이너</th><th>구분</th><th>입고일</th><th style="text-align:right">전체</th><th style="text-align:right">긴급</th><th style="text-align:right">중요</th><th style="text-align:right">일반</th><th style="text-align:right">미처리</th><th style="text-align:right">처리율</th></tr></thead>
+              <tbody id="stats-container-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+        </div>
+      </section>
+
+      <!-- Add / Edit -->
+      <section id="page-add" style="display:none">
+        <div class="page-header">
+          <div><div class="page-title" id="form-title">불량 기록 등록</div><div class="page-sub">필수 항목(*)을 포함하여 입력해 주세요</div></div>
+          <button class="btn btn-ghost" onclick="navigate('records')">취소</button>
+        </div>
+        <div class="card" style="max-width:740px">
+          <input type="hidden" id="edit-id">
+          <!-- Row 1: 날짜 / 담당자 -->
+          <div class="form-row cols-2" style="margin-bottom:14px">
+            <div class="form-group" style="margin:0"><label class="form-label">날짜 *</label><input class="form-control" type="date" id="f-date"></div>
+            <div class="form-group" style="margin:0"><label class="form-label">담당자 *</label><input class="form-control" id="f-reporter" placeholder="홍길동"></div>
+          </div>
+          <!-- Row 2: 제품명(드롭다운) / 컨테이너 번호 -->
+          <div class="form-row cols-2" style="margin-bottom:14px">
+            <div class="form-group" style="margin:0">
+              <label class="form-label">제품명 / 모델 *</label>
+              <select class="form-control" id="f-product" onchange="handleOtherToggle('f-product','f-product-other')"></select>
+              <input class="form-control other-input" id="f-product-other" placeholder="새 제품명 입력">
+            </div>
+            <div class="form-group" style="margin:0">
+              <label class="form-label">컨테이너 번호</label>
+              <input class="form-control" id="f-container" placeholder="NOVA_001" style="text-transform:uppercase" oninput="this.value=this.value.toUpperCase()">
+            </div>
+          </div>
+          <!-- Row 3: 컨테이너 입고일자 / 컨테이너 구분 -->
+          <div class="form-row cols-2" style="margin-bottom:14px">
+            <div class="form-group" style="margin:0"><label class="form-label">컨테이너 입고일자</label><input class="form-control" type="date" id="f-container-date"></div>
+            <div class="form-group" style="margin:0">
+              <label class="form-label">컨테이너 구분</label>
+              <select class="form-control" id="f-container-type" onchange="handleContainerTypeToggle()">
+                <option>B2C</option><option>B2B</option><option>기타</option>
+              </select>
+              <input class="form-control other-input" id="f-container-type-other" placeholder="구분 직접 입력">
+            </div>
+          </div>
+          <!-- Row 4: 불량 유형 / 심각도 / 클레임 경로 -->
+          <div class="form-row cols-3" style="margin-bottom:16px">
+            <div class="form-group" style="margin:0">
+              <label class="form-label">불량 유형</label>
+              <select class="form-control" id="f-type" onchange="handleOtherToggle('f-type','f-type-other')"></select>
+              <input class="form-control other-input" id="f-type-other" placeholder="새 불량 유형 입력">
+            </div>
+            <div class="form-group" style="margin:0">
+              <label class="form-label">심각도</label>
+              <select class="form-control" id="f-severity" onchange="handleOtherToggle('f-severity','f-severity-other')"></select>
+              <input class="form-control other-input" id="f-severity-other" placeholder="새 심각도 입력">
+            </div>
+            <div class="form-group" style="margin:0">
+              <label class="form-label">클레임 접수 경로</label>
+              <select class="form-control" id="f-claim" onchange="handleOtherToggle('f-claim','f-claim-other')"></select>
+              <input class="form-control other-input" id="f-claim-other" placeholder="새 접수 경로 입력">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">불량 내용 *</label>
+            <textarea class="form-control" id="f-desc" placeholder="불량 상세 내용을 기입해 주세요."></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">이미지 첨부</label>
+            <div id="img-preview-grid" class="img-grid"></div>
+            <div class="upload-area" id="upload-area">
+              <input type="file" accept="image/*" multiple onchange="handleImageUpload(event)">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+              <p>클릭하거나 이미지를 여기에 끌어다 놓으세요<br><span style="font-size:11px;color:var(--text-hint)">여러 장 동시 첨부 가능 · 자동 압축</span></p>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:4px">
+            <button class="btn btn-ghost" onclick="navigate('records')">취소</button>
+            <button class="btn btn-primary" onclick="submitForm()">
+              <svg style="width:15px;height:15px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+              저장
+            </button>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<!-- Detail Modal -->
+<div id="detail-modal" class="modal-backdrop" style="display:none" onclick="if(event.target===this)closeDetail()">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>불량 상세 정보</h2>
+      <button class="btn-icon" onclick="closeDetail()">
+        <svg style="width:16px;height:16px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div id="detail-content"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger-ghost btn-sm" id="detail-del-btn">삭제</button>
+      <button class="btn btn-ghost btn-sm" id="detail-edit-btn">수정</button>
+      <button class="btn btn-primary btn-sm" onclick="closeDetail()">닫기</button>
+    </div>
+  </div>
+</div>
+
+<!-- 설명서 모달 -->
+<div class="doc-modal" id="guide-modal" onclick="if(event.target===this)closeGuide()">
+  <div class="doc-box">
+    <div class="doc-head">
+      <div class="doc-title">📖 사용 설명서</div>
+      <button class="btn-icon" onclick="closeGuide()"><svg style="width:16px;height:16px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+    </div>
+    <div class="doc-body">
+      <div class="doc-sec">
+        <div class="doc-h">🔑 로그인 정보</div>
+        <div class="doc-cred" id="guide-cred"></div>
+      </div>
+      <div class="doc-sec">
+        <div class="doc-h">📝 불량 등록 방법</div>
+        <ol class="doc-list">
+          <li>좌측 메뉴 <b>불량 등록</b> 클릭</li>
+          <li>날짜 · 담당자 · 제품명 입력 (제품명은 드롭다운, 없으면 "기타"로 추가)</li>
+          <li>컨테이너 번호 · 입고일자 · 구분(B2C/B2B) 입력</li>
+          <li>불량 유형 · 심각도 · 클레임 접수 경로 선택</li>
+          <li>불량 내용 상세 기재 후 사진 첨부 (여러 장 가능 · 자동 압축)</li>
+          <li><b>저장</b> 클릭 → 전 직원 화면에 실시간 반영</li>
+        </ol>
+      </div>
+      <div class="doc-sec">
+        <div class="doc-h">📂 컨테이너별 보기</div>
+        <div class="doc-p">전체 기록 → <b>컨테이너별 보기</b> 탭에서 컨테이너 번호별 폴더로 확인할 수 있습니다. 카드를 클릭하면 해당 컨테이너 기록만 필터링됩니다.</div>
+      </div>
+      <div class="doc-sec">
+        <div class="doc-h">✅ 조치 상태 관리 <span class="doc-badge-new">NEW</span></div>
+        <div class="doc-p" style="margin-bottom:8px">불량을 기록하는 데서 끝나지 않고, 처리 진행 상황을 추적할 수 있습니다.</div>
+        <ul class="doc-list">
+          <li><b>미확인</b> → <b>확인</b> → <b>조치중</b> → <b>완료</b> (또는 <b>보류</b>)</li>
+          <li>전체 기록 표에서 드롭다운으로 바로 변경 가능</li>
+          <li>상세 화면에서 조치 내역(코멘트)을 남길 수 있으며 변경 이력이 자동 기록됩니다</li>
+          <li>대응 기한 초과 시 <b>⏱ 기한초과</b> 표시 — 긴급 24시간 · 중요 72시간 · 일반 7일 기준</li>
+          <li>필터에서 <b>미처리만</b> / <b>기한초과만</b> 으로 빠르게 확인</li>
+        </ul>
+      </div>
+      <div class="doc-sec">
+        <div class="doc-h">⚡ 인사이트 탭</div>
+        <div class="doc-p" style="margin-bottom:8px"><b>인사이트</b>는 "무엇을 먼저 해야 하는가", <b>리포트</b>는 "무슨 일이 있었나"를 봅니다.</div>
+        <ul class="doc-list">
+          <li><b>조치 우선순위</b> — 심각도·경과일수·기한초과를 종합한 처리 순서</li>
+          <li><b>반복 발생 감지</b> — 같은 컨테이너에서 동일 불량이 재발한 케이스</li>
+          <li><b>위험도 순위</b> — 건수와 심각도를 가중 계산한 컨테이너 랭킹</li>
+          <li><b>다음 달 예측</b> — 최근 추세 기반 예상 건수 (신뢰도 함께 표시)</li>
+          <li><b>자동 탐지 패턴 · 키워드 분석 · 데이터 질의</b></li>
+        </ul>
+      </div>
+      <div class="doc-sec">
+        <div class="doc-h">📊 리포트 탭</div>
+        <div class="doc-p">유형별·심각도별·담당자별·월별·조치상태별 집계와 <b>컨테이너별 집계표</b>(처리율 포함)를 제공합니다. 보고용 엑셀·PDF 다운로드에 활용하세요.</div>
+      </div>
+      <div class="doc-sec">
+        <div class="doc-h">📥 파일 다운로드</div>
+        <div class="doc-p"><b>전체 기록</b>과 <b>통계 분석</b> 화면에서 엑셀(.xlsx)·PDF 다운로드가 가능합니다. 엑셀에는 사진이 셀에 포함되어 저장됩니다.</div>
+      </div>
+      <div class="doc-sec">
+        <div class="doc-h">🗑 휴지통</div>
+        <div class="doc-p">삭제한 기록은 즉시 사라지지 않고 휴지통으로 이동합니다. 실수로 삭제해도 <b>복구</b>할 수 있으며, 영구 삭제는 관리자만 가능합니다.</div>
+      </div>
+      <div class="doc-sec">
+        <div class="doc-h">⚠️ 유의사항</div>
+        <ul class="doc-list">
+          <li>크롬(Chrome) 브라우저 사용을 권장합니다</li>
+          <li>등록 즉시 전 직원에게 공유되므로 내용을 정확히 기재해 주세요</li>
+          <li>직원 계정은 등록·수정만 가능하며 삭제는 관리자 권한입니다</li>
+          <li>사진은 자동 압축되지만 장당 15MB를 초과하면 첨부되지 않습니다</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 업데이트 모달 -->
+<div class="doc-modal" id="changelog-modal" onclick="if(event.target===this)closeChangelog()">
+  <div class="doc-box">
+    <div class="doc-head">
+      <div class="doc-title">🆕 업데이트 내역</div>
+      <button class="btn-icon" onclick="closeChangelog()"><svg style="width:16px;height:16px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+    </div>
+    <div class="doc-body" id="changelog-body"></div>
+  </div>
+</div>
+
+<!-- Lightbox -->
+<div id="lightbox" class="lightbox" style="display:none" onclick="document.getElementById('lightbox').style.display='none'">
+  <img id="lightbox-img" src="" alt="">
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+// ─── CONFIG ───────────────────────────────────────────────────────────────────
+const CFG_KEY = 'nova_firebase_config';
+let db, defectsData = {}, pendingImages = [], currentEditId = null;
+const DEFECT_TYPES = ['외관 불량','치수 불량','기능 불량','도장 불량','포장 불량'];
+const PRODUCTS_BASE = ['(기본형) 논슬립 옷걸이','(고리회전형) 논슬립 옷걸이','논슬립 바지걸이'];
+const CONTAINER_TYPES = ['B2C','B2B'];
+const SEVERITY_BASE = ['일반','중요','긴급'];
+const CLAIM_SOURCES = ['샘플링 검수','고객 CS'];
+// ★ 조치 상태 (워크플로)
+const STATUS_FLOW = ['미확인','확인','조치중','완료','보류'];
+const STATUS_META = {
+  '미확인': { color:'#A32D2D', bg:'#FCEBEB', icon:'●', order:0 },
+  '확인':   { color:'#BA7517', bg:'#FAEEDA', icon:'◐', order:1 },
+  '조치중': { color:'#185FA5', bg:'#E6F1FB', icon:'◑', order:2 },
+  '완료':   { color:'#0F6E56', bg:'#E1F5EE', icon:'✓', order:3 },
+  '보류':   { color:'#888780', bg:'#F1F1EF', icon:'⏸', order:4 },
+};
+// SLA 기준(시간) - 심각도별 대응 기한
+const SLA_HOURS = { '긴급':24, '중요':72, '일반':168 };
+function statusOf(d) { return d.status || '미확인'; }
+function isOpen(d) { const s = statusOf(d); return s !== '완료' && s !== '보류'; }
+// SLA 초과 여부
+function slaBreach(d) {
+  if (!isOpen(d)) return false;
+  const limit = SLA_HOURS[d.severity]; if (!limit) return false;
+  const base = d.createdAt || (d.date ? new Date(d.date).getTime() : 0);
+  if (!base) return false;
+  return (Date.now() - base) > limit * 3600000;
+}
+const SEVERITY_MAP = { 긴급:'badge-red', 중요:'badge-amber', 일반:'badge-teal' };
+const TYPE_COLORS = ['#1D9E75','#0F6E56','#5DCAA5','#9FE1CB','#BA7517','#888780','#5B7CC9','#C97CC4'];
+
+// ★ 직원이 "기타"로 새로 추가한 항목들 (Firebase 실시간 동기화 · 전 직원 공유)
+let customOptions = { defectType: [], severity: [], claimSource: [], product: [] };
+let acknowledgedUrgentIds = new Set();
+
+function escapeHtml(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// 베이스 + 커스텀 + "기타(직접 입력)" 옵션으로 select 옵션 HTML 생성
+function buildOptionsHtml(baseArr, category, selectedValue) {
+  const custom = customOptions[category] || [];
+  const all = [...baseArr, ...custom.filter(v => !baseArr.includes(v))];
+  let html = all.map(v => `<option value="${escapeHtml(v)}" ${v===selectedValue?'selected':''}>${escapeHtml(v)}</option>`).join('');
+  // 현재 값이 목록에 없으면(아직 동기화 전 등) 임시로 추가해서 표시
+  if (selectedValue && !all.includes(selectedValue)) {
+    html += `<option value="${escapeHtml(selectedValue)}" selected>${escapeHtml(selectedValue)}</option>`;
+  }
+  html += `<option value="__other__">기타 (직접 입력)</option>`;
+  return html;
+}
+
+// 컨테이너 구분(B2C/B2B/기타) - 기타 선택 시 입력란 토글
+function handleContainerTypeToggle() {
+  const sel = document.getElementById('f-container-type');
+  const other = document.getElementById('f-container-type-other');
+  if (!other) return;
+  if (sel.value === '기타') { other.classList.add('show'); other.focus(); }
+  else { other.classList.remove('show'); other.value = ''; }
+}
+
+// f-type / f-severity / f-claim 등 동적 셀렉트 전체 갱신
+function refreshDynamicSelects() {
+  const selType = document.getElementById('f-type');
+  const selSev = document.getElementById('f-severity');
+  const selClaim = document.getElementById('f-claim');
+  const selProduct = document.getElementById('f-product');
+  if (selProduct) { const cur = selProduct.value && selProduct.value!=='__other__' ? selProduct.value : ''; selProduct.innerHTML = buildOptionsHtml(PRODUCTS_BASE, 'product', cur || PRODUCTS_BASE[0]); }
+  if (selType) { const cur = selType.value && selType.value!=='__other__' ? selType.value : ''; selType.innerHTML = buildOptionsHtml(DEFECT_TYPES, 'defectType', cur || DEFECT_TYPES[0]); }
+  if (selSev) { const cur = selSev.value && selSev.value!=='__other__' ? selSev.value : ''; selSev.innerHTML = buildOptionsHtml(SEVERITY_BASE, 'severity', cur || '일반'); }
+  if (selClaim) { const cur = selClaim.value && selClaim.value!=='__other__' ? selClaim.value : ''; selClaim.innerHTML = buildOptionsHtml(CLAIM_SOURCES, 'claimSource', cur || CLAIM_SOURCES[0]); }
+
+  // 필터 드롭다운
+  const fType = document.getElementById('filter-type');
+  const fClaim = document.getElementById('filter-claim');
+  const fContainer = document.getElementById('filter-container');
+  if (fContainer) {
+    const cur = fContainer.value;
+    const containers = [...new Set(Object.values(defectsData).flatMap(d => (d.container||'').split(',').map(s=>s.trim()).filter(Boolean)))].sort();
+    fContainer.innerHTML = `<option value="">컨테이너 전체</option>` + containers.map(v=>`<option value="${escapeHtml(v)}" ${v===cur?'selected':''}>${escapeHtml(v)}</option>`).join('');
+  }
+  if (fType) { const cur = fType.value; fType.innerHTML = `<option value="">유형 전체</option>` + [...DEFECT_TYPES, ...customOptions.defectType.filter(v=>!DEFECT_TYPES.includes(v))].map(v=>`<option value="${escapeHtml(v)}" ${v===cur?'selected':''}>${escapeHtml(v)}</option>`).join(''); }
+  if (fClaim) { const cur = fClaim.value; fClaim.innerHTML = `<option value="">경로 전체</option>` + [...CLAIM_SOURCES, ...customOptions.claimSource.filter(v=>!CLAIM_SOURCES.includes(v))].map(v=>`<option value="${escapeHtml(v)}" ${v===cur?'selected':''}>${escapeHtml(v)}</option>`).join(''); }
+}
+
+// "기타 (직접 입력)" 선택 시 텍스트 입력란 토글
+function handleOtherToggle(selectId, otherId) {
+  const sel = document.getElementById(selectId);
+  const other = document.getElementById(otherId);
+  if (!sel || !other) return;
+  if (sel.value === '__other__') { other.classList.add('show'); other.focus(); }
+  else { other.classList.remove('show'); other.value = ''; }
+}
+
+// select(또는 직접입력)에서 최종 저장될 문자열 값 가져오기
+function getFinalValue(selectId, otherId) {
+  const sel = document.getElementById(selectId);
+  const other = document.getElementById(otherId);
+  if (sel.value === '__other__') return (other.value || '').trim();
+  return sel.value;
+}
+
+// 새 직접입력 값이면 Firebase customOptions에 영구 저장 (전 직원 공유)
+async function persistCustomOptionIfNew(category, baseArr, value) {
+  if (!value) return;
+  if (baseArr.includes(value)) return;
+  if ((customOptions[category]||[]).includes(value)) return;
+  try { await db.ref(`meta/customOptions/${category}`).push(value); } catch(e) { /* 무시 */ }
+}
+
+function today() { return new Date().toISOString().slice(0,10); }
+function fmtDate(d) { if(!d) return '-'; const [y,m,day]=d.split('-'); return `${y}.${m}.${day}`; }
+function fmtTs(ts) {
+  if(!ts) return '';
+  const d = new Date(ts);
+  return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+}
+
+// ─── FIREBASE SETUP ──────────────────────────────────────────────────────────
+function loadConfig() { try { return JSON.parse(localStorage.getItem(CFG_KEY)); } catch(e) { return null; } }
+
+function saveConfig() {
+  const apiKey = document.getElementById('cfg-apiKey').value.trim();
+  const projectId = document.getElementById('cfg-projectId').value.trim();
+  const dbUrl = document.getElementById('cfg-dbUrl').value.trim();
+  const appId = document.getElementById('cfg-appId').value.trim();
+  if (!apiKey || !projectId || !dbUrl) {
+    showCfgError('API Key, Project ID, Database URL는 필수입니다.');
+    return;
+  }
+  const cfg = { apiKey, projectId, databaseURL: dbUrl, appId, authDomain: `${projectId}.firebaseapp.com`, storageBucket: `${projectId}.appspot.com`, messagingSenderId: 'YOUR_SENDER_ID' };
+  localStorage.setItem(CFG_KEY, JSON.stringify(cfg));
+  initFirebase(cfg);
+}
+
+function resetConfig() {
+  if (!confirm('Firebase 설정을 초기화하시겠습니까?')) return;
+  localStorage.removeItem(CFG_KEY);
+  location.reload();
+}
+
+function showCfgError(msg) {
+  const el = document.getElementById('cfg-error');
+  el.textContent = msg; el.style.display = 'block';
+}
+
+function initFirebase(cfg) {
+  try {
+    if (firebase.apps.length > 0) firebase.apps[0].delete().then(() => _init(cfg));
+    else _init(cfg);
+  } catch(e) { _init(cfg); }
+}
+
+function _init(cfg) {
+  try {
+    if (!firebase.apps.length) firebase.initializeApp(cfg);
+    db = firebase.database();
+    document.getElementById('setup-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+    setSyncStatus('connecting');
+    db.ref('defects').on('value', snap => {
+      defectsData = snap.val() || {};
+      setSyncStatus('connected');
+      renderCurrentPage();
+    }, err => {
+      setSyncStatus('error');
+      showToast('연결 오류: ' + err.message, 'error');
+    });
+    // ★ 긴급 확인 처리 동기화
+    db.ref('meta/acknowledgedUrgent').on('value', snap => {
+      acknowledgedUrgentIds = new Set(Object.keys(snap.val() || {}));
+      if (currentPage === 'dashboard') renderDashboard();
+    });
+    // ★ 직원들이 "기타"로 추가한 커스텀 항목 실시간 동기화
+    db.ref('meta/customOptions').on('value', snap => {
+      const v = snap.val() || {};
+      customOptions = {
+        defectType: Object.values(v.defectType || {}),
+        severity: Object.values(v.severity || {}),
+        claimSource: Object.values(v.claimSource || {}),
+        product: Object.values(v.product || {}),
+      };
+      refreshDynamicSelects();
+    });
+  } catch(e) {
+    showCfgError('Firebase 초기화 실패: ' + e.message);
+    document.getElementById('setup-screen').style.display = 'flex';
+    document.getElementById('app').style.display = 'none';
+  }
+}
+
+function setSyncStatus(state) {
+  const dot = document.getElementById('sync-dot');
+  const label = document.getElementById('sync-label');
+  dot.className = 'sync-dot ' + (state === 'connected' ? 'connected' : state === 'error' ? 'error' : '');
+  label.textContent = state === 'connected' ? '실시간 연결됨' : state === 'error' ? '연결 오류' : '연결 중...';
+}
+
+// ─── NAVIGATION ──────────────────────────────────────────────────────────────
+let currentPage = 'dashboard';
+function navigate(page) {
+  currentPage = page;
+  document.querySelectorAll('section[id^="page-"]').forEach(s => s.style.display = 'none');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + page).style.display = 'block';
+  const navMap = { dashboard:0, records:1, insight:2, stats:3, add:4 };
+  const items = document.querySelectorAll('.nav-item');
+  if (navMap[page] !== undefined && items[navMap[page]]) items[navMap[page]].classList.add('active');
+  if (page === 'add') initAddForm();
+  else if (page === 'dashboard') renderDashboard();
+  else if (page === 'records') { refreshDynamicSelects(); renderRecords(); switchRecordView('list'); }
+  else if (page === 'stats') renderStats();
+  else if (page === 'insight') renderInsight();
+  else if (page === 'trash') renderTrash();
+  window.scrollTo(0,0);
+}
+
+function renderCurrentPage() {
+  if (currentPage === 'dashboard') renderDashboard();
+  else if (currentPage === 'records') { renderRecords(); if (currentRecordView === 'folder') renderContainerFolders(); }
+  else if (currentPage === 'stats') renderStats();
+  else if (currentPage === 'insight') renderInsight();
+  else if (currentPage === 'trash') renderTrash();
+}
+
+// ─── DATA HELPERS ────────────────────────────────────────────────────────────
+function getList() {
+  return Object.entries(defectsData).map(([id,v]) => ({...v, id}))
+    .filter(d => !d.deleted)
+    .sort((a,b) => (b.createdAt||0) - (a.createdAt||0));
+}
+
+// 휴지통 목록 (삭제된 항목만)
+function getTrashList() {
+  return Object.entries(defectsData).map(([id,v]) => ({...v, id}))
+    .filter(d => d.deleted)
+    .sort((a,b) => (b.deletedAt||0) - (a.deletedAt||0));
+}
+
+function getFiltered() {
+  const q = (document.getElementById('search-input')?.value||'').toLowerCase();
+  const fType = document.getElementById('filter-type')?.value||'';
+  const fClaim = document.getElementById('filter-claim')?.value||'';
+  const fContainerFilter = document.getElementById('filter-container')?.value||'';
+  const fStatus = document.getElementById('filter-status')?.value||'';
+  const fFrom = document.getElementById('filter-from')?.value||'';
+  const fTo = document.getElementById('filter-to')?.value||'';
+  return getList().filter(d => {
+    const matchQ = !q || d.product?.toLowerCase().includes(q) || d.reporter?.toLowerCase().includes(q) || d.desc?.toLowerCase().includes(q) || d.container?.toLowerCase().includes(q) || d.claimSource?.toLowerCase().includes(q);
+    const matchT = !fType || d.defectType === fType;
+    const matchCont = !fContainerFilter || (d.container||'').split(',').map(s=>s.trim()).includes(fContainerFilter);
+    const matchClaim = !fClaim || d.claimSource === fClaim;
+    const matchStatus = !fStatus || (fStatus === '__open__' ? isOpen(d) : fStatus === '__sla__' ? slaBreach(d) : statusOf(d) === fStatus);
+    const matchFrom = !fFrom || d.date >= fFrom;
+    const matchTo = !fTo || d.date <= fTo;
+    return matchQ && matchT && matchCont && matchClaim && matchStatus && matchFrom && matchTo;
+  });
+}
+
+// ─── DASHBOARD ───────────────────────────────────────────────────────────────
+function renderDashboard() {
+  const list = getList();
+  const now = new Date();
+  const thisMonth = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  const lastMonth = (() => { const d = new Date(now.getFullYear(), now.getMonth()-1, 1); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; })();
+  const thisMonthList = list.filter(d => d.date?.startsWith(thisMonth));
+  const lastMonthList = list.filter(d => d.date?.startsWith(lastMonth));
+  const countBySev = (arr, s) => arr.filter(d=>d.severity===s).length;
+  const urgentCount = countBySev(list, '긴급');
+
+  // 긴급 배너 - 미확인 건만 표시
+  const urgentItems = list.filter(d=>d.severity==='긴급');
+  const unackUrgents = urgentItems.filter(d => !acknowledgedUrgentIds.has(d.id));
+  const banner = document.getElementById('urgent-banner');
+  if (unackUrgents.length > 0) {
+    banner.style.display = 'flex';
+    document.getElementById('urgent-banner-text').textContent = `긴급 불량 ${unackUrgents.length}건이 처리 대기 중입니다.`;
+  } else { banner.style.display = 'none'; }
+
+  // 전체 통계 카드 5개
+  const trend = (cur, prev) => {
+    if (!prev) return '';
+    const diff = cur - prev;
+    if (diff === 0) return `<span style="font-size:11px;color:var(--text-hint);margin-top:4px;display:block">전월 동일</span>`;
+    const color = diff > 0 ? '#A32D2D' : '#0F6E56';
+    const arrow = diff > 0 ? '▲' : '▼';
+    return `<span style="font-size:11px;color:${color};margin-top:4px;display:block">${arrow} 전월 대비 ${Math.abs(diff)}건</span>`;
+  };
+  const _A = aggregate(list);
+  const statData = [
+    { label:'전체 불량', value: list.length, color:'#1D9E75', bg:'#E1F5EE', sub:'' },
+    { label:'이번달', value: thisMonthList.length, color:'#185FA5', bg:'#E6F1FB', sub: trend(thisMonthList.length, lastMonthList.length) },
+    { label:'미처리', value: _A.open, color:'#A32D2D', bg:'#FCEBEB', sub: `<span style="font-size:11px;color:var(--text-secondary);margin-top:4px;display:block">완료 ${_A.byStatus['완료']||0}건</span>` },
+    { label:'기한 초과', value: _A.slaBreach, color:'#BA7517', bg:'#FAEEDA', sub: _A.slaBreach>0?`<span style="font-size:11px;color:#A32D2D;margin-top:4px;display:block">즉시 확인 필요</span>`:`<span style="font-size:11px;color:var(--text-hint);margin-top:4px;display:block">정상 관리 중</span>` },
+    { label:'평균 처리', value: _A.avgResolveHours ? (_A.avgResolveHours>=24 ? Math.round(_A.avgResolveHours/24)+'일' : _A.avgResolveHours+'h') : '-', color:'#0F6E56', bg:'#E1F5EE', sub:`<span style="font-size:11px;color:var(--text-secondary);margin-top:4px;display:block">완료 ${_A.resolvedCount}건 기준</span>` },
+  ];
+  document.getElementById('stat-grid').innerHTML = statData.map(s => `
+    <div class="stat-card">
+      <div class="stat-icon" style="background:${s.bg}"><svg style="width:18px;height:18px;color:${s.color}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2"/></svg></div>
+      <div class="stat-label">${s.label}</div>
+      <div class="stat-value" style="color:${s.color}">${s.value}</div>
+      ${s.sub}
+    </div>`).join('');
+
+  // 이번달 요약 3칸
+  const reporters = [...new Set(list.map(d=>d.reporter).filter(Boolean))];
+  const allTypes = [...DEFECT_TYPES, ...customOptions.defectType.filter(v=>!DEFECT_TYPES.includes(v))];
+  const topType = allTypes.reduce((a,t) => list.filter(d=>d.defectType===t).length > list.filter(d=>d.defectType===a).length ? t : a, allTypes[0]);
+  document.getElementById('this-month-row').innerHTML = `
+    <div class="mini-stat" onclick="navigate('records');setTimeout(()=>{const f=document.getElementById('filter-status');if(f){f.value='__open__';renderRecords();}},60)" style="cursor:pointer">
+      <div class="mini-stat-label">처리 진행률</div>
+      <div class="mini-stat-value" style="color:#0F6E56">${list.length?Math.round(((_A.byStatus['완료']||0)/list.length)*100):0}%</div>
+      <div style="height:5px;background:var(--border);border-radius:3px;margin-top:6px;overflow:hidden"><div style="height:100%;width:${list.length?Math.round(((_A.byStatus['완료']||0)/list.length)*100):0}%;background:#1D9E75;border-radius:3px"></div></div>
+    </div>
+    <div class="mini-stat">
+      <div class="mini-stat-label">누적 담당자</div>
+      <div class="mini-stat-value" style="color:#185FA5">${reporters.length}명</div>
+    </div>
+    <div class="mini-stat">
+      <div class="mini-stat-label">최다 불량 유형</div>
+      <div class="mini-stat-value" style="color:#854F0B;font-size:14px;margin-top:4px">${list.length > 0 ? topType : '-'}</div>
+    </div>`;
+
+  // 유형별 차트
+  renderBarChart('type-chart', allTypes.map((t,i) => ({
+    label: t.replace(' 불량',''), value: list.filter(d=>d.defectType===t).length, color: TYPE_COLORS[i % TYPE_COLORS.length]
+  })), list.length);
+
+  // 최근 등록 (최대 10건)
+  const recent = list.slice(0,10);
+  document.getElementById('recent-list').innerHTML = recent.length === 0
+    ? `<div style="text-align:center;padding:40px 0;color:var(--text-secondary);font-size:13px">등록된 불량이 없습니다.<br><br><button class="btn btn-primary btn-sm" onclick="navigate('add')">첫 불량 등록하기</button></div>`
+    : recent.map(d => `
+      <div onclick="openDetail('${d.id}')" style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);cursor:pointer">
+        ${d.images?.length ? `<img src="${imgThumb(d.images[0])}" loading="lazy" decoding="async" style="width:38px;height:38px;object-fit:cover;border-radius:5px;border:1px solid var(--border);flex-shrink:0">` : `<div style="width:38px;height:38px;border-radius:5px;border:1px dashed var(--border-strong);display:flex;align-items:center;justify-content:center;flex-shrink:0;background:var(--bg)"><svg style="width:14px;height:14px;color:var(--text-hint)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01"/></svg></div>`}
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${d.product}</div>
+          <div style="font-size:11px;color:var(--text-secondary)">${fmtDate(d.date)} · ${d.reporter} · <span class="badge ${SEVERITY_MAP[d.severity]||'badge-gray'}" style="font-size:10px;padding:1px 7px">${d.severity}</span></div>
+        </div>
+      </div>`).join('');
+
+  // 담당자별 차트
+  const repData = reporters.map(r => ({ label:r, value:list.filter(d=>d.reporter===r).length, color:'#1D9E75' })).sort((a,b)=>b.value-a.value).slice(0,8);
+  if (repData.length > 0) {
+    document.getElementById('reporter-chart').style.display='';
+    document.getElementById('reporter-empty').style.display='none';
+    renderBarChart('reporter-chart', repData, repData[0]?.value||1);
+  } else {
+    document.getElementById('reporter-chart').style.display='none';
+    document.getElementById('reporter-empty').style.display='block';
+  }
+
+  document.getElementById('dash-updated').textContent = `전체 ${list.length}건 · ${fmtTs(Date.now())} 기준`;
+}
+
+// ─── RECORDS ─────────────────────────────────────────────────────────────────
+function renderRecords() {
+  const list = getFiltered();
+  document.getElementById('records-count').textContent = `${list.length}건 표시 / 전체 ${getList().length}건`;
+  const tbody = document.getElementById('records-tbody');
+  if (list.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="9"><div class="empty"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style=""><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2"/></svg><p>기록이 없습니다.</p></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = list.map(d => `
+    <tr onclick="openDetail('${d.id}')">
+      <td>${d.images?.length ? `<img class="tbl-thumb" src="${imgThumb(d.images[0])}" alt="" loading="lazy" decoding="async">` : `<div class="tbl-no-img"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01"/></svg></div>`}</td>
+      <td>
+        <div style="font-size:12px;font-weight:700;color:#185FA5;font-variant-numeric:tabular-nums;letter-spacing:-0.01em">${escapeHtml(d.container)||'-'}</div>
+        ${d.containerDate ? `<div style="font-size:10px;color:var(--text-secondary);margin-top:1px">입고: ${fmtDate(d.containerDate)}</div>` : ''}
+        ${d.containerType ? `<div style="margin-top:3px"><span class="badge badge-blue" style="font-size:10px;padding:2px 6px">${escapeHtml(d.containerType)}</span></div>` : ''}
+      </td>
+      <td><div style="font-weight:600;font-size:13px">${escapeHtml(d.product)}</div><div style="font-size:11px;color:var(--text-secondary);margin-top:2px">${escapeHtml(d.desc?.substring(0,36))}${d.desc?.length>36?'…':''}</div></td>
+      <td><span class="badge badge-gray">${escapeHtml(d.defectType)}</span></td>
+      <td><span class="badge ${SEVERITY_MAP[d.severity]||'badge-gray'}">${escapeHtml(d.severity)}</span></td>
+      <td onclick="event.stopPropagation()">
+        <select class="st-select" onchange="changeStatus('${d.id}',this.value,event)" style="color:${(STATUS_META[statusOf(d)]||{}).color}">
+          ${STATUS_FLOW.map(s=>`<option value="${s}" ${statusOf(d)===s?'selected':''}>${s}</option>`).join('')}
+        </select>
+        ${slaBreach(d)?`<div style="margin-top:3px"><span class="st-sla">⏱ 기한초과</span></div>`:''}
+      </td>
+      <td>${escapeHtml(d.reporter)}</td>
+      <td style="white-space:nowrap;color:var(--text-secondary)">${fmtDate(d.date)}</td>
+      <td style="text-align:right" onclick="event.stopPropagation()">
+        <button class="btn btn-ghost btn-sm" onclick="editRecord('${d.id}')" style="margin-right:4px">수정</button>
+        ${currentRole === 'admin' ? `<button class="btn btn-sm" onclick="deleteRecord('${d.id}')" style="color:var(--danger);border:1px solid var(--border-strong);background:none;border-radius:var(--radius-sm);padding:5px 10px;cursor:pointer;font-size:12px">삭제</button>` : ''}
+      </td>
+    </tr>`).join('');
+}
+
+
+// ════════════════════════════════════════════════════════════════════════════
+// ★ AI 분석 엔진 (통계 기반 · 외부 API 불필요 · 오프라인 동작)
+// ════════════════════════════════════════════════════════════════════════════
+const SEV_WEIGHT = { '긴급':3, '중요':2, '일반':1 };
+const STOPWORDS = new Set(['그리고','하지만','있음','없음','확인','발생','부분','경우','대한','통해','위해','관련','이후','이전','모두','전체','일부','다시','같은','것으로','되어','있는','했으나','으로','에서','에게','부터','까지','보다','만큼','정도','때문','통한','이며','하여','되었','합니다','됩니다','있습니다','입니다']);
+
+function riskScores(agg) {
+  return Object.entries(agg.byContainer).map(([cn,b]) => ({
+    name: cn,
+    score: b.urgent*SEV_WEIGHT['긴급'] + b.important*SEV_WEIGHT['중요'] + b.normal*SEV_WEIGHT['일반'],
+    ...b
+  })).sort((a,b) => b.score - a.score);
+}
+
+// ★ 반복 발생 감지 — 같은 컨테이너에서 동일 유형이 재발한 케이스
+function repeatIssues(list) {
+  const m = {};
+  list.forEach(d => {
+    (d.container||'').split(/[,&]/).map(s=>s.trim()).filter(Boolean).forEach(cn => {
+      if (!d.defectType) return;
+      const k = cn + '|||' + d.defectType;
+      if (!m[k]) m[k] = { cn, type:d.defectType, n:0, open:0, dates:[] };
+      m[k].n++;
+      if (isOpen(d)) m[k].open++;
+      if (d.date) m[k].dates.push(d.date);
+    });
+  });
+  return Object.values(m).filter(x=>x.n>=2).sort((a,b)=>b.n-a.n).slice(0,6);
+}
+
+// ★ 조치 우선순위 — 심각도 + 경과시간 + 미처리 여부 종합
+function actionPriority(list) {
+  return list.filter(isOpen).map(d => {
+    const base = d.createdAt || (d.date?new Date(d.date).getTime():Date.now());
+    const days = Math.floor((Date.now()-base)/86400000);
+    const sev = SEV_WEIGHT[d.severity]||1;
+    const breach = slaBreach(d) ? 10 : 0;
+    return { ...d, days, p: sev*10 + Math.min(days,30) + breach };
+  }).sort((a,b)=>b.p-a.p).slice(0,8);
+}
+
+// 선형 회귀로 다음 달 예측
+function forecastNext(byMonth) {
+  const months = Object.keys(byMonth).sort();
+  if (months.length < 2) return null;
+  const pts = months.map((m,i) => [i, byMonth[m]]);
+  const n = pts.length;
+  const sx = pts.reduce((s,p)=>s+p[0],0), sy = pts.reduce((s,p)=>s+p[1],0);
+  const sxy = pts.reduce((s,p)=>s+p[0]*p[1],0), sxx = pts.reduce((s,p)=>s+p[0]*p[0],0);
+  const denom = n*sxx - sx*sx;
+  if (denom === 0) return null;
+  const slope = (n*sxy - sx*sy) / denom;
+  const intercept = (sy - slope*sx) / n;
+  const pred = Math.max(0, Math.round(slope*n + intercept));
+  const last = byMonth[months[months.length-1]];
+  // R² 계산 (신뢰도)
+  const meanY = sy/n;
+  const ssTot = pts.reduce((s,p)=>s+Math.pow(p[1]-meanY,2),0);
+  const ssRes = pts.reduce((s,p)=>s+Math.pow(p[1]-(slope*p[0]+intercept),2),0);
+  const r2 = ssTot === 0 ? 0 : Math.max(0, 1 - ssRes/ssTot);
+  const [y,mo] = months[months.length-1].split('-').map(Number);
+  const nd = new Date(y, mo, 1);
+  return { pred, last, slope, r2, months: months.length,
+    nextLabel: `${nd.getFullYear()}년 ${nd.getMonth()+1}월`,
+    history: months.slice(-6).map(m => ({ label: m.slice(5)+'월', value: byMonth[m] })) };
+}
+
+// 이상 감지 (평균 + 1.5σ 초과)
+function anomalies(agg) {
+  const vals = Object.values(agg.byContainer).map(b=>b.count);
+  if (vals.length < 3) return [];
+  const mean = vals.reduce((a,b)=>a+b,0)/vals.length;
+  const sd = Math.sqrt(vals.reduce((s,v)=>s+Math.pow(v-mean,2),0)/vals.length);
+  if (sd === 0) return [];
+  return Object.entries(agg.byContainer)
+    .filter(([,b]) => b.count > mean + sd*1.5)
+    .map(([cn,b]) => ({ name:cn, count:b.count, mean:mean.toFixed(1), ratio:(b.count/mean).toFixed(1) }))
+    .sort((a,b)=>b.count-a.count);
+}
+
+// 교차 패턴 탐지
+function detectPatterns(list, agg) {
+  const out = [];
+  const total = list.length;
+  if (total < 5) return out;
+
+  // 1) 제품 × 불량유형 편중
+  const cross = {};
+  list.forEach(d => {
+    if (!d.product || !d.defectType) return;
+    const k = d.product + '|||' + d.defectType;
+    cross[k] = (cross[k]||0)+1;
+  });
+  Object.entries(cross).sort((a,b)=>b[1]-a[1]).slice(0,2).forEach(([k,v]) => {
+    if (v < 2) return;
+    const [p,t] = k.split('|||');
+    const pTotal = agg.byProduct[p]||1;
+    const pct = Math.round(v/pTotal*100);
+    if (pct >= 40) out.push(`<b>${escapeHtml(p)}</b> 불량의 <b>${pct}%</b>가 <b>${escapeHtml(t)}</b>에 집중되어 있습니다. (${v}/${pTotal}건)`);
+  });
+
+  // 2) B2C vs B2B 비교
+  const ctypeCount = {};
+  list.forEach(d => { if (d.containerType) ctypeCount[d.containerType] = (ctypeCount[d.containerType]||0)+1; });
+  const ce = Object.entries(ctypeCount).sort((a,b)=>b[1]-a[1]);
+  if (ce.length >= 2 && ce[0][1] >= ce[1][1]*1.5) {
+    out.push(`구분별로는 <b>${escapeHtml(ce[0][0])}</b>가 ${ce[0][1]}건으로 ${escapeHtml(ce[1][0])}(${ce[1][1]}건)보다 <b>${(ce[0][1]/ce[1][1]).toFixed(1)}배</b> 많습니다.`);
+  }
+
+  // 3) 심각도 비중
+  const urgentPct = Math.round((agg.bySev['긴급']||0)/total*100);
+  if (urgentPct >= 10) out.push(`전체 불량 중 <b>긴급 등급이 ${urgentPct}%</b>를 차지합니다. 공정 점검이 필요할 수 있습니다.`);
+
+  // 4) 클레임 경로 편중
+  const claimE = Object.entries(agg.byClaim).sort((a,b)=>b[1]-a[1]);
+  if (claimE.length && claimE[0][1]/total >= 0.6) {
+    out.push(`불량의 <b>${Math.round(claimE[0][1]/total*100)}%</b>가 <b>${escapeHtml(claimE[0][0])}</b> 경로로 접수되었습니다.`);
+  }
+
+  // 5) 최근 30일 급증
+  const now = new Date();
+  const d30 = new Date(now.getTime()-30*86400000).toISOString().slice(0,10);
+  const d60 = new Date(now.getTime()-60*86400000).toISOString().slice(0,10);
+  const recent = list.filter(d=>d.date>=d30).length;
+  const prev = list.filter(d=>d.date>=d60 && d.date<d30).length;
+  if (prev > 0 && recent > prev*1.4) out.push(`최근 30일 <b>${recent}건</b>으로 직전 30일(${prev}건) 대비 <b>${Math.round((recent/prev-1)*100)}% 증가</b>했습니다.`);
+  else if (prev > 0 && recent < prev*0.6) out.push(`최근 30일 <b>${recent}건</b>으로 직전 30일(${prev}건) 대비 <b>${Math.round((1-recent/prev)*100)}% 감소</b>했습니다. 개선 효과로 보입니다.`);
+
+  return out;
+}
+
+// 키워드 추출
+function extractKeywords(list) {
+  const freq = {};
+  list.forEach(d => {
+    if (!d.desc) return;
+    d.desc.replace(/[^\uAC00-\uD7A3a-zA-Z0-9\s]/g,' ').split(/\s+/).forEach(w => {
+      const t = w.trim();
+      if (t.length < 2 || t.length > 12) return;
+      if (STOPWORDS.has(t)) return;
+      if (/^\d+$/.test(t)) return;
+      freq[t] = (freq[t]||0)+1;
+    });
+  });
+  return Object.entries(freq).filter(([,v])=>v>=2).sort((a,b)=>b[1]-a[1]).slice(0,18);
+}
+
+function renderInsight() {
+  const list = getList();
+  const A = aggregate(list);
+  const risks = riskScores(A);
+  const anom = anomalies(A);
+  const fc = forecastNext(A.byMonth);
+
+  // ── 경고 알림 ──
+  const alerts = [];
+  if (anom.length) {
+    alerts.push(`<div class="ins-alert ins-alert-danger"><span style="flex-shrink:0">⚠️</span><div><b>이상 감지</b> — ${anom.slice(0,2).map(a=>`<b>${escapeHtml(a.name)}</b>(${a.count}건, 평균 ${a.mean}건의 ${a.ratio}배)`).join(', ')}${anom.length>2?` 외 ${anom.length-2}건`:''}이 평균을 크게 초과했습니다.</div></div>`);
+  }
+  if (fc && fc.slope > 0.5 && fc.r2 > 0.3) {
+    alerts.push(`<div class="ins-alert ins-alert-warn"><span style="flex-shrink:0">📈</span><div><b>증가 추세</b> — 월평균 ${fc.slope.toFixed(1)}건씩 늘고 있습니다. ${fc.nextLabel} 약 <b>${fc.pred}건</b>이 예상됩니다.</div></div>`);
+  } else if (fc && fc.slope < -0.5 && fc.r2 > 0.3) {
+    alerts.push(`<div class="ins-alert ins-alert-info"><span style="flex-shrink:0">📉</span><div><b>감소 추세</b> — 월평균 ${Math.abs(fc.slope).toFixed(1)}건씩 줄고 있습니다. 개선 조치가 효과를 내고 있습니다.</div></div>`);
+  }
+  if (list.length < 20) {
+    alerts.push(`<div class="ins-alert ins-alert-info"><span style="flex-shrink:0">💡</span><div>현재 <b>${list.length}건</b>의 데이터로 분석 중입니다. 데이터가 쌓일수록 예측 정확도가 높아집니다.</div></div>`);
+  }
+  document.getElementById('insight-alerts').innerHTML = alerts.join('');
+
+  // ── KPI 카드 ──
+  const containerCnt = Object.keys(A.byContainer).length;
+  const avgPerContainer = containerCnt ? (list.length/containerCnt).toFixed(1) : '0';
+  const topRisk = risks[0];
+  const urgentPct = list.length ? Math.round((A.bySev['긴급']||0)/list.length*100) : 0;
+  const kpis = [
+    { label:'즉시 조치 필요', value:(A.slaBreach)+'건', delta: A.slaBreach?'대응 기한 초과':'기한 내 관리 중', c: A.slaBreach?'#A32D2D':'#0F6E56' },
+    { label:'최우선 컨테이너', value: topRisk ? topRisk.name : '-', delta: topRisk ? `위험도 ${topRisk.score}점 · 미처리 ${topRisk.open||0}건` : '', c:'#A32D2D', small:true },
+    { label:'미처리 잔량', value:A.open+'건', delta:`전체 ${list.length}건 중 ${list.length?Math.round(A.open/list.length*100):0}%`, c:'#BA7517' },
+    { label:'컨테이너당 평균', value:avgPerContainer+'건', delta:`총 ${containerCnt}개 컨테이너`, c:'#185FA5' },
+  ];
+  document.getElementById('insight-kpi').innerHTML = kpis.map(k=>`
+    <div class="ins-kpi">
+      <div class="ins-kpi-label">${k.label}</div>
+      <div class="ins-kpi-value" style="color:${k.c};${k.small?'font-size:18px;':''}white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(k.value)}</div>
+      <div class="ins-kpi-delta" style="color:var(--text-secondary)">${k.delta}</div>
+    </div>`).join('');
+
+  // ── 위험도 순위 ──
+  const rankColors = ['#A32D2D','#BA7517','#185FA5','#1D9E75','#888780'];
+  const maxScore = risks[0]?.score || 1;
+  document.getElementById('insight-risk').innerHTML = risks.length === 0
+    ? `<div class="ins-empty">분석할 컨테이너 데이터가 없습니다.</div>`
+    : risks.slice(0,8).map((r,i)=>`
+      <div class="ins-risk-row" onclick="openContainerFromInsight('${escapeHtml(r.name)}')" style="cursor:pointer">
+        <div class="ins-rank" style="background:${i<3?rankColors[i]+'1a':'var(--bg)'};color:${i<3?rankColors[i]:'var(--text-secondary)'}">${i+1}</div>
+        <div class="ins-risk-name" title="${escapeHtml(r.name)}">${escapeHtml(r.name)}</div>
+        <div style="font-size:11px;color:var(--text-secondary);flex-shrink:0;white-space:nowrap">${r.count}건</div>
+        <div class="ins-risk-bar"><div class="ins-risk-fill" style="width:${Math.round(r.score/maxScore*100)}%;background:${rankColors[Math.min(i,4)]}"></div></div>
+        <div class="ins-score" style="color:${rankColors[Math.min(i,4)]}">${r.score}</div>
+      </div>`).join('');
+
+  // ── 예측 ──
+  const fcEl = document.getElementById('insight-forecast');
+  if (!fc) {
+    fcEl.innerHTML = `<div class="ins-empty">예측하려면 최소 2개월 이상의<br>데이터가 필요합니다.</div>`;
+  } else {
+    const conf = fc.r2 >= 0.7 ? '높음' : fc.r2 >= 0.4 ? '보통' : '낮음';
+    const confColor = fc.r2 >= 0.7 ? '#1D9E75' : fc.r2 >= 0.4 ? '#BA7517' : '#888780';
+    const maxH = Math.max(...fc.history.map(h=>h.value), fc.pred, 1);
+    fcEl.innerHTML = `
+      <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:4px">
+        <span style="font-size:34px;font-weight:700;color:#185FA5;font-variant-numeric:tabular-nums;letter-spacing:-.02em">${fc.pred}</span>
+        <span style="font-size:13px;color:var(--text-secondary);font-weight:500">건 예상</span>
+      </div>
+      <div style="font-size:12px;color:var(--text-secondary);margin-bottom:14px">
+        ${fc.nextLabel} · 직전월 ${fc.last}건 ·
+        <span style="color:${fc.pred>fc.last?'#A32D2D':fc.pred<fc.last?'#0F6E56':'var(--text-secondary)'};font-weight:600">
+          ${fc.pred>fc.last?'▲ '+(fc.pred-fc.last):fc.pred<fc.last?'▼ '+(fc.last-fc.pred):'동일'}
+        </span>
+      </div>
+      <div style="display:flex;align-items:flex-end;gap:5px;height:74px;margin-bottom:10px">
+        ${fc.history.map(h=>`
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+            <div style="font-size:10px;color:var(--text-secondary);font-weight:600">${h.value}</div>
+            <div style="width:100%;background:#CBD5E1;border-radius:3px 3px 0 0;height:${Math.max(3,Math.round(h.value/maxH*46))}px"></div>
+            <div style="font-size:9px;color:var(--text-hint)">${h.label}</div>
+          </div>`).join('')}
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+          <div style="font-size:10px;color:#185FA5;font-weight:700">${fc.pred}</div>
+          <div style="width:100%;background:repeating-linear-gradient(45deg,#185FA5,#185FA5 3px,#93C5FD 3px,#93C5FD 6px);border-radius:3px 3px 0 0;height:${Math.max(3,Math.round(fc.pred/maxH*46))}px"></div>
+          <div style="font-size:9px;color:#185FA5;font-weight:600">예측</div>
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--text-secondary);padding-top:9px;border-top:1px solid var(--border)">
+        신뢰도 <b style="color:${confColor}">${conf}</b> (R²=${fc.r2.toFixed(2)}) · ${fc.months}개월 데이터 기반
+      </div>`;
+  }
+
+  // ── 패턴 ──
+  const pats = detectPatterns(list, A);
+  document.getElementById('insight-patterns').innerHTML = pats.length === 0
+    ? `<div class="ins-empty">아직 뚜렷한 패턴이 발견되지 않았습니다.<br>데이터가 더 쌓이면 자동으로 분석됩니다.</div>`
+    : pats.map(p=>`<div class="ins-pattern">${p}</div>`).join('');
+
+  // ── 키워드 ──
+  const kws = extractKeywords(list);
+  document.getElementById('insight-keywords').innerHTML = kws.length === 0
+    ? `<div class="ins-empty">키워드를 추출할 만큼<br>불량 내용이 충분하지 않습니다.</div>`
+    : kws.map(([w,n])=>`<span class="ins-kw">${escapeHtml(w)}<span class="ins-kw-n">${n}</span></span>`).join('');
+
+  // ── 조치 우선순위 ──
+  const prio = actionPriority(list);
+  document.getElementById('insight-priority').innerHTML = prio.length === 0
+    ? `<div class="ins-empty">미처리 건이 없습니다. 👍<br>모든 불량이 완료 또는 보류 상태입니다.</div>`
+    : prio.map((d,i)=>`
+      <div class="ins-risk-row" onclick="openDetail('${d.id}')" style="cursor:pointer">
+        <div class="ins-rank" style="background:${slaBreach(d)?'#FCEBEB':'var(--bg)'};color:${slaBreach(d)?'#A32D2D':'var(--text-secondary)'}">${i+1}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(d.container||'번호없음')} · ${escapeHtml(d.product||'')}</div>
+          <div style="font-size:10.5px;color:var(--text-secondary);margin-top:2px">${escapeHtml(d.defectType||'')} · ${d.days}일 경과</div>
+        </div>
+        <span class="badge ${SEVERITY_MAP[d.severity]||'badge-gray'}" style="flex-shrink:0">${escapeHtml(d.severity)}</span>
+        ${slaBreach(d)?`<span class="st-sla" style="flex-shrink:0">⏱</span>`:''}
+      </div>`).join('');
+
+  // ── 반복 발생 ──
+  const reps = repeatIssues(list);
+  document.getElementById('insight-repeat').innerHTML = reps.length === 0
+    ? `<div class="ins-empty">동일 컨테이너에서 반복 발생한<br>불량이 없습니다.</div>`
+    : reps.map(r=>`
+      <div class="ins-pattern" onclick="openContainerFromInsight('${escapeHtml(r.cn)}')" style="cursor:pointer;display:flex;align-items:center;gap:10px">
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:600;color:#185FA5;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(r.cn)}</div>
+          <div style="font-size:11px;color:var(--text-secondary);margin-top:2px">${escapeHtml(r.type)} · ${r.dates.length?fmtDate(r.dates.sort()[0])+' ~ '+fmtDate(r.dates[r.dates.length-1]):''}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-size:17px;font-weight:700;color:#A32D2D">${r.n}<span style="font-size:11px;font-weight:500">회</span></div>
+          ${r.open?`<div style="font-size:10px;color:#BA7517;font-weight:600">미처리 ${r.open}</div>`:'<div style="font-size:10px;color:#0F6E56;font-weight:600">모두 처리</div>'}
+        </div>
+      </div>`).join('');
+
+  // ── 질의 버튼 ──
+  document.getElementById('insight-quick').innerHTML = QUICK_QUERIES.map((q,i)=>
+    `<button class="ins-chat-btn" onclick="askInsight(${i})">${q.q}</button>`).join('');
+}
+
+function openContainerFromInsight(cn) {
+  navigate('records');
+  setTimeout(() => {
+    refreshDynamicSelects();
+    const f = document.getElementById('filter-container');
+    if (f) { f.value = cn; renderRecords(); }
+  }, 50);
+}
+
+// ── 규칙 기반 데이터 질의 ──
+const QUICK_QUERIES = [
+  { q:'가장 위험한 컨테이너는?', fn: (list,A) => {
+      const r = riskScores(A);
+      if (!r.length) return '분석할 데이터가 없습니다.';
+      const t = r[0];
+      const topType = Object.entries(t.types).sort((a,b)=>b[1]-a[1])[0];
+      return `<b>${escapeHtml(t.name)}</b>가 위험도 <b>${t.score}점</b>으로 가장 높습니다.<br>총 ${t.count}건 (긴급 ${t.urgent} · 중요 ${t.important} · 일반 ${t.normal})${topType?`<br>주요 불량: <b>${escapeHtml(topType[0])}</b> ${topType[1]}건`:''}${t.date?`<br>입고일: ${fmtDate(t.date)}`:''}`;
+    }},
+  { q:'이번 달 현황은?', fn: (list,A) => {
+      const m = new Date().toISOString().slice(0,7);
+      const cur = list.filter(d=>d.date?.startsWith(m));
+      const pm = new Date(); pm.setMonth(pm.getMonth()-1);
+      const prevKey = pm.toISOString().slice(0,7);
+      const prev = list.filter(d=>d.date?.startsWith(prevKey)).length;
+      if (!cur.length) return '이번 달 등록된 불량이 없습니다.';
+      const u = cur.filter(d=>d.severity==='긴급').length;
+      const diff = cur.length - prev;
+      return `이번 달 <b>${cur.length}건</b>이 등록되었습니다.<br>긴급 ${u}건 · 중요 ${cur.filter(d=>d.severity==='중요').length}건 · 일반 ${cur.filter(d=>d.severity==='일반').length}건<br>전월(${prev}건) 대비 <b style="color:${diff>0?'#A32D2D':'#0F6E56'}">${diff>0?'+'+diff:diff===0?'동일':diff}건</b>`;
+    }},
+  { q:'어떤 불량이 가장 많나요?', fn: (list,A) => {
+      const e = Object.entries(A.byType).sort((a,b)=>b[1]-a[1]);
+      if (!e.length) return '데이터가 없습니다.';
+      return e.slice(0,4).map(([t,n],i)=>`${i+1}. <b>${escapeHtml(t)}</b> — ${n}건 (${Math.round(n/list.length*100)}%)`).join('<br>');
+    }},
+  { q:'B2C와 B2B 중 어디가 많나요?', fn: (list) => {
+      const m = {};
+      list.forEach(d => { if(d.containerType) m[d.containerType]=(m[d.containerType]||0)+1; });
+      const e = Object.entries(m).sort((a,b)=>b[1]-a[1]);
+      if (!e.length) return '컨테이너 구분 정보가 없습니다.';
+      return e.map(([k,v])=>`<b>${escapeHtml(k)}</b> — ${v}건 (${Math.round(v/list.length*100)}%)`).join('<br>');
+    }},
+  { q:'담당자별 등록 현황', fn: (list,A) => {
+      const e = Object.entries(A.byReporter).sort((a,b)=>b[1]-a[1]);
+      if (!e.length) return '데이터가 없습니다.';
+      return e.slice(0,6).map(([r,n],i)=>`${i+1}. <b>${escapeHtml(r)}</b> — ${n}건`).join('<br>');
+    }},
+  { q:'긴급 건은 어디에 있나요?', fn: (list) => {
+      const u = list.filter(d=>d.severity==='긴급');
+      if (!u.length) return '현재 긴급 등급 불량이 없습니다. 👍';
+      return `긴급 불량 <b>${u.length}건</b>:<br>` + u.slice(0,6).map(d=>
+        `• <b>${escapeHtml(d.container||'번호없음')}</b> — ${escapeHtml(d.product||'')} (${fmtDate(d.date)})`).join('<br>')
+        + (u.length>6?`<br>외 ${u.length-6}건`:'');
+    }},
+  { q:'최근 이상 징후가 있나요?', fn: (list,A) => {
+      const an = anomalies(A);
+      if (!an.length) return '평균을 크게 벗어난 컨테이너가 없습니다. 안정적인 상태입니다. 👍';
+      return `평균을 크게 초과한 컨테이너 <b>${an.length}개</b>:<br>` + an.slice(0,5).map(a=>
+        `• <b>${escapeHtml(a.name)}</b> — ${a.count}건 (평균 ${a.mean}건의 <b>${a.ratio}배</b>)`).join('<br>');
+    }},
+  { q:'미처리 건은 얼마나 되나요?', fn: (list,A) => {
+      if (!A.open) return '미처리 건이 없습니다. 모두 완료 또는 보류 처리되었습니다. 👍';
+      const byS = {};
+      list.filter(isOpen).forEach(d=>{ const s=statusOf(d); byS[s]=(byS[s]||0)+1; });
+      return `미처리 <b>${A.open}건</b> (전체의 ${Math.round(A.open/list.length*100)}%)<br>` +
+        Object.entries(byS).map(([s,n])=>`• ${s} — ${n}건`).join('<br>') +
+        (A.slaBreach?`<br><br>이 중 <b style="color:#A32D2D">${A.slaBreach}건이 대응 기한을 초과</b>했습니다.`:'');
+    }},
+  { q:'기한 초과된 건이 있나요?', fn: (list,A) => {
+      const b = list.filter(slaBreach);
+      if (!b.length) return '대응 기한을 초과한 건이 없습니다. 정상 관리 중입니다. 👍';
+      return `기한 초과 <b>${b.length}건</b> (긴급 24h · 중요 72h · 일반 7일 기준):<br>` +
+        b.slice(0,6).map(d=>{
+          const days = Math.floor((Date.now()-(d.createdAt||0))/86400000);
+          return `• <b>${escapeHtml(d.container||'번호없음')}</b> — ${escapeHtml(d.severity)} · ${days}일 경과`;
+        }).join('<br>') + (b.length>6?`<br>외 ${b.length-6}건`:'');
+    }},
+  { q:'반복되는 불량이 있나요?', fn: (list) => {
+      const r = repeatIssues(list);
+      if (!r.length) return '동일 컨테이너에서 반복 발생한 불량이 없습니다.';
+      return `반복 발생 <b>${r.length}건</b>:<br>` + r.slice(0,5).map(x=>
+        `• <b>${escapeHtml(x.cn)}</b> — ${escapeHtml(x.type)} <b>${x.n}회</b>${x.open?` (미처리 ${x.open})`:''}`).join('<br>');
+    }},
+  { q:'평균 처리 기간은?', fn: (list,A) => {
+      if (!A.resolvedCount) return '아직 완료 처리된 건이 없어 평균을 산출할 수 없습니다.';
+      const h = A.avgResolveHours;
+      const txt = h>=24 ? `약 <b>${Math.round(h/24)}일</b> (${h}시간)` : `약 <b>${h}시간</b>`;
+      return `완료된 ${A.resolvedCount}건 기준 평균 처리 기간은 ${txt}입니다.<br>현재 미처리 ${A.open}건이 남아 있습니다.`;
+    }},
+  { q:'다음 달 예측은?', fn: (list,A) => {
+      const fc = forecastNext(A.byMonth);
+      if (!fc) return '예측하려면 최소 2개월 이상의 데이터가 필요합니다.';
+      const conf = fc.r2>=0.7?'높음':fc.r2>=0.4?'보통':'낮음';
+      return `<b>${fc.nextLabel}</b> 약 <b>${fc.pred}건</b>이 예상됩니다.<br>직전월 ${fc.last}건 · 월평균 ${fc.slope>0?'+':''}${fc.slope.toFixed(1)}건 추세<br>신뢰도: <b>${conf}</b> (R²=${fc.r2.toFixed(2)})`;
+    }},
+];
+
+function askInsight(idx) {
+  const q = QUICK_QUERIES[idx];
+  if (!q) return;
+  const list = getList();
+  const A = aggregate(list);
+  let ans;
+  try { ans = q.fn(list, A); } catch(e) { ans = '분석 중 오류가 발생했습니다.'; console.error(e); }
+  const log = document.getElementById('insight-chat');
+  log.insertAdjacentHTML('beforeend', `
+    <div class="ins-msg" style="display:flex;justify-content:flex-end"><div class="ins-msg-q">${q.q}</div></div>
+    <div class="ins-msg"><div class="ins-msg-a">${ans}</div></div>`);
+  log.scrollTop = log.scrollHeight;
+}
+
+// ── 휴지통 ──
+function renderTrash() {
+  const list = getTrashList();
+  document.getElementById('trash-count').textContent = `삭제된 기록 ${list.length}건 · 복구 가능`;
+  const tb = document.getElementById('trash-tbody');
+  if (!list.length) {
+    tb.innerHTML = `<tr><td colspan="7"><div class="empty"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style=""><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg><p>휴지통이 비어 있습니다.</p></div></td></tr>`;
+    return;
+  }
+  tb.innerHTML = list.map(d => `
+    <tr>
+      <td>${d.images?.length ? `<img class="tbl-thumb" src="${imgThumb(d.images[0])}" loading="lazy" alt="">` : `<div class="tbl-no-img"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01"/></svg></div>`}</td>
+      <td><span style="font-size:12px;font-weight:700;color:#185FA5">${escapeHtml(d.container)||'-'}</span></td>
+      <td style="font-weight:600;font-size:13px">${escapeHtml(d.product)}</td>
+      <td><span class="badge badge-gray">${escapeHtml(d.defectType)}</span></td>
+      <td>${escapeHtml(d.reporter)}</td>
+      <td style="color:var(--text-secondary);white-space:nowrap;font-size:12px">${d.deletedAt?fmtTs(d.deletedAt):'-'}<br><span style="font-size:11px;color:var(--text-hint)">${escapeHtml(d.deletedBy||'')}</span></td>
+      <td style="text-align:right;white-space:nowrap">
+        <button class="btn btn-ghost btn-sm" onclick="restoreRecord('${d.id}')" style="margin-right:4px">복구</button>
+        ${currentRole==='admin'?`<button class="btn btn-sm" onclick="purgeRecord('${d.id}')" style="color:var(--danger);border:1px solid var(--border-strong);background:none;border-radius:var(--radius-sm);padding:5px 10px;cursor:pointer;font-size:12px">영구삭제</button>`:''}
+      </td>
+    </tr>`).join('');
+}
+
+// ── 설명서 / 업데이트 모달 ──
+const APP_VERSION = 'v2.3';
+const CHANGELOG = [
+  { v:'v2.3', d:'2026-08-03', isNew:true, items:[
+    '<b>데일리홈 JS 로고 적용</b> — 사이드바 상단 로고 클릭 시 메인 대시보드로 이동',
+    '브랜드 표기를 <b>NOVA</b>(대문자)로 통일 — 화면 · 다운로드 파일명 전체 반영',
+  ]},
+  { v:'v2.2', d:'2026-08-03', items:[
+    '<b>회사 구글 계정 로그인 도입</b> — @example.com 계정으로만 접속 가능. 공용 ID·비밀번호 폐지',
+    '<b>개인별 자동 식별</b> — 조치 이력에 실제 이름이 기록되며, 사이드바에 프로필 사진 표시',
+    '<b>퇴사자 즉시 차단</b> — 구글 계정 정지만으로 접근 차단 (전 직원 비밀번호 변경 불필요)',
+    '관리자 계정(ID·PW·키)은 백업 경로로 유지 — 로그인 화면 하단에서 접근',
+  ]},
+  { v:'v2.1', d:'2026-08-03', items:[
+    '<b>조치 상태 관리 도입</b> — 미확인 → 확인 → 조치중 → 완료/보류 워크플로. 표에서 드롭다운으로 바로 변경',
+    '<b>조치 내역 기록</b> — 상세 화면에서 코멘트 작성 가능, 상태 변경 이력 자동 기록',
+    '<b>대응 기한(SLA) 관리</b> — 긴급 24h · 중요 72h · 일반 7일 기준 초과 시 자동 표시',
+    '<b>탭 역할 재정의</b> — AI 분석 → 인사이트(우선순위·예측), 통계 분석 → 리포트(집계·다운로드)로 분리해 중복 제거',
+    '인사이트에 조치 우선순위 · 반복 발생 감지 추가',
+    '리포트에 조치 상태 분포 · 클레임 경로 차트 · 컨테이너별 집계표(처리율) 추가',
+    '대시보드 지표를 처리 중심으로 개편 — 미처리 · 기한초과 · 평균 처리기간 · 처리 진행률',
+    '상태 필터 추가 (미처리만 / 기한초과만 / 상태별)',
+    '엑셀 다운로드에 조치상태 · 조치완료일 컬럼 추가',
+    '설명서에 관리자 계정 정보 추가',
+    '입력창·버튼·표 등 폰트 미적용 구간 전체 수정 (Pretendard 완전 적용)',
+  ]},
+  { v:'v2.0', d:'2026-08-03', items:[
+    'AI 분석 탭 신설 — 컨테이너 위험도 순위, 다음 달 예측(선형회귀), 이상 감지, 패턴 자동 탐지, 키워드 분석, 데이터 질의 기능',
+    '휴지통 기능 추가 — 삭제한 기록을 복구할 수 있으며 영구 삭제는 관리자 전용',
+    '이미지 저장 구조 개선 — 썸네일/원본 분리 저장으로 목록 로딩 시 데이터 사용량 대폭 절감',
+    'Pretendard 폰트 전면 적용 및 용도별 굵기 체계화',
+    '컨테이너별 보기에서 긴 이름이 카드 밖으로 넘치던 문제 수정',
+    '모바일 대응 — 하단 탭바 네비게이션 추가',
+    '검색 디바운스(300ms) 적용으로 입력 시 버벅임 해소',
+    '통계 집계 로직 최적화 (6회 순회 → 1회 순회)',
+    '이미지 지연 로딩(lazy loading) 적용',
+    '날짜 유효성 검증 — 미래 날짜 및 입고일자 역전 방지',
+    '이미지 업로드 실패 시 안내 메시지 표시 (15MB 초과 파일 차단)',
+    '설명서 · 업데이트 내역 모달 추가',
+  ]},
+  { v:'v1.5', d:'2026-07-14', items:[
+    '관리자/직원 파일 통합 — 단일 파일에서 역할 선택 로그인',
+    '직원 계정 삭제 권한 제거 (등록·수정만 가능)',
+    '사이드바 역할 배지 및 로그아웃 버튼 추가',
+    'Firebase Hosting 배포 — 고정 URL 운영 시작',
+    'Firebase 설정 자동 내장 (수동 입력 불필요)',
+  ]},
+  { v:'v1.4', d:'2026-06-23', items:[
+    '컨테이너 입고일자 · 구분(B2C/B2B) 필드 추가',
+    '제품명 드롭다운 전환 + 직접 추가 기능',
+    '컨테이너별 보기 탭 신설 (폴더 형태 분류)',
+    '전체 기록 컬럼 순서 조정 및 발생 위치 항목 제거',
+    '컨테이너 번호 필터 추가',
+    '긴급 배너 확인 완료 처리 기능',
+  ]},
+  { v:'v1.3', d:'2026-06-18', items:[
+    '클레임 접수 경로 항목 추가 (샘플링 검수 / 고객 CS)',
+    '모든 드롭다운에 "기타" 직접 입력 기능 — 입력값은 전 직원 공유',
+    '엑셀(.xlsx) · PDF 다운로드 기능 추가 (엑셀에 사진 포함)',
+  ]},
+  { v:'v1.0', d:'2026-06-17', items:[
+    '불량 관리 대시보드 최초 배포',
+    'Firebase 실시간 연동 · 이미지 첨부 · 통계 분석 기능',
+  ]},
+];
+
+function openGuide() {
+  document.getElementById('guide-cred').innerHTML =
+    `<b>👤 직원 — 회사 구글 계정</b><br>
+     <span style="font-size:12px">[회사 구글 계정으로 로그인] 버튼 클릭 → 본인 <code>@example.com</code> 계정 선택</span><br>
+     <span style="color:var(--text-hint);font-size:11px">별도 ID·비밀번호 없음 · 개인 지메일은 접속 불가<br>권한: 등록 · 수정 · 조치 상태 변경 (삭제 불가)</span>
+     <hr style="border:none;border-top:1px solid var(--border);margin:12px 0">
+     <b>🔐 관리자 계정</b><br>ID <code>dailyhome_admin</code><br>PW <code>Wlstlarkatjd2026!</code><br>관리자 키 <code>NOVA-ADMIN-2024</code><br>
+     <span style="color:var(--text-hint);font-size:11px">로그인 화면 하단 [관리자 계정으로 로그인] 클릭<br>권한: 전체 (삭제 · 영구삭제 포함) · 접속 시마다 3가지 모두 입력</span>`;
+  document.getElementById('guide-modal').classList.add('show');
+}
+function closeGuide() { document.getElementById('guide-modal').classList.remove('show'); }
+
+function openChangelog() {
+  document.getElementById('changelog-body').innerHTML = CHANGELOG.map(v=>`
+    <div class="doc-ver">
+      <div class="doc-ver-t">${v.v}${v.isNew?'<span class="doc-badge-new">NEW</span>':''}</div>
+      <div class="doc-ver-d">${v.d}</div>
+      <ul>${v.items.map(i=>`<li>${i}</li>`).join('')}</ul>
+    </div>`).join('');
+  document.getElementById('changelog-modal').classList.add('show');
+  localStorage.setItem('nova_seen_version', APP_VERSION);
+  const dot = document.getElementById('update-dot');
+  if (dot) dot.style.display = 'none';
+}
+function closeChangelog() { document.getElementById('changelog-modal').classList.remove('show'); }
+
+function checkNewVersion() {
+  const seen = localStorage.getItem('nova_seen_version');
+  const dot = document.getElementById('update-dot');
+  if (dot && seen !== APP_VERSION) dot.style.display = 'block';
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// ★ 조치 상태 관리
+// ════════════════════════════════════════════════════════════════════════════
+async function changeStatus(id, newStatus, ev) {
+  if (ev) ev.stopPropagation();
+  const d = defectsData[id];
+  if (!d || statusOf(d) === newStatus) return;
+  const prev = statusOf(d);
+  try {
+    const upd = { status: newStatus, statusUpdatedAt: Date.now(), statusUpdatedBy: currentUserName };
+    if (newStatus === '완료') upd.completedAt = Date.now();
+    else if (prev === '완료') upd.completedAt = null;
+    await db.ref(`defects/${id}`).update(upd);
+    await db.ref(`defects/${id}/actionLog`).push({
+      at: Date.now(), by: currentUserName, type: 'status',
+      text: `${prev} → ${newStatus}`
+    });
+    showToast(`상태를 '${newStatus}'(으)로 변경했습니다.`, 'success');
+    if (document.getElementById('detail-modal')?.classList.contains('show')) openDetail(id);
+    renderCurrentPage();
+  } catch(e) { showToast('변경 실패: ' + e.message, 'error'); }
+}
+
+async function addActionNote(id) {
+  const inp = document.getElementById('action-note-input');
+  const text = (inp?.value || '').trim();
+  if (!text) { showToast('조치 내용을 입력해 주세요.', 'error'); return; }
+  try {
+    await db.ref(`defects/${id}/actionLog`).push({ at: Date.now(), by: currentUserName, type: 'note', text });
+    inp.value = '';
+    showToast('조치 내역이 기록되었습니다.', 'success');
+    openDetail(id);
+  } catch(e) { showToast('기록 실패: ' + e.message, 'error'); }
+}
+
+function statusBadge(d) {
+  const s = statusOf(d), m = STATUS_META[s] || STATUS_META['미확인'];
+  return `<span class="st-badge" style="background:${m.bg};color:${m.color}">${m.icon} ${s}</span>`;
+}
+
+function renderStatusFlow(d) {
+  const cur = statusOf(d);
+  return `<div class="st-flow">${STATUS_FLOW.map(s => {
+    const m = STATUS_META[s], on = s === cur;
+    return `<button class="st-step ${on?'on':''}" onclick="changeStatus('${d.id}','${s}',event)"
+      style="${on?`border-color:${m.color};background:${m.bg};color:${m.color}`:'color:var(--text-secondary)'}">${m.icon}<br>${s}</button>`;
+  }).join('')}</div>`;
+}
+
+// ── 기록 탭 전환 ─────────────────────────────────────────────────────────────
+let currentRecordView = 'list';
+function switchRecordView(view) {
+  currentRecordView = view;
+  document.getElementById('record-list-view').style.display = view === 'list' ? '' : 'none';
+  document.getElementById('record-folder-view').style.display = view === 'folder' ? '' : 'none';
+  document.getElementById('tab-list').classList.toggle('active', view === 'list');
+  document.getElementById('tab-folder').classList.toggle('active', view === 'folder');
+  if (view === 'folder') renderContainerFolders();
+}
+
+function renderContainerFolders() {
+  const list = getList();
+  const folderMap = {};
+  list.forEach(d => {
+    const nums = (d.container || '').split(',').map(s => s.trim()).filter(Boolean);
+    if (nums.length === 0) nums.push('(번호 없음)');
+    nums.forEach(cn => {
+      if (!folderMap[cn]) folderMap[cn] = { items:[], containerType:'', containerDate:'' };
+      folderMap[cn].items.push(d);
+      if (!folderMap[cn].containerType && d.containerType) folderMap[cn].containerType = d.containerType;
+      if (!folderMap[cn].containerDate && d.containerDate) folderMap[cn].containerDate = d.containerDate;
+    });
+  });
+  const el = document.getElementById('folder-grid');
+  if (Object.keys(folderMap).length === 0) {
+    el.innerHTML = `<div class="empty" style="grid-column:1/-1"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style=""><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg><p>컨테이너 기록이 없습니다.</p></div>`;
+    return;
+  }
+  el.innerHTML = Object.entries(folderMap).sort(([a],[b]) => a.localeCompare(b)).map(([cn, info]) => {
+    const items = info.items;
+    const urgent = items.filter(d=>d.severity==='긴급').length;
+    const important = items.filter(d=>d.severity==='중요').length;
+    const normal = items.filter(d=>d.severity==='일반').length;
+    const lastDate = items.reduce((max, d) => d.date > max ? d.date : max, '');
+    const thumb = imgThumb(items.find(d => d.images?.length)?.images[0]) || '';
+    return `<div class="folder-card" onclick="openContainerFolder('${escapeHtml(cn)}')">
+      <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px">
+        ${thumb ? `<img src="${thumb}" loading="lazy" decoding="async" style="width:44px;height:44px;object-fit:cover;border-radius:6px;border:1px solid var(--border);flex-shrink:0">` : `<div style="width:44px;height:44px;border-radius:6px;background:var(--bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg style="width:20px;height:20px;color:var(--text-hint)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg></div>`}
+        <div class="folder-head">
+          <div class="folder-num" title="${escapeHtml(cn)}">${escapeHtml(cn)}</div>
+          <div class="folder-badges">
+            ${info.containerType ? `<span class="badge badge-blue" style="font-size:10px;padding:2px 7px">${escapeHtml(info.containerType)}</span>` : ''}
+            ${info.containerDate ? `<span style="font-size:11px;color:var(--text-secondary)">입고 ${fmtDate(info.containerDate)}</span>` : ''}
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:10px">
+        <span class="folder-count">${items.length}</span>
+        <span style="font-size:12px;color:var(--text-secondary)">건</span>
+        <span style="font-size:11px;color:var(--text-secondary);margin-left:auto">${lastDate ? fmtDate(lastDate) : ''}</span>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        ${urgent ? `<span class="badge badge-red">긴급 ${urgent}</span>` : ''}
+        ${important ? `<span class="badge badge-amber">중요 ${important}</span>` : ''}
+        ${normal ? `<span class="badge badge-teal">일반 ${normal}</span>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openContainerFolder(cn) {
+  switchRecordView('list');
+  refreshDynamicSelects();
+  const fContainer = document.getElementById('filter-container');
+  if (fContainer) { fContainer.value = cn; }
+  renderRecords();
+}
+
+function clearFilters() {
+  document.getElementById('search-input').value = '';
+  document.getElementById('filter-type').value = '';
+  if (document.getElementById('filter-container')) document.getElementById('filter-container').value = '';
+  if (document.getElementById('filter-status')) document.getElementById('filter-status').value = '';
+  document.getElementById('filter-claim').value = '';
+  document.getElementById('filter-from').value = '';
+  document.getElementById('filter-to').value = '';
+  renderRecords();
+}
+
+// ─── STATS ───────────────────────────────────────────────────────────────────
+// 검색 디바운스 (300ms)
+let _searchTimer = null;
+function debouncedRenderRecords() {
+  clearTimeout(_searchTimer);
+  _searchTimer = setTimeout(() => renderRecords(), 300);
+}
+
+// ★ 단일 순회 집계 (기존 6회 순회 → 1회)
+function aggregate(list) {
+  const thisMonth = new Date().toISOString().slice(0,7);
+  const agg = { total:list.length, thisMonth:0, bySev:{}, byType:{}, byReporter:{}, byMonth:{}, byClaim:{}, byContainer:{}, byProduct:{}, byStatus:{}, open:0, slaBreach:0, avgResolveHours:0 };
+  let resolveSum = 0, resolveCnt = 0;
+  for (const d of list) {
+    const st = statusOf(d);
+    agg.byStatus[st] = (agg.byStatus[st]||0)+1;
+    if (isOpen(d)) agg.open++;
+    if (slaBreach(d)) agg.slaBreach++;
+    if (d.completedAt && d.createdAt) { resolveSum += (d.completedAt - d.createdAt); resolveCnt++; }
+    if (d.date?.startsWith(thisMonth)) agg.thisMonth++;
+    if (d.severity) agg.bySev[d.severity] = (agg.bySev[d.severity]||0)+1;
+    if (d.defectType) agg.byType[d.defectType] = (agg.byType[d.defectType]||0)+1;
+    if (d.reporter) agg.byReporter[d.reporter] = (agg.byReporter[d.reporter]||0)+1;
+    if (d.claimSource) agg.byClaim[d.claimSource] = (agg.byClaim[d.claimSource]||0)+1;
+    if (d.product) agg.byProduct[d.product] = (agg.byProduct[d.product]||0)+1;
+    if (d.date) { const m = d.date.slice(0,7); agg.byMonth[m] = (agg.byMonth[m]||0)+1; }
+    (d.container||'').split(/[,&]/).map(s=>s.trim()).filter(Boolean).forEach(cn => {
+      if (!agg.byContainer[cn]) agg.byContainer[cn] = { count:0, urgent:0, important:0, normal:0, types:{}, date:'', ctype:'', open:0 };
+      const b = agg.byContainer[cn];
+      b.count++;
+      if (isOpen(d)) b.open++;
+      if (d.severity==='긴급') b.urgent++; else if (d.severity==='중요') b.important++; else b.normal++;
+      if (d.defectType) b.types[d.defectType] = (b.types[d.defectType]||0)+1;
+      if (!b.date && d.containerDate) b.date = d.containerDate;
+      if (!b.ctype && d.containerType) b.ctype = d.containerType;
+    });
+  }
+  agg.avgResolveHours = resolveCnt ? Math.round(resolveSum/resolveCnt/3600000) : 0;
+  agg.resolvedCount = resolveCnt;
+  return agg;
+}
+
+function renderStats() {
+  const list = getList();
+  const A = aggregate(list);
+  const reporters = Object.keys(A.byReporter);
+
+  document.getElementById('stats-summary').innerHTML = [
+    { label:'총 불량', value:A.total, color:'#1D9E75' },
+    { label:'이번달', value:A.thisMonth, color:'#185FA5' },
+    { label:'긴급 건수', value:A.bySev['긴급']||0, color:'#A32D2D' },
+    { label:'등록 담당자', value:reporters.length+'명', color:'#854F0B' },
+  ].map(s=>`<div class="stat-card"><div class="stat-label">${s.label}</div><div class="stat-value" style="color:${s.color}">${s.value}</div></div>`).join('');
+
+  const allTypesStats = [...DEFECT_TYPES, ...customOptions.defectType.filter(v=>!DEFECT_TYPES.includes(v))];
+  renderBarChart('stats-type-chart', allTypesStats.map((t,i) => ({ label:t, value:A.byType[t]||0, color:TYPE_COLORS[i % TYPE_COLORS.length] })), A.total);
+  const allSeverities = [...SEVERITY_BASE, ...customOptions.severity.filter(v=>!SEVERITY_BASE.includes(v))];
+  const sevColors = { 긴급:'#E24B4A', 중요:'#BA7517', 일반:'#1D9E75' };
+  renderBarChart('stats-severity-chart', allSeverities.map((s,i) => ({ label:s, value:A.bySev[s]||0, color: sevColors[s] || TYPE_COLORS[i % TYPE_COLORS.length] })), A.total);
+
+  const repCounts = reporters.map(r => ({ label:r, value:A.byReporter[r], color:'#1D9E75' })).sort((a,b)=>b.value-a.value).slice(0,8);
+  renderBarChart('stats-reporter-chart', repCounts, repCounts.reduce((s,r)=>s+r.value,0)||1);
+
+  const months = Object.keys(A.byMonth).sort().slice(-6);
+  renderBarChart('stats-monthly-chart', months.map(m => ({ label:m.slice(5)+'월', value:A.byMonth[m], color:'#1D9E75' })), Math.max(...months.map(m=>A.byMonth[m]),1));
+
+  // 조치 상태 분포
+  renderBarChart('stats-status-chart', STATUS_FLOW.map(s => ({ label:s, value:A.byStatus[s]||0, color:STATUS_META[s].color })), A.total);
+
+  // 클레임 경로
+  const claimKeys = [...CLAIM_SOURCES, ...customOptions.claimSource.filter(v=>!CLAIM_SOURCES.includes(v))];
+  renderBarChart('stats-claim-chart', claimKeys.map((k,i) => ({ label:k, value:A.byClaim[k]||0, color:TYPE_COLORS[i % TYPE_COLORS.length] })), A.total);
+
+  // 컨테이너별 집계표
+  const rows = Object.entries(A.byContainer).sort((a,b)=>b[1].count-a[1].count);
+  document.getElementById('stats-container-tbody').innerHTML = rows.length === 0
+    ? `<tr><td colspan="9" style="text-align:center;padding:28px;color:var(--text-secondary);font-size:13px">데이터가 없습니다.</td></tr>`
+    : rows.map(([cn,b])=>{
+        const done = b.count - b.open;
+        const pct = b.count ? Math.round(done/b.count*100) : 0;
+        return `<tr onclick="openContainerFromInsight('${escapeHtml(cn)}')" style="cursor:pointer">
+          <td style="font-weight:700;color:#185FA5;font-variant-numeric:tabular-nums">${escapeHtml(cn)}</td>
+          <td>${b.ctype?`<span class="badge badge-blue">${escapeHtml(b.ctype)}</span>`:'-'}</td>
+          <td style="color:var(--text-secondary);white-space:nowrap">${b.date?fmtDate(b.date):'-'}</td>
+          <td style="text-align:right;font-weight:700;font-variant-numeric:tabular-nums">${b.count}</td>
+          <td style="text-align:right;color:${b.urgent?'#A32D2D':'var(--text-hint)'};font-variant-numeric:tabular-nums">${b.urgent||'-'}</td>
+          <td style="text-align:right;color:${b.important?'#BA7517':'var(--text-hint)'};font-variant-numeric:tabular-nums">${b.important||'-'}</td>
+          <td style="text-align:right;color:var(--text-secondary);font-variant-numeric:tabular-nums">${b.normal||'-'}</td>
+          <td style="text-align:right;color:${b.open?'#A32D2D':'#0F6E56'};font-weight:600;font-variant-numeric:tabular-nums">${b.open}</td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">
+            <span style="font-weight:600;color:${pct===100?'#0F6E56':pct>=50?'#BA7517':'#A32D2D'}">${pct}%</span>
+          </td>
+        </tr>`;
+      }).join('');
+}
+
+// 긴급 배너 확인 완료 처리
+async function acknowledgeUrgent() {
+  const list = getList();
+  const urgentItems = list.filter(d=>d.severity==='긴급');
+  const updates = {};
+  urgentItems.forEach(d => { updates[d.id] = true; });
+  try {
+    await db.ref('meta/acknowledgedUrgent').update(updates);
+    showToast('긴급 불량을 확인 처리했습니다.', 'success');
+  } catch(e) { showToast('처리 실패: ' + e.message, 'error'); }
+}
+
+function renderBarChart(id, items, total) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const max = Math.max(...items.map(i=>i.value), 1);
+  el.innerHTML = items.filter(i=>i.value>=0).map(i => `
+    <div class="chart-bar-row">
+      <div class="chart-bar-label" title="${i.label}">${i.label}</div>
+      <div class="chart-bar-track"><div class="chart-bar-fill" style="width:${total>0?Math.round(i.value/max*100):0}%;background:${i.color}"></div></div>
+      <div class="chart-bar-count" style="color:${i.color}">${i.value}</div>
+    </div>`).join('');
+}
+
+// ─── ADD / EDIT FORM ─────────────────────────────────────────────────────────
+function initAddForm(id) {
+  currentEditId = id || null;
+  pendingImages = [];
+  document.getElementById('edit-id').value = id || '';
+  document.getElementById('form-title').textContent = id ? '불량 기록 수정' : '불량 기록 등록';
+  document.getElementById('img-preview-grid').innerHTML = '';
+  // 기타 직접입력란 초기화
+  ['f-product-other','f-type-other','f-severity-other','f-claim-other','f-container-type-other'].forEach(oid => {
+    const el = document.getElementById(oid);
+    if (el) { el.value = ''; el.classList.remove('show'); }
+  });
+
+  if (id && defectsData[id]) {
+    const d = defectsData[id];
+    document.getElementById('f-date').value = d.date || today();
+    document.getElementById('f-reporter').value = d.reporter || '';
+    document.getElementById('f-product').innerHTML = buildOptionsHtml(PRODUCTS_BASE, 'product', d.product || PRODUCTS_BASE[0]);
+    document.getElementById('f-container').value = d.container || '';
+    document.getElementById('f-container-date').value = d.containerDate || '';
+    const ctSel = document.getElementById('f-container-type');
+    const ctArr = ['B2C','B2B','기타'];
+    ctSel.value = ctArr.includes(d.containerType) ? d.containerType : 'B2C';
+    document.getElementById('f-type').innerHTML = buildOptionsHtml(DEFECT_TYPES, 'defectType', d.defectType || DEFECT_TYPES[0]);
+    document.getElementById('f-severity').innerHTML = buildOptionsHtml(SEVERITY_BASE, 'severity', d.severity || '일반');
+    document.getElementById('f-claim').innerHTML = buildOptionsHtml(CLAIM_SOURCES, 'claimSource', d.claimSource || CLAIM_SOURCES[0]);
+    document.getElementById('f-desc').value = d.desc || '';
+    if (d.images) { pendingImages = [...d.images]; renderImagePreviews(); }
+  } else {
+    document.getElementById('f-date').value = today();
+    ['f-reporter','f-container','f-desc'].forEach(iid => document.getElementById(iid).value = '');
+    document.getElementById('f-container-date').value = '';
+    document.getElementById('f-container-type').value = 'B2C';
+    document.getElementById('f-product').innerHTML = buildOptionsHtml(PRODUCTS_BASE, 'product', PRODUCTS_BASE[0]);
+    document.getElementById('f-type').innerHTML = buildOptionsHtml(DEFECT_TYPES, 'defectType', DEFECT_TYPES[0]);
+    document.getElementById('f-severity').innerHTML = buildOptionsHtml(SEVERITY_BASE, 'severity', '일반');
+    document.getElementById('f-claim').innerHTML = buildOptionsHtml(CLAIM_SOURCES, 'claimSource', CLAIM_SOURCES[0]);
+  }
+}
+
+function editRecord(id) {
+  navigate('add');
+  initAddForm(id);
+}
+
+async function handleImageUpload(event) {
+  const files = [...event.target.files];
+  const MAX_MB = 15;
+  let okCount = 0, failCount = 0;
+  showToast(`이미지 ${files.length}장 처리 중...`, '');
+  for (const file of files) {
+    try {
+      if (!file.type.startsWith('image/')) { failCount++; continue; }
+      if (file.size > MAX_MB * 1024 * 1024) {
+        showToast(`${file.name}: ${MAX_MB}MB 초과로 제외되었습니다.`, 'error');
+        failCount++; continue;
+      }
+      // ★ 원본(1200px)과 썸네일(200px) 분리 생성 → 목록 로딩 대역폭 대폭 절감
+      const full = await compressImage(file, 1200, 0.72);
+      const thumb = await compressImage(file, 200, 0.6);
+      pendingImages.push({ id: Date.now() + Math.random(), data: full, thumb, name: file.name });
+      okCount++;
+    } catch(e) {
+      console.error('이미지 처리 실패:', file.name, e);
+      failCount++;
+    }
+  }
+  renderImagePreviews();
+  event.target.value = '';
+  if (failCount > 0) showToast(`${okCount}장 첨부 완료 · ${failCount}장 실패`, 'error');
+  else if (okCount > 0) showToast(`이미지 ${okCount}장 첨부 완료`, 'success');
+}
+
+// 썸네일 우선 반환 (구버전 데이터 호환)
+function imgThumb(img) { return img?.thumb || img?.data || ''; }
+
+function compressImage(file, maxPx, quality) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let w = img.width, h = img.height;
+        if (w > maxPx || h > maxPx) {
+          if (w > h) { h = Math.round(h * maxPx / w); w = maxPx; }
+          else { w = Math.round(w * maxPx / h); h = maxPx; }
+        }
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = () => reject(new Error('이미지 디코딩 실패'));
+      img.src = e.target.result;
+    };
+    reader.onerror = () => reject(new Error('파일 읽기 실패'));
+    reader.readAsDataURL(file);
+  });
+}
+
+function removeImage(id) {
+  pendingImages = pendingImages.filter(i => i.id !== id);
+  renderImagePreviews();
+}
+
+function renderImagePreviews() {
+  document.getElementById('img-preview-grid').innerHTML = pendingImages.map(img => `
+    <div class="img-wrap">
+      <img src="${imgThumb(img)}" alt="${img.name}" loading="lazy" onclick="openLightboxById('${img.id}')">
+      <button class="img-del" onclick="removeImage(${img.id})" type="button">×</button>
+    </div>`).join('');
+}
+
+async function submitForm() {
+  const date = document.getElementById('f-date').value;
+  const reporter = document.getElementById('f-reporter').value.trim();
+  const desc = document.getElementById('f-desc').value.trim();
+  const product = getFinalValue('f-product', 'f-product-other');
+  if (!date || !reporter || !product || !desc) { showToast('날짜, 담당자, 제품명, 불량 내용은 필수입니다.', 'error'); return; }
+
+  const defectType = getFinalValue('f-type', 'f-type-other');
+  const severity = getFinalValue('f-severity', 'f-severity-other');
+  const claimSource = getFinalValue('f-claim', 'f-claim-other');
+  const containerTypeRaw = document.getElementById('f-container-type').value;
+  const containerTypeOther = document.getElementById('f-container-type-other')?.value.trim() || '';
+  const containerType = containerTypeRaw === '기타' && containerTypeOther ? containerTypeOther : containerTypeRaw;
+  // ★ 날짜 유효성 검증
+  const containerDate = document.getElementById('f-container-date').value || '';
+  const todayStr = today();
+  if (date > todayStr) { showToast('불량 발생일은 미래 날짜로 지정할 수 없습니다.', 'error'); return; }
+  if (containerDate) {
+    if (containerDate > todayStr) { showToast('컨테이너 입고일자는 미래 날짜로 지정할 수 없습니다.', 'error'); return; }
+    if (containerDate > date) { showToast('컨테이너 입고일자가 불량 발생일보다 늦을 수 없습니다.', 'error'); return; }
+  }
+  if (!defectType) { showToast('불량 유형을 입력해 주세요.', 'error'); return; }
+  if (!severity) { showToast('심각도를 입력해 주세요.', 'error'); return; }
+  if (!claimSource) { showToast('클레임 접수 경로를 입력해 주세요.', 'error'); return; }
+
+  const id = currentEditId || db.ref('defects').push().key;
+  const data = {
+    date, reporter, product, desc,
+    container: document.getElementById('f-container').value.trim().toUpperCase(),
+    containerDate,
+    containerType,
+    defectType, severity, claimSource,
+    images: pendingImages,
+    createdAt: currentEditId ? (defectsData[currentEditId]?.createdAt || Date.now()) : Date.now(),
+    updatedAt: Date.now(),
+  };
+  try {
+    await db.ref(`defects/${id}`).set(data);
+    await persistCustomOptionIfNew('product', PRODUCTS_BASE, product);
+    await persistCustomOptionIfNew('defectType', DEFECT_TYPES, defectType);
+    await persistCustomOptionIfNew('severity', SEVERITY_BASE, severity);
+    await persistCustomOptionIfNew('claimSource', CLAIM_SOURCES, claimSource);
+    showToast(currentEditId ? '수정되었습니다.' : '등록되었습니다.', 'success');
+    navigate('records');
+  } catch(e) { showToast('저장 실패: ' + e.message, 'error'); }
+}
+
+// ★ 소프트 삭제 - 휴지통으로 이동 (복구 가능)
+async function deleteRecord(id) {
+  if (!confirm('이 불량 기록을 삭제하시겠습니까?\n(휴지통으로 이동되며 관리자가 복구할 수 있습니다)')) return;
+  try {
+    await db.ref(`defects/${id}`).update({
+      deleted: true,
+      deletedAt: Date.now(),
+      deletedBy: currentUserName || currentRole || '알 수 없음'
+    });
+    showToast('휴지통으로 이동되었습니다.');
+    closeDetail();
+    renderRecords();
+  } catch(e) { showToast('삭제 실패: ' + e.message, 'error'); }
+}
+
+// 휴지통에서 복구
+async function restoreRecord(id) {
+  if (!confirm('이 기록을 복구하시겠습니까?')) return;
+  try {
+    await db.ref(`defects/${id}`).update({ deleted: null, deletedAt: null, deletedBy: null });
+    showToast('복구되었습니다.', 'success');
+    renderTrash();
+  } catch(e) { showToast('복구 실패: ' + e.message, 'error'); }
+}
+
+// 휴지통에서 영구 삭제 (관리자 전용)
+async function purgeRecord(id) {
+  if (currentRole !== 'admin') { showToast('관리자만 영구 삭제할 수 있습니다.', 'error'); return; }
+  if (!confirm('⚠️ 영구 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.')) return;
+  try {
+    await db.ref(`defects/${id}`).remove();
+    showToast('영구 삭제되었습니다.');
+    renderTrash();
+  } catch(e) { showToast('삭제 실패: ' + e.message, 'error'); }
+}
+
+// ─── DETAIL MODAL ────────────────────────────────────────────────────────────
+function openDetail(id) {
+  const d = defectsData[id];
+  if (!d) return;
+  document.getElementById('detail-content').innerHTML = `
+    <div class="detail-meta">
+      <span class="k">날짜</span><span class="v">${fmtDate(d.date)}</span>
+      <span class="k">담당자</span><span class="v">${d.reporter}</span>
+      <span class="k">제품명</span><span class="v">${d.product}</span>
+      <span class="k">컨테이너 번호</span><span class="v" style="color:#185FA5;font-weight:700;font-variant-numeric:tabular-nums">${d.container||'-'}</span>
+      <span class="k">컨테이너 입고일자</span><span class="v">${d.containerDate ? fmtDate(d.containerDate) : '-'}</span>
+      <span class="k">컨테이너 구분</span><span class="v">${d.containerType ? `<span class="badge badge-blue">${escapeHtml(d.containerType)}</span>` : '-'}</span>
+      <span class="k">불량 유형</span><span class="v"><span class="badge badge-gray">${d.defectType}</span></span>
+      <span class="k">심각도</span><span class="v"><span class="badge ${SEVERITY_MAP[d.severity]||'badge-gray'}">${d.severity}</span></span>
+      <span class="k">클레임 접수 경로</span><span class="v"><span class="badge badge-blue">${d.claimSource||'-'}</span></span>
+      <span class="k">등록 시각</span><span class="v" style="color:var(--text-secondary);font-size:12px">${fmtTs(d.createdAt)}</span>
+    </div>
+    <div class="detail-desc">${d.desc}</div>
+    ${d.images?.length ? `<p style="font-size:12px;color:var(--text-secondary);margin-bottom:8px">첨부 이미지 ${d.images.length}장</p><div class="detail-imgs">${d.images.map((img,i)=>`<img src="${imgThumb(img)}" alt="" loading="lazy" decoding="async" onclick="openDetailImage('${d.id}',${i})" title="클릭하여 크게 보기">`).join('')}</div>` : ''}
+
+    <!-- ★ 조치 상태 관리 -->
+    <div style="margin-top:20px;padding-top:18px;border-top:1px solid var(--border)">
+      <div style="display:flex;align-items:center;gap:9px;margin-bottom:2px;flex-wrap:wrap">
+        <span style="font-size:13px;font-weight:600">조치 상태</span>
+        ${statusBadge(d)}
+        ${slaBreach(d)?`<span class="st-sla">⏱ 대응기한 초과 (${d.severity} ${SLA_HOURS[d.severity]}시간)</span>`:''}
+      </div>
+      <div style="font-size:11px;color:var(--text-hint)">${d.statusUpdatedAt?`최종 변경 ${fmtTs(d.statusUpdatedAt)} · ${escapeHtml(d.statusUpdatedBy||'')}`:'아직 조치 이력이 없습니다'}</div>
+      ${renderStatusFlow(d)}
+      <div style="font-size:12px;font-weight:600;margin:14px 0 6px">조치 내역</div>
+      ${(() => {
+        const logs = d.actionLog ? Object.values(d.actionLog).sort((a,b)=>b.at-a.at) : [];
+        return logs.length
+          ? `<div class="st-log">${logs.map(l=>`<div class="st-log-item"><div class="st-log-t">${fmtTs(l.at)} · ${escapeHtml(l.by||'')}</div><div class="st-log-b">${l.type==='status'?`상태 변경: <b>${escapeHtml(l.text)}</b>`:escapeHtml(l.text)}</div></div>`).join('')}</div>`
+          : `<div style="font-size:12px;color:var(--text-hint);padding:8px 0">기록된 조치 내역이 없습니다.</div>`;
+      })()}
+      <div class="st-note-box">
+        <input id="action-note-input" placeholder="조치 내용을 입력하세요 (예: 공급처 통보 완료)" onkeydown="if(event.key==='Enter')addActionNote('${d.id}')">
+        <button class="btn btn-primary btn-sm" onclick="addActionNote('${d.id}')">기록</button>
+      </div>
+    </div>`;
+
+  document.getElementById('detail-del-btn').style.display = currentRole === 'admin' ? '' : 'none';
+  document.getElementById('detail-del-btn').onclick = () => deleteRecord(id);
+  document.getElementById('detail-edit-btn').onclick = () => { closeDetail(); editRecord(id); };
+  document.getElementById('detail-modal').style.display = 'flex';
+}
+
+function closeDetail() { document.getElementById('detail-modal').style.display = 'none'; }
+
+// 폼 미리보기: id로 원본 열기
+function openLightboxById(imgId) {
+  const img = pendingImages.find(i => String(i.id) === String(imgId));
+  if (img) openLightbox(img.data);
+}
+// 상세보기: 인덱스로 원본 열기
+function openDetailImage(recId, idx) {
+  const d = defectsData[recId];
+  if (d?.images?.[idx]) openLightbox(d.images[idx].data);
+}
+
+function openLightbox(src) {
+  document.getElementById('lightbox-img').src = src;
+  document.getElementById('lightbox').style.display = 'flex';
+}
+
+// ════════════════════════════════════════════════════════════════════════
+// ★ 엑셀(.xlsx) / PDF(.pdf) 내보내기
+// ════════════════════════════════════════════════════════════════════════
+
+function todayStamp() {
+  const d = new Date();
+  return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 1000);
+}
+
+function setExportBusy(btnId, busy, busyLabel, idleLabel) {
+  const btn = document.getElementById(btnId);
+  if (!btn) return;
+  btn.disabled = busy;
+  btn.style.opacity = busy ? '0.6' : '1';
+  btn.style.pointerEvents = busy ? 'none' : 'auto';
+}
+
+// ── 전체 기록 → 엑셀 (이미지 포함, 표 형태) ────────────────────────────────
+async function exportRecordsExcel() {
+  const list = getFiltered();
+  if (list.length === 0) { showToast('내보낼 기록이 없습니다.', 'error'); return; }
+  setExportBusy('btn-export-records-xlsx', true);
+  try {
+    const wb = new ExcelJS.Workbook();
+    wb.creator = 'NOVA QC Dashboard';
+    const sheet = wb.addWorksheet('불량기록', { views: [{ state: 'frozen', ySplit: 1 }] });
+
+    const cols = [
+      { header: '날짜', key: 'date', width: 12 },
+      { header: '담당자', key: 'reporter', width: 10 },
+      { header: '제품명', key: 'product', width: 16 },
+      { header: '컨테이너', key: 'container', width: 14 },
+      { header: '불량유형', key: 'defectType', width: 12 },
+      { header: '심각도', key: 'severity', width: 8 },
+      { header: '클레임경로', key: 'claimSource', width: 13 },
+      { header: '조치상태', key: 'status', width: 10 },
+      { header: '조치완료일', key: 'completedAt', width: 13 },
+      { header: '불량내용', key: 'desc', width: 36 },
+      { header: '사진', key: 'image', width: 16 },
+    ];
+    sheet.columns = cols;
+
+    const headerRow = sheet.getRow(1);
+    headerRow.eachCell(cell => {
+      cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1D9E75' } };
+      cell.alignment = { vertical: 'middle', horizontal: 'center' };
+    });
+    headerRow.height = 22;
+
+    list.forEach((d, idx) => {
+      const rowIdx = idx + 2; // 1=header
+      const row = sheet.addRow({
+        date: fmtDate(d.date),
+        reporter: d.reporter || '',
+        product: d.product || '',
+        container: d.container || '',
+        defectType: d.defectType || '',
+        severity: d.severity || '',
+        claimSource: d.claimSource || '',
+        status: statusOf(d),
+        completedAt: d.completedAt ? fmtDate(new Date(d.completedAt).toISOString().slice(0,10)) : '',
+        desc: d.desc || '',
+        image: '',
+      });
+      row.alignment = { vertical: 'middle', wrapText: true };
+      row.height = 70;
+
+      // 심각도 색상 표시
+      const sevColor = d.severity === '긴급' ? 'FFFCEBEB' : d.severity === '중요' ? 'FFFAEEDA' : 'FFE1F5EE';
+      row.getCell('severity').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: sevColor } };
+      const stName = statusOf(d);
+      const stFill = stName==='완료'?'FFE1F5EE':stName==='미확인'?'FFFCEBEB':stName==='조치중'?'FFE6F1FB':stName==='확인'?'FFFAEEDA':'FFF1F1EF';
+      row.getCell('status').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: stFill } };
+
+      // 이미지 임베드 (첫 번째 사진)
+      if (d.images && d.images.length > 0) {
+        try {
+          const img = d.images[0];
+          const ext = (img.data.match(/^data:image\/(\w+);/)||[])[1] === 'png' ? 'png' : 'jpeg';
+          const imgId = wb.addImage({ base64: img.data, extension: ext });
+          sheet.addImage(imgId, {
+            tl: { col: 10.05, row: rowIdx - 1 + 0.05 },
+            ext: { width: 90, height: 90 },
+            editAs: 'oneCell'
+          });
+          if (d.images.length > 1) {
+            row.getCell('image').value = `(+${d.images.length - 1}장 더보기)`;
+            row.getCell('image').font = { size: 9, color: { argb: 'FF9CA3AF' } };
+            row.getCell('image').alignment = { vertical: 'bottom', horizontal: 'center' };
+          }
+        } catch(e) { /* 이미지 임베드 실패 시 건너뜀 */ }
+      }
+    });
+
+    // 테두리
+    sheet.eachRow(row => {
+      row.eachCell(cell => {
+        cell.border = { top:{style:'thin',color:{argb:'FFE5E7EB'}}, left:{style:'thin',color:{argb:'FFE5E7EB'}}, bottom:{style:'thin',color:{argb:'FFE5E7EB'}}, right:{style:'thin',color:{argb:'FFE5E7EB'}} };
+      });
+    });
+
+    const buf = await wb.xlsx.writeBuffer();
+    downloadBlob(new Blob([buf], { type: 'application/octet-stream' }), `NOVA_불량기록_${todayStamp()}.xlsx`);
+    showToast('엑셀 파일이 다운로드되었습니다.', 'success');
+  } catch(e) {
+    showToast('엑셀 생성 실패: ' + e.message, 'error');
+  } finally {
+    setExportBusy('btn-export-records-xlsx', false);
+  }
+}
+
+// ── 전체 기록 → PDF (현재 화면 표를 그대로 캡처) ───────────────────────────
+async function exportRecordsPDF() {
+  const list = getFiltered();
+  if (list.length === 0) { showToast('내보낼 기록이 없습니다.', 'error'); return; }
+  setExportBusy('btn-export-records-pdf', true);
+  showToast('PDF 생성 중입니다...', '');
+  try {
+    await capturePDF('records-capture-area', `NOVA_불량기록_${todayStamp()}.pdf`, 'NOVA 불량 기록');
+    showToast('PDF 파일이 다운로드되었습니다.', 'success');
+  } catch(e) {
+    showToast('PDF 생성 실패: ' + e.message, 'error');
+  } finally {
+    setExportBusy('btn-export-records-pdf', false);
+  }
+}
+
+// ── 통계 분석 → 엑셀 ────────────────────────────────────────────────────
+async function exportStatsExcel() {
+  const list = getList();
+  setExportBusy('btn-export-stats-xlsx', true);
+  try {
+    const wb = new ExcelJS.Workbook();
+    const reporters = [...new Set(list.map(d=>d.reporter).filter(Boolean))];
+    const allTypes = [...DEFECT_TYPES, ...customOptions.defectType.filter(v=>!DEFECT_TYPES.includes(v))];
+    const allSeverities = [...SEVERITY_BASE, ...customOptions.severity.filter(v=>!SEVERITY_BASE.includes(v))];
+    const allClaims = [...CLAIM_SOURCES, ...customOptions.claimSource.filter(v=>!CLAIM_SOURCES.includes(v))];
+
+    const styleHeader = (row) => { row.eachCell(c => { c.font={bold:true,color:{argb:'FFFFFFFF'}}; c.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF1D9E75'}}; }); };
+
+    // 요약
+    const s1 = wb.addWorksheet('요약');
+    s1.columns = [{header:'항목',key:'k',width:20},{header:'값',key:'v',width:16}];
+    styleHeader(s1.getRow(1));
+    s1.addRows([
+      { k:'총 불량', v: list.length },
+      { k:'이번달', v: list.filter(d=>d.date?.startsWith(new Date().toISOString().slice(0,7))).length },
+      { k:'긴급 건수', v: list.filter(d=>d.severity==='긴급').length },
+      { k:'등록 담당자 수', v: reporters.length },
+    ]);
+
+    // 유형별
+    const s2 = wb.addWorksheet('유형별 분포');
+    s2.columns = [{header:'불량유형',key:'k',width:18},{header:'건수',key:'v',width:10}];
+    styleHeader(s2.getRow(1));
+    allTypes.forEach(t => s2.addRow({ k:t, v: list.filter(d=>d.defectType===t).length }));
+
+    // 심각도별
+    const s3 = wb.addWorksheet('심각도 분포');
+    s3.columns = [{header:'심각도',key:'k',width:14},{header:'건수',key:'v',width:10}];
+    styleHeader(s3.getRow(1));
+    allSeverities.forEach(sv => s3.addRow({ k:sv, v: list.filter(d=>d.severity===sv).length }));
+
+    // 클레임 경로별
+    const s4 = wb.addWorksheet('클레임 경로');
+    s4.columns = [{header:'클레임 접수 경로',key:'k',width:20},{header:'건수',key:'v',width:10}];
+    styleHeader(s4.getRow(1));
+    allClaims.forEach(cl => s4.addRow({ k:cl, v: list.filter(d=>d.claimSource===cl).length }));
+
+    // 담당자별
+    const s5 = wb.addWorksheet('담당자별');
+    s5.columns = [{header:'담당자',key:'k',width:14},{header:'건수',key:'v',width:10}];
+    styleHeader(s5.getRow(1));
+    reporters.sort((a,b)=>list.filter(d=>d.reporter===b).length-list.filter(d=>d.reporter===a).length)
+      .forEach(r => s5.addRow({ k:r, v: list.filter(d=>d.reporter===r).length }));
+
+    // 월별 추이
+    const s6 = wb.addWorksheet('월별 추이');
+    s6.columns = [{header:'월',key:'k',width:12},{header:'건수',key:'v',width:10}];
+    styleHeader(s6.getRow(1));
+    const monthMap = {};
+    list.forEach(d => { if(d.date){ const m=d.date.slice(0,7); monthMap[m]=(monthMap[m]||0)+1; }});
+    Object.keys(monthMap).sort().forEach(m => s6.addRow({ k:m, v: monthMap[m] }));
+
+    const buf = await wb.xlsx.writeBuffer();
+    downloadBlob(new Blob([buf], { type: 'application/octet-stream' }), `NOVA_리포트_${todayStamp()}.xlsx`);
+    showToast('엑셀 파일이 다운로드되었습니다.', 'success');
+  } catch(e) {
+    showToast('엑셀 생성 실패: ' + e.message, 'error');
+  } finally {
+    setExportBusy('btn-export-stats-xlsx', false);
+  }
+}
+
+// ── 통계 분석 → PDF ─────────────────────────────────────────────────────
+async function exportStatsPDF() {
+  setExportBusy('btn-export-stats-pdf', true);
+  showToast('PDF 생성 중입니다...', '');
+  try {
+    await capturePDF('stats-capture-area', `NOVA_리포트_${todayStamp()}.pdf`, 'NOVA 리포트');
+    showToast('PDF 파일이 다운로드되었습니다.', 'success');
+  } catch(e) {
+    showToast('PDF 생성 실패: ' + e.message, 'error');
+  } finally {
+    setExportBusy('btn-export-stats-pdf', false);
+  }
+}
+
+// ── 공통: 화면 영역을 캡처해서 여러 페이지 PDF로 저장 ──────────────────────
+async function capturePDF(elementId, filename, title) {
+  const el = document.getElementById(elementId);
+  if (!el) throw new Error('대상 영역을 찾을 수 없습니다.');
+  const canvas = await html2canvas(el, { scale: 2, backgroundColor: '#ffffff', useCORS: true });
+  const imgData = canvas.toDataURL('image/png');
+
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'a4' });
+  const pageW = pdf.internal.pageSize.getWidth();
+  const pageH = pdf.internal.pageSize.getHeight();
+  const margin = 28;
+
+  // 제목 + 날짜
+  pdf.setFontSize(14);
+  pdf.text(title, margin, margin);
+  pdf.setFontSize(9);
+  pdf.setTextColor(120);
+  pdf.text(`생성일: ${fmtTs(Date.now())}`, margin, margin + 14);
+  pdf.setTextColor(0);
+
+  const contentTop = margin + 26;
+  const imgWidth = pageW - margin * 2;
+  const imgHeight = canvas.height * imgWidth / canvas.width;
+
+  let heightLeft = imgHeight;
+  let position = contentTop;
+  pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
+  heightLeft -= (pageH - contentTop - margin);
+
+  while (heightLeft > 0) {
+    position = contentTop - (imgHeight - heightLeft);
+    pdf.addPage();
+    pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
+    heightLeft -= (pageH - margin * 2);
+  }
+
+  pdf.save(filename);
+}
+
+// ─── TOAST ───────────────────────────────────────────────────────────────────
+let toastTimer;
+function showToast(msg, type='') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show' + (type?' '+type:'');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { el.className = 'toast'; }, 2800);
+}
+
+// ════════════════════════════════════════════════════════════════════
+// ★ 로그인 정보 (변경 시 이 값만 수정)
+const ADMIN_ID  = 'dailyhome_admin';
+const ADMIN_PW  = 'Wlstlarkatjd2026!';
+const ADMIN_KEY = 'NOVA-ADMIN-2024';
+// (구버전 직원 공용 계정 — 구글 로그인 전환으로 미사용, 참고용 보관)
+// const STAFF_ID = 'dailyhomeqc';
+// const STAFF_PW = 'wlstlarkatjd2026!';
+// ════════════════════════════════════════════════════════════════════
+
+// ★ Firebase 설정 내장
+const PRESET_CONFIG = {
+  apiKey: "YOUR_FIREBASE_API_KEY",
+  authDomain: "your-project.firebaseapp.com",
+  databaseURL: "https://your-project.firebaseio.com",
+  projectId: "your-project",
+  storageBucket: "your-project.firebasestorage.app",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+
+// 현재 로그인 역할 ('admin' | 'staff')
+let currentRole = '';
+let currentUserName = '';
+
+// ════════════════════════════════════════════════════════════════════════════
+// ★ 구글 로그인 (회사 도메인 제한) + 관리자 백업 로그인
+// ════════════════════════════════════════════════════════════════════════════
+const ALLOWED_DOMAIN = 'example.com';   // 이 도메인 계정만 접속 허용
+let currentUserEmail = '';
+let currentUserPhoto = '';
+
+function showAdminLogin() {
+  document.getElementById('google-login-block').style.display = 'none';
+  document.getElementById('admin-login-block').style.display = '';
+  document.getElementById('login-error').style.display = 'none';
+  document.getElementById('login-id').focus();
+}
+function showGoogleLogin() {
+  document.getElementById('admin-login-block').style.display = 'none';
+  document.getElementById('google-login-block').style.display = '';
+  document.getElementById('login-error').style.display = 'none';
+  ['login-id','login-pw','login-key'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+}
+
+function loginError(msg) {
+  const err = document.getElementById('login-error');
+  err.textContent = '⚠ ' + msg;
+  err.style.display = 'block';
+}
+
+// 구글 로그인 실행
+async function signInWithGoogle() {
+  const btn = document.getElementById('google-btn');
+  const txt = document.getElementById('google-btn-text');
+  try {
+    // Firebase 앱이 아직 없으면 먼저 초기화 (인증은 DB보다 선행되어야 함)
+    if (!firebase.apps.length) firebase.initializeApp(PRESET_CONFIG);
+    btn.disabled = true; txt.textContent = '로그인 창을 여는 중...';
+    document.getElementById('login-error').style.display = 'none';
+
+    const provider = new firebase.auth.GoogleAuthProvider();
+    provider.setCustomParameters({ hd: ALLOWED_DOMAIN, prompt: 'select_account' });
+    const res = await firebase.auth().signInWithPopup(provider);
+    const user = res.user;
+    const email = (user.email || '').toLowerCase();
+
+    // ★ 서버가 hd를 무시할 수 있으므로 클라이언트에서 반드시 재검증
+    if (!email.endsWith('@' + ALLOWED_DOMAIN)) {
+      await firebase.auth().signOut();
+      loginError(`회사 계정(@${ALLOWED_DOMAIN})으로만 접속할 수 있습니다.`);
+      btn.disabled = false; txt.textContent = '회사 구글 계정으로 로그인';
+      return;
+    }
+
+    currentUserEmail = email;
+    currentUserPhoto = user.photoURL || '';
+    sessionStorage.setItem('nova_role', 'staff');
+    sessionStorage.setItem('nova_auth_mode', 'google');
+    document.getElementById('login-screen').style.display = 'none';
+    initApp('staff', user.displayName || email.split('@')[0], email, currentUserPhoto);
+  } catch(e) {
+    const code = e?.code || '';
+    if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') {
+      // 사용자가 직접 닫은 경우 - 조용히 복귀
+    } else if (code === 'auth/popup-blocked') {
+      loginError('팝업이 차단되었습니다. 브라우저 팝업 허용 후 다시 시도해 주세요.');
+    } else if (code === 'auth/unauthorized-domain') {
+      loginError('승인되지 않은 도메인입니다. 관리자에게 문의해 주세요.');
+    } else if (code === 'auth/operation-not-allowed') {
+      loginError('구글 로그인이 아직 활성화되지 않았습니다. 관리자에게 문의해 주세요.');
+    } else {
+      loginError('로그인에 실패했습니다. ' + (e?.message || ''));
+    }
+    console.error('Google 로그인 실패:', e);
+  } finally {
+    btn.disabled = false; txt.textContent = '회사 구글 계정으로 로그인';
+  }
+}
+
+// ─── 관리자 백업 로그인 ──────────────────────────────────────────────────────
+function attemptLogin() {
+  const id  = document.getElementById('login-id').value.trim();
+  const pw  = document.getElementById('login-pw').value;
+  const key = document.getElementById('login-key').value.trim();
+
+  if (id === ADMIN_ID && pw === ADMIN_PW && key === ADMIN_KEY) {
+    document.getElementById('login-error').style.display = 'none';
+    sessionStorage.setItem('nova_role', 'admin');
+    sessionStorage.setItem('nova_auth_mode', 'local');
+    document.getElementById('login-screen').style.display = 'none';
+    initApp('admin', '관리자', '', '');
+  } else {
+    loginError('ID, 비밀번호 또는 관리자 키가 올바르지 않습니다.');
+    document.getElementById('login-pw').value = '';
+    document.getElementById('login-key').value = '';
+    document.getElementById('login-pw').focus();
+  }
+}
+
+// ─── 로그아웃 ────────────────────────────────────────────────────────────────
+async function doLogout() {
+  if (!confirm('로그아웃 하시겠습니까?')) return;
+  sessionStorage.removeItem('nova_role');
+  sessionStorage.removeItem('nova_auth_mode');
+  try { if (firebase.apps.length && firebase.auth().currentUser) await firebase.auth().signOut(); } catch(e) {}
+  location.reload();
+}
+
+// ─── 앱 초기화 ───────────────────────────────────────────────────────────────
+function initApp(role, displayName, email, photo) {
+  currentRole = role;
+  currentUserName = displayName || (role === 'admin' ? '관리자' : '직원');
+  currentUserEmail = email || '';
+  currentUserPhoto = photo || '';
+  setTimeout(checkNewVersion, 100);
+
+  // 역할 배지 표시
+  const badge = document.getElementById('role-badge');
+  if (role === 'admin') {
+    badge.textContent = '관리자';
+    badge.style.cssText = 'font-size:10px;padding:2px 8px;border-radius:4px;font-weight:700;background:var(--danger-light);color:#A32D2D';
+  } else {
+    badge.textContent = '직원';
+    badge.style.cssText = 'font-size:10px;padding:2px 8px;border-radius:4px;font-weight:700;background:var(--primary-light);color:var(--primary-dark)';
+  }
+  const unl = document.getElementById('user-name-label');
+  if (unl) {
+    unl.textContent = currentUserName;
+    if (currentUserEmail) unl.title = currentUserEmail;
+  }
+  // 구글 프로필 사진 표시
+  const av = document.getElementById('user-avatar');
+  if (av) {
+    if (currentUserPhoto) av.innerHTML = `<img src="${currentUserPhoto}" alt="" referrerpolicy="no-referrer">`;
+    else av.textContent = (currentUserName||'?').charAt(0);
+    av.style.display = 'flex';
+  }
+
+  if (!localStorage.getItem(CFG_KEY)) {
+    localStorage.setItem(CFG_KEY, JSON.stringify(PRESET_CONFIG));
+  }
+  const cfg = loadConfig();
+  if (cfg) { initFirebase(cfg); }
+  else {
+    document.getElementById('setup-screen').style.display = 'flex';
+    document.getElementById('app').style.display = 'none';
+  }
+}
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+window.addEventListener('load', () => {
+  // ── 포트폴리오 공개 데모 모드 ──
+  // 원본은 회사 구글 계정 도메인 검증을 거쳐야 진입하는 구조이나,
+  // 공개 데모에서는 인증 단계를 제거하고 관리자 화면을 바로 노출한다.
+  initApp('admin', '관리자', '', '');
+});
+
+function showLoginScreen() {
+  document.getElementById('login-screen').style.display = 'flex';
+  showGoogleLogin();
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Enter') return;
+    if (document.getElementById('login-screen').style.display === 'none') return;
+    if (document.getElementById('admin-login-block').style.display !== 'none') attemptLogin();
+    else signInWithGoogle();
+  });
+}
+
+// 모달 ESC 처리
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  const g = document.getElementById('guide-modal');
+  const ch = document.getElementById('changelog-modal');
+  if (g?.classList.contains('show')) { closeGuide(); return; }
+  if (ch?.classList.contains('show')) { closeChangelog(); return; }
+});
+
+// ESC to close modals
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeDetail(); document.getElementById('lightbox').style.display='none'; }
+});
+</script>
+</body>
+</html>
