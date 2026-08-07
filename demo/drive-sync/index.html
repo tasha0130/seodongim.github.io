@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Team Drive — 팀 파일 동기화</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;600;700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1a18;
+    --paper: #f5f2ec;
+    --cream: #ede9e0;
+    --accent: #c8a96e;
+    --accent-dark: #a07840;
+    --muted: #7a7570;
+    --border: #d4cfc6;
+    --white: #ffffff;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Serif KR', serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── HEADER ── */
+  header {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 48px;
+    height: 64px;
+    background: rgba(245,242,236,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--ink);
+  }
+
+  .logo-mark {
+    width: 32px; height: 32px;
+    background: var(--ink);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .logo-mark svg { width: 18px; height: 18px; fill: var(--accent); }
+
+  .logo-text {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+
+  .logo-sub {
+    font-size: 11px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-weight: 300;
+    letter-spacing: 0.08em;
+  }
+
+  nav { display: flex; gap: 32px; align-items: center; }
+  nav a {
+    text-decoration: none;
+    color: var(--muted);
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    transition: color 0.2s;
+  }
+  nav a:hover { color: var(--ink); }
+
+  .nav-cta {
+    background: var(--ink) !important;
+    color: var(--paper) !important;
+    padding: 8px 20px;
+    border-radius: 4px;
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    transition: background 0.2s !important;
+  }
+  .nav-cta:hover { background: var(--accent-dark) !important; }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding-top: 64px;
+  }
+
+  .hero-left {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 80px 64px 80px 80px;
+    position: relative;
+  }
+
+  .hero-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent-dark);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 32px;
+  }
+
+  .hero-tag::before {
+    content: '';
+    width: 24px; height: 1px;
+    background: var(--accent);
+  }
+
+  .hero-title {
+    font-size: clamp(36px, 5vw, 58px);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin-bottom: 24px;
+  }
+
+  .hero-title em {
+    font-style: normal;
+    color: var(--accent-dark);
+  }
+
+  .hero-desc {
+    font-size: 16px;
+    line-height: 1.8;
+    color: var(--muted);
+    font-weight: 300;
+    margin-bottom: 48px;
+    max-width: 420px;
+  }
+
+  .download-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 360px;
+  }
+
+  .btn-download {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 24px;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-download::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
+
+  .btn-primary {
+    background: var(--ink);
+    color: var(--white);
+    border: 2px solid var(--ink);
+  }
+  .btn-primary:hover {
+    background: #2d2d2a;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(26,26,24,0.18);
+  }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--ink);
+    border: 2px solid var(--border);
+  }
+  .btn-secondary:hover {
+    border-color: var(--ink);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(26,26,24,0.08);
+  }
+
+  .btn-icon {
+    width: 36px; height: 36px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .btn-icon svg { width: 28px; height: 28px; }
+
+  .btn-text { flex: 1; }
+  .btn-label { font-size: 13px; opacity: 0.6; font-weight: 300; display: block; margin-bottom: 2px; }
+  .btn-name { font-size: 16px; font-weight: 600; display: block; letter-spacing: 0.01em; }
+
+  .btn-arrow {
+    font-size: 18px;
+    opacity: 0.4;
+    transition: transform 0.2s, opacity 0.2s;
+  }
+  .btn-download:hover .btn-arrow { transform: translateX(4px); opacity: 0.8; }
+
+  .guide-link {
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    text-decoration: none;
+    letter-spacing: 0.06em;
+    transition: color 0.2s;
+  }
+  .guide-link:hover { color: var(--accent-dark); }
+  .guide-link::after { content: '→'; }
+
+  /* ── HERO RIGHT ── */
+  .hero-right {
+    background: var(--cream);
+    border-left: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 64px;
+    position: relative;
+  }
+
+  .mockup {
+    width: 100%;
+    max-width: 440px;
+    background: var(--white);
+    border-radius: 12px;
+    box-shadow: 0 24px 64px rgba(26,26,24,0.12), 0 4px 16px rgba(26,26,24,0.06);
+    overflow: hidden;
+    animation: float 4s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  .mockup-bar {
+    background: #f0ece4;
+    border-bottom: 1px solid var(--border);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dot-r { background: #ff5f57; }
+  .dot-y { background: #febc2e; }
+  .dot-g { background: #28c840; }
+
+  .mockup-title {
+    margin-left: 8px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+  }
+
+  .mockup-body { padding: 20px; }
+
+  .folder-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 6px;
+    margin-bottom: 4px;
+    transition: background 0.15s;
+    animation: slideIn 0.4s ease both;
+  }
+
+  .folder-row:nth-child(1) { animation-delay: 0.1s; }
+  .folder-row:nth-child(2) { animation-delay: 0.2s; }
+  .folder-row:nth-child(3) { animation-delay: 0.3s; }
+  .folder-row:nth-child(4) { animation-delay: 0.4s; }
+  .folder-row:nth-child(5) { animation-delay: 0.5s; }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(-12px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .folder-row:hover { background: var(--paper); }
+
+  .folder-icon { font-size: 18px; }
+  .folder-name { font-size: 13px; flex: 1; color: var(--ink); }
+  .folder-sync {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 3px;
+    letter-spacing: 0.06em;
+  }
+
+  .sync-ok { background: #e8f5e9; color: #2e7d32; }
+  .sync-ing { background: #fff3e0; color: #e65100; }
+  .sync-new { background: #e3f2fd; color: #1565c0; }
+
+  .mockup-status {
+    margin-top: 16px;
+    padding: 12px;
+    background: var(--paper);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .status-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #28c840;
+    box-shadow: 0 0 0 3px rgba(40,200,64,0.2);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 3px rgba(40,200,64,0.2); }
+    50% { box-shadow: 0 0 0 6px rgba(40,200,64,0.08); }
+  }
+
+  .status-text {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+  }
+
+  /* ── HOW IT WORKS ── */
+  .section {
+    padding: 100px 80px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 20px;
+    margin-bottom: 64px;
+  }
+
+  .section-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+  }
+
+  .section-title {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2px;
+    background: var(--border);
+  }
+
+  .step {
+    background: var(--paper);
+    padding: 40px 32px;
+    position: relative;
+    opacity: 0;
+    animation: fadeUp 0.5s ease forwards;
+  }
+
+  .step:nth-child(1) { animation-delay: 0.1s; }
+  .step:nth-child(2) { animation-delay: 0.2s; }
+  .step:nth-child(3) { animation-delay: 0.3s; }
+  .step:nth-child(4) { animation-delay: 0.4s; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .step-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 48px;
+    font-weight: 300;
+    color: var(--border);
+    line-height: 1;
+    margin-bottom: 20px;
+  }
+
+  .step-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    letter-spacing: 0.01em;
+  }
+
+  .step-desc {
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--muted);
+    font-weight: 300;
+  }
+
+  /* ── FEATURES ── */
+  .features-section {
+    padding: 100px 80px;
+    background: var(--cream);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+    margin-top: 64px;
+  }
+
+  .feature-card {
+    padding: 36px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    transition: all 0.25s;
+  }
+
+  .feature-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(26,26,24,0.08);
+  }
+
+  .feature-icon {
+    width: 44px; height: 44px;
+    background: var(--paper);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    margin-bottom: 20px;
+    border: 1px solid var(--border);
+  }
+
+  .feature-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    letter-spacing: 0.01em;
+  }
+
+  .feature-desc {
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--muted);
+    font-weight: 300;
+  }
+
+  /* ── CTA ── */
+  .cta-section {
+    padding: 100px 80px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+  }
+
+  .cta-left h2 {
+    font-size: 40px;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    margin-bottom: 20px;
+  }
+
+  .cta-left p {
+    font-size: 15px;
+    line-height: 1.8;
+    color: var(--muted);
+    font-weight: 300;
+    margin-bottom: 40px;
+  }
+
+  .jloc-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 28px;
+    background: var(--accent);
+    color: var(--white);
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    transition: all 0.2s;
+  }
+  .jloc-btn:hover {
+    background: var(--accent-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(160,120,64,0.3);
+  }
+
+  .cta-right {
+    background: var(--cream);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 40px;
+  }
+
+  .info-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .info-row:last-child { border-bottom: none; }
+
+  .info-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    width: 100px;
+    flex-shrink: 0;
+    padding-top: 2px;
+  }
+
+  .info-val {
+    font-size: 14px;
+    color: var(--ink);
+    line-height: 1.6;
+    font-weight: 400;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    padding: 40px 80px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .footer-left {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+  }
+
+  .footer-right {
+    display: flex;
+    gap: 24px;
+  }
+  .footer-right a {
+    font-size: 12px;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .footer-right a:hover { color: var(--ink); }
+
+  /* ── GUIDE SECTION ── */
+  .guide-section {
+    padding: 100px 80px;
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  .guide-section .section-title { color: var(--paper); }
+  .guide-section .section-num { color: var(--accent); }
+
+  .guide-steps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    margin-top: 64px;
+    background: rgba(255,255,255,0.05);
+  }
+
+  .guide-step {
+    padding: 40px 36px;
+    background: var(--ink);
+    position: relative;
+  }
+
+  .guide-step-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.12em;
+    margin-bottom: 16px;
+  }
+
+  .guide-step-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: var(--paper);
+  }
+
+  .guide-step-desc {
+    font-size: 13px;
+    line-height: 1.7;
+    color: rgba(245,242,236,0.5);
+    font-weight: 300;
+  }
+
+  .guide-step-code {
+    margin-top: 12px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    background: rgba(200,169,110,0.08);
+    padding: 8px 12px;
+    border-radius: 4px;
+    border-left: 2px solid var(--accent);
+    letter-spacing: 0.04em;
+  }
+
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; }
+    .hero-right { display: none; }
+    .steps { grid-template-columns: 1fr 1fr; }
+    .features-grid { grid-template-columns: 1fr; }
+    .cta-section { grid-template-columns: 1fr; }
+    .guide-steps { grid-template-columns: 1fr; }
+    header { padding: 0 24px; }
+    nav { display: none; }
+    .hero-left { padding: 60px 32px; }
+    .section, .features-section, .guide-section, .cta-section { padding: 60px 32px; }
+    footer { padding: 32px; flex-direction: column; gap: 16px; }
+  }
+</style>
+
+<style id="demo-banner-style">
+#demo-notice{position:relative;z-index:99999;
+  font-family:'Pretendard Variable',Pretendard,-apple-system,sans-serif;
+  background:#141F1C;color:#EDF0EF;padding:11px 20px;font-size:13px;line-height:1.6;
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+#demo-notice b{font-weight:600;color:#6FD3AA}
+#demo-notice span{color:#A8B4B0;font-weight:400}
+#demo-notice a{margin-left:auto;color:#EDF0EF;text-decoration:none;font-size:12.5px;
+  font-weight:500;border:1px solid #46534F;padding:5px 12px;border-radius:999px;white-space:nowrap}
+#demo-notice a:hover{border-color:#6FD3AA;color:#6FD3AA}
+@media(max-width:700px){#demo-notice a{margin-left:0}}
+</style>
+</head>
+<body>
+<div id="demo-notice"><b>공개 데모</b><span>실제 운영본은 Google Drive API와 회사 계정 인증으로 동작합니다. 브랜드명·내부 정보는 익명 처리했습니다.</span><a href="../../index.html">← 포트폴리오로 돌아가기</a></div>
+
+<!-- HEADER -->
+<header>
+  <a href="#" class="logo">
+    <div class="logo-mark">
+      <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+    </div>
+    <div>
+      <div class="logo-text">Team Drive</div>
+      <div class="logo-sub">Team Cloud Storage</div>
+    </div>
+  </a>
+  <nav>
+    <a href="#how">설치 방법</a>
+    <a href="#features">기능</a>
+    <a href="#guide">사용 가이드</a>
+    <a href="https://jloc.onrender.com" class="nav-cta">JLOC 바로가기</a>
+  </nav>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-left">
+    <span class="hero-tag">팀 전용</span>
+    <h1 class="hero-title">
+      파일을 저장하면<br>
+      <em>자동으로 팀과<br>공유됩니다</em>
+    </h1>
+    <p class="hero-desc">
+      Google Drive를 기반으로 구축된 팀 클라우드 스토리지입니다.
+      앱을 설치하면 PC에 전용 폴더가 생성되고,
+      파일을 넣는 순간 팀 전체와 실시간 동기화됩니다.
+    </p>
+
+    <div class="download-group">
+      <a href="https://www.google.com/drive/download/" target="_blank" class="btn-download btn-primary">
+        <div class="btn-icon">
+          <!-- Windows icon -->
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M3 5.6L10.5 4.5V11.5H3V5.6Z" fill="#fff"/>
+            <path d="M11.5 4.35L21 3V11.5H11.5V4.35Z" fill="#fff"/>
+            <path d="M3 12.5H10.5V19.5L3 18.4V12.5Z" fill="#fff"/>
+            <path d="M11.5 12.5H21V21L11.5 19.65V12.5Z" fill="#fff"/>
+          </svg>
+        </div>
+        <div class="btn-text">
+          <span class="btn-label">Windows용 다운로드</span>
+          <span class="btn-name">Google Drive for Desktop</span>
+        </div>
+        <span class="btn-arrow">→</span>
+      </a>
+
+      <a href="https://www.google.com/drive/download/" target="_blank" class="btn-download btn-secondary">
+        <div class="btn-icon">
+          <!-- Apple icon -->
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+          </svg>
+        </div>
+        <div class="btn-text">
+          <span class="btn-label">macOS용 다운로드</span>
+          <span class="btn-name">Google Drive for Desktop</span>
+        </div>
+        <span class="btn-arrow">→</span>
+      </a>
+
+      <a href="#guide" class="guide-link">설치 후 회사 드라이브 연결 방법 보기</a>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <div class="mockup">
+      <div class="mockup-bar">
+        <div class="dot dot-r"></div>
+        <div class="dot dot-y"></div>
+        <div class="dot dot-g"></div>
+        <span class="mockup-title">브랜드 공유 드라이브</span>
+      </div>
+      <div class="mockup-body">
+        <div class="folder-row">
+          <span class="folder-icon">📁</span>
+          <span class="folder-name">마케팅팀</span>
+          <span class="folder-sync sync-ok">동기화됨</span>
+        </div>
+        <div class="folder-row">
+          <span class="folder-icon">📁</span>
+          <span class="folder-name">물류운영 (JLOC)</span>
+          <span class="folder-sync sync-ok">동기화됨</span>
+        </div>
+        <div class="folder-row">
+          <span class="folder-icon">📁</span>
+          <span class="folder-name">제품 사진</span>
+          <span class="folder-sync sync-ing">동기화 중</span>
+        </div>
+        <div class="folder-row">
+          <span class="folder-icon">📁</span>
+          <span class="folder-name">B2B 거래처 자료</span>
+          <span class="folder-sync sync-ok">동기화됨</span>
+        </div>
+        <div class="folder-row">
+          <span class="folder-icon">📄</span>
+          <span class="folder-name">2026 사업계획서.pptx</span>
+          <span class="folder-sync sync-new">새 파일</span>
+        </div>
+        <div class="mockup-status">
+          <div class="status-dot"></div>
+          <span class="status-text">모든 파일 동기화 완료 · 방금 전</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section" id="how">
+  <div class="section-header">
+    <span class="section-num">01</span>
+    <h2 class="section-title">설치 4단계면 끝입니다</h2>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">01</div>
+      <h3 class="step-title">앱 다운로드</h3>
+      <p class="step-desc">위의 버튼을 눌러 Google Drive for Desktop을 다운로드하고 설치합니다. Windows·macOS 모두 지원합니다.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <h3 class="step-title">회사 계정 로그인</h3>
+      <p class="step-desc">설치 후 브랜드 Google Workspace 계정(이름@jinsimgamsung.com)으로 로그인합니다.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <h3 class="step-title">공유 드라이브 연결</h3>
+      <p class="step-desc">탐색기(또는 Finder)에 "브랜드 공유 드라이브" 폴더가 자동으로 나타납니다. 별도 설정 불필요.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">04</div>
+      <h3 class="step-title">파일 넣으면 완료</h3>
+      <p class="step-desc">해당 폴더에 파일을 넣는 순간 클라우드와 동기화되고, 권한을 가진 팀원 모두와 실시간 공유됩니다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features-section" id="features">
+  <div class="section-header">
+    <span class="section-num">02</span>
+    <h2 class="section-title">추가 비용 없이 제공되는 기능</h2>
+  </div>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">🔄</div>
+      <h3 class="feature-title">실시간 자동 동기화</h3>
+      <p class="feature-desc">파일을 저장하는 즉시 팀 전체에 반영됩니다. 수동 업로드 없이 탐색기 폴더만 사용하면 됩니다.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🕐</div>
+      <h3 class="feature-title">버전 히스토리</h3>
+      <p class="feature-desc">실수로 파일을 수정·삭제해도 30일간의 이전 버전으로 복원할 수 있습니다. Google이 자동으로 관리합니다.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔗</div>
+      <h3 class="feature-title">공유 링크 생성</h3>
+      <p class="feature-desc">파일·폴더를 우클릭 한 번으로 공유 링크를 생성합니다. 외부 거래처에 전달도 가능합니다.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔒</div>
+      <h3 class="feature-title">부서별 접근 권한</h3>
+      <p class="feature-desc">마케팅, 물류, 영업 등 부서별로 접근 가능한 폴더를 분리합니다. 관리자가 권한을 직접 설정합니다.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">💻</div>
+      <h3 class="feature-title">웹에서도 접근 가능</h3>
+      <p class="feature-desc">앱 없이도 drive.google.com에서 언제 어디서나 파일을 확인하고 편집할 수 있습니다.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📊</div>
+      <h3 class="feature-title">JLOC 연동</h3>
+      <p class="feature-desc">물류 운영 시스템 JLOC과 연계하여 재고·주문 관련 파일을 팀과 즉시 공유합니다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- GUIDE -->
+<section class="guide-section" id="guide">
+  <div class="section-header">
+    <span class="section-num" style="color:var(--accent)">03</span>
+    <h2 class="section-title" style="color:var(--paper)">공유 드라이브 연결 가이드</h2>
+  </div>
+  <div class="guide-steps">
+    <div class="guide-step">
+      <div class="guide-step-num">STEP 01</div>
+      <h3 class="guide-step-title">앱 설치 후 로그인</h3>
+      <p class="guide-step-desc">Google Drive for Desktop 설치 완료 후, 회사 Workspace 계정으로 로그인합니다.</p>
+      <div class="guide-step-code">계정: 이름@jinsimgamsung.com</div>
+    </div>
+    <div class="guide-step">
+      <div class="guide-step-num">STEP 02</div>
+      <h3 class="guide-step-title">공유 드라이브 확인</h3>
+      <p class="guide-step-desc">탐색기(Windows) 또는 Finder(macOS)를 열면 "Google Drive" 드라이브가 자동 생성됩니다. 내부 "공유 드라이브" 폴더를 확인하세요.</p>
+      <div class="guide-step-code">내 PC → Google Drive (G:) → 공유 드라이브</div>
+    </div>
+    <div class="guide-step">
+      <div class="guide-step-num">STEP 03</div>
+      <h3 class="guide-step-title">문의 및 권한 요청</h3>
+      <p class="guide-step-desc">공유 드라이브가 보이지 않거나 접근 권한이 없는 경우 관리자에게 문의하세요.</p>
+      <div class="guide-step-code">문의: cs@jinsimgamsung.com</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="cta-left">
+    <h2>물류 운영은<br>JLOC에서</h2>
+    <p>재고 현황, 주문 이력, B2C·B2B 관리까지 — 브랜드 물류 운영의 모든 것을 JLOC에서 확인하세요. Drive와 함께 사용하면 더욱 효율적입니다.</p>
+    <a href="https://jloc.onrender.com" class="jloc-btn" target="_blank">
+      JLOC 바로가기 →
+    </a>
+  </div>
+  <div class="cta-right">
+    <div class="info-row">
+      <span class="info-label">스토리지</span>
+      <span class="info-val">Google Workspace 포함 용량 사용<br><small style="color:var(--muted)">추가 비용 없음</small></span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">동기화</span>
+      <span class="info-val">Windows · macOS 실시간 자동 동기화</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">보안</span>
+      <span class="info-val">Google ISO 27001 인증<br>AES-256 암호화</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">접근</span>
+      <span class="info-val">데스크톱 앱 · 웹 브라우저 · 모바일</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">지원</span>
+      <span class="info-val">cs@jinsimgamsung.com</span>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-left">© 2026 브랜드 Lifestyle Lab · Powered by Google Workspace</div>
+  <div class="footer-right">
+    <a href="https://www.jinsimgamsung.com">공식 홈페이지</a>
+    <a href="https://jloc.onrender.com">JLOC</a>
+    <a href="mailto:cs@jinsimgamsung.com">문의하기</a>
+  </div>
+</footer>
+
+</body>
+</html>
