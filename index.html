@@ -40,6 +40,12 @@ a{color:inherit}
 .bar-nav a{text-decoration:none;color:var(--ink-soft);padding:2px 0;
   border-bottom:1.5px solid transparent}
 .bar-nav a:hover{color:var(--green);border-bottom-color:var(--green)}
+.pdf-btn{display:inline-flex;align-items:center;gap:6px;font-family:var(--font);
+  font-size:13px;font-weight:600;color:var(--paper);background:var(--green);
+  border:none;border-radius:6px;padding:7px 14px;cursor:pointer;transition:background .18s;margin-left:4px}
+.pdf-btn:hover{background:#0B5238}
+.pdf-btn svg{flex-shrink:0}
+@media(max-width:700px){.pdf-btn{padding:6px 11px;font-size:12px}.pdf-btn svg{display:none}}
 @media(max-width:700px){.bar-nav{gap:15px;font-size:12.5px}.bar-name em{display:none}}
 
 /* ══ 히어로 ══ */
@@ -237,6 +243,80 @@ a{color:inherit}
   .wrap{padding:0 20px}.hero{padding:56px 0 0}.sec{padding:56px 0}
   .sec-title{font-size:23px}.kpi{padding:16px 16px 18px}.kpi-n{font-size:25px}
 }
+
+/* ═══════════ PDF 인쇄 전용 스타일 (A4 최적화) ═══════════ */
+@media print{
+  @page{size:A4;margin:14mm 12mm}
+  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+  html,body{background:#fff!important;font-size:10.5pt}
+  .wrap{max-width:100%!important;padding:0!important}
+
+  /* 화면 전용 요소 숨김 */
+  .bar,.pdf-btn,.filterbar,.reveal{opacity:1!important;transform:none!important}
+  .bar{display:none!important}
+
+  /* 히어로 압축 */
+  .hero{padding:0 0 8mm!important}
+  .hname{font-size:30pt!important}
+  .hrole{font-size:13pt!important;margin-top:4pt!important}
+  .htag{font-size:11pt!important;margin-top:8pt!important}
+  .hlede{font-size:9.5pt!important;margin-top:8pt!important;max-width:100%!important}
+  .hero-grid{gap:10mm!important}
+  .kpistrip{margin-top:8mm!important;break-inside:avoid}
+  .kpi-n{font-size:18pt!important}
+
+  /* 섹션 간격 축소 + 페이지 나눔 제어 */
+  .sec{padding:7mm 0!important;border:none!important;break-inside:auto}
+  .sec.alt{background:#fff!important}
+  .sec-head{margin-bottom:5mm!important}
+  .sec-title{font-size:16pt!important}
+  .sec-num{font-size:8pt!important}
+  .sec-desc{font-size:9pt!important}
+
+  /* 프로젝트 섹션은 새 페이지에서 시작 */
+  .catblock{break-inside:auto;margin-top:4mm!important}
+  .cat-head{break-after:avoid}
+  .card{break-inside:avoid;box-shadow:none!important;border:1px solid #CBD3D0!important;
+    margin-bottom:3mm!important}
+  .card:hover{box-shadow:none!important}
+
+  /* 카드 내부 압축 */
+  .c-head{padding:3mm 4mm 2mm!important}
+  .c-title{font-size:11pt!important}
+  .c-sum{font-size:8pt!important;margin-top:2pt!important;line-height:1.5!important}
+  .c-kpi .kn{font-size:16pt!important}
+  .card-feature .c-kpi .kn{font-size:19pt!important}
+  .c-grid{padding:2.5mm 4mm!important;gap:3mm!important;background:#F6F8F7!important}
+  .c-col p{font-size:8pt!important}
+  .c-col h4{font-size:6.5pt!important}
+  .c-foot{padding:2mm 4mm!important}
+  .tool{font-size:7pt!important}
+  .c-link{background:#12694A!important;color:#fff!important;font-size:8pt!important;padding:4pt 8pt!important}
+
+  /* 필터는 숨기고 전체 카드 표시 */
+  .filterbar{display:none!important}
+  .card.hide{display:block!important}
+  .catblock.hide{display:block!important}
+
+  /* 역량/채널/이력 */
+  .skills{break-inside:avoid}
+  .skill{padding:4mm!important}
+  .skill h3{font-size:11pt!important}
+  .skill ul{font-size:8.5pt!important;line-height:1.7!important}
+  .chwrap{break-inside:avoid}
+  .chip{font-size:8.5pt!important;padding:3pt 8pt!important}
+  .cv{break-inside:avoid}
+  .cv-col h3{font-size:8pt!important}
+  .hrow2 dd{font-size:9pt!important}
+
+  /* 연락처 */
+  .contact{background:#141F1C!important;color:#EDF0EF!important;padding:8mm 0!important;
+    break-inside:avoid}
+  .ct-h{color:#6FD3AA!important}
+
+  /* 링크 밑줄 제거 */
+  a{text-decoration:none!important}
+}
 </style>
 </head>
 <body>
@@ -250,6 +330,10 @@ a{color:inherit}
       <a href="#cv">이력</a>
       <a href="#work">프로젝트</a>
       <a href="#contact">연락처</a>
+      <button class="pdf-btn" onclick="window.print()" aria-label="PDF로 저장">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+        PDF 저장
+      </button>
     </nav>
   </div>
 </header>
@@ -838,6 +922,18 @@ a{color:inherit}
     });
   });
   apply('all');
+
+  // ── PDF 인쇄 시 필터 해제하여 전체 프로젝트 표시 ──
+  window.addEventListener('beforeprint',function(){
+    document.querySelectorAll('.card.hide,.catblock.hide').forEach(function(el){
+      el.dataset.wasHidden='1'; el.classList.remove('hide');
+    });
+  });
+  window.addEventListener('afterprint',function(){
+    document.querySelectorAll('[data-was-hidden="1"]').forEach(function(el){
+      el.classList.add('hide'); delete el.dataset.wasHidden;
+    });
+  });
 
   if('IntersectionObserver' in window){
     var io=new IntersectionObserver(function(es){
