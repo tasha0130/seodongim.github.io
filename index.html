@@ -292,6 +292,8 @@ a{color:inherit}
   .c-foot{padding:2mm 4mm!important}
   .tool{font-size:7pt!important}
   .c-link{background:#12694A!important;color:#fff!important;font-size:8pt!important;padding:4pt 8pt!important}
+  .print-url{display:inline-block!important;font-family:var(--mono);font-size:7pt!important;
+    color:#7C8884!important;margin-left:8pt;word-break:break-all}
 
   /* 필터는 숨기고 전체 카드 표시 */
   .filterbar{display:none!important}
@@ -317,6 +319,19 @@ a{color:inherit}
   /* 링크 밑줄 제거 */
   a{text-decoration:none!important}
 }
+
+/* PDF 전용 요소 (화면에서는 숨김) */
+.print-only{display:none}
+@media print{
+  .print-only{display:block!important}
+  .print-banner{display:flex!important;align-items:center;justify-content:space-between;
+    gap:10mm;padding:4mm 6mm;margin-bottom:6mm;
+    background:#12694A!important;color:#EDF0EF!important;border-radius:2px}
+  .pb-label{display:block;font-family:var(--mono);font-size:7pt;letter-spacing:.14em;
+    color:#9FD9C2!important;margin-bottom:2pt}
+  .pb-url{display:block;font-family:var(--mono);font-size:11pt;font-weight:500;color:#fff!important}
+  .pb-right{font-size:8pt;color:#DDE9E4!important;text-align:right;max-width:55mm;line-height:1.5}
+}
 </style>
 </head>
 <body>
@@ -339,6 +354,15 @@ a{color:inherit}
 </header>
 
 <main>
+
+<!-- PDF 전용: 온라인 포트폴리오 링크 배너 (화면에서는 숨김) -->
+<div class="print-only print-banner">
+  <div class="pb-left">
+    <span class="pb-label">ONLINE PORTFOLIO</span>
+    <span class="pb-url">tasha0130.github.io/seodongim.github.io</span>
+  </div>
+  <div class="pb-right">데모·대시보드는 온라인에서 직접 확인하실 수 있습니다</div>
+</div>
 
 <!-- ══ 히어로 ══ -->
 <section class="hero">
@@ -924,9 +948,22 @@ a{color:inherit}
   apply('all');
 
   // ── PDF 인쇄 시 필터 해제하여 전체 프로젝트 표시 ──
+  var BASE='https://tasha0130.github.io/seodongim.github.io/';
   window.addEventListener('beforeprint',function(){
+    // 필터 해제
     document.querySelectorAll('.card.hide,.catblock.hide').forEach(function(el){
       el.dataset.wasHidden='1'; el.classList.remove('hide');
+    });
+    // 각 링크(데모·케이스스터디·분석) 아래에 실제 URL 표기
+    document.querySelectorAll('.c-link').forEach(function(a){
+      if(a.dataset.urlAdded)return;
+      var href=a.getAttribute('href')||'';
+      var full=BASE+href.replace(/^\.\//,'');
+      var span=document.createElement('span');
+      span.className='print-url print-only';
+      span.textContent=full;
+      a.parentNode.insertBefore(span,a.nextSibling);
+      a.dataset.urlAdded='1';
     });
   });
   window.addEventListener('afterprint',function(){
