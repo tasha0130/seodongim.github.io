@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>서동임 · E-commerce MD</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon-180.png">
+  <meta name="theme-color" content="#0F6A49">
+
 <meta name="description" content="이커머스 MD 서동임. 상품 기획, 12개 채널 운영, 사내 시스템 구축 및 데이터 분석.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -169,6 +174,7 @@ a{color:inherit}
   font-weight:500;background:var(--green-soft)}
 .tool{font-family:var(--mono);font-size:11px;color:var(--ink-faint);
   border:1px solid var(--rule-soft);padding:2.5px 8px;border-radius:3px}
+.print-url{display:none}
 .c-link{margin-left:auto;display:inline-flex;align-items:center;gap:6px;
   font-size:13px;font-weight:600;text-decoration:none;color:var(--paper);
   background:var(--green);padding:8px 16px;border-radius:5px;white-space:nowrap;
@@ -286,14 +292,14 @@ a{color:inherit}
   .c-sum{font-size:8pt!important;margin-top:2pt!important;line-height:1.5!important}
   .c-kpi .kn{font-size:16pt!important}
   .card-feature .c-kpi .kn{font-size:19pt!important}
-  .c-grid{padding:2.5mm 4mm!important;gap:3mm!important;background:#F6F8F7!important}
+  .c-grid{padding:2.5mm 4mm!important;gap:3mm!important;background:#F6F8F7!important;break-inside:avoid}
   .c-col p{font-size:8pt!important}
   .c-col h4{font-size:6.5pt!important}
   .c-foot{padding:2mm 4mm!important}
   .tool{font-size:7pt!important}
   .c-link{background:#12694A!important;color:#fff!important;font-size:8pt!important;padding:4pt 8pt!important}
-  .print-url{display:inline-block!important;font-family:var(--mono);font-size:7pt!important;
-    color:#7C8884!important;margin-left:8pt;word-break:break-all}
+  .print-url{display:block!important;width:100%;font-family:var(--mono);font-size:7pt!important;
+    color:#7C8884!important;margin-top:3pt;word-break:break-all;text-align:right}
 
   /* 필터는 숨기고 전체 카드 표시 */
   .filterbar{display:none!important}
@@ -302,7 +308,7 @@ a{color:inherit}
 
   /* 역량/채널/이력 */
   .skills{break-inside:avoid}
-  .skill{padding:4mm!important}
+  .skill{padding:4mm!important;break-inside:avoid}
   .skill h3{font-size:11pt!important}
   .skill ul{font-size:8.5pt!important;line-height:1.7!important}
   .chwrap{break-inside:avoid}
@@ -574,7 +580,7 @@ a{color:inherit}
         <div class="c-grid"><div class="c-col"><h4>문제</h4><p>채널별 어드민을 개별 순회하는 구조로 응대 지연·누락 발생. 채널 평점 리스크.</p></div><div class="c-col"><h4>실행</h4><p>문의 유형을 발송지연·불량·교환 등으로 표준 분류. 채널 연동 상태 모니터링 설계.</p></div><div class="c-col"><h4>결과</h4><p>단일 화면 처리로 전환. <strong>응대 누락 방지 · 채널 평점 방어</strong></p></div></div>
         <div class="c-foot">
           <div class="c-tools"><span class="tool tool-ai">AI 구현</span><span class="tool">JavaScript</span><span class="tool">채널 연동</span><span class="tool">CS 프로세스</span></div>
-          <a class="c-link" href="./demo/b2c-cs/" target="_blank" rel="noopener">데모 열기 (더미 데이터) →</a>
+          <a class="c-link" href="./demo/b2c-cs/" target="_blank" rel="noopener">데모 열기 (더미 데이터) →</a><span class="print-url">https://tasha0130.github.io/seodongim.github.io/demo/b2c-cs/</span>
         </div>
       </article>
       </div>
@@ -605,7 +611,7 @@ a{color:inherit}
         </div>
         <div class="c-foot">
           <div class="c-tools"><span class="tool">상품기획</span><span class="tool">STEEP</span><span class="tool">CMF 조사</span><span class="tool">리뷰 분석</span><span class="tool">네이밍</span></div>
-          <a class="c-link" href="./casestudy/product-planning.html">기획 케이스 스터디 →</a>
+          <a class="c-link" href="./casestudy/product-planning.html">기획 케이스 스터디 →</a><span class="print-url">https://tasha0130.github.io/seodongim.github.io/casestudy/product-planning.html</span>
         </div>
       </article>
       <article class="card reveal" data-cat="md">
@@ -624,7 +630,7 @@ a{color:inherit}
         </div>
         <div class="c-foot">
           <div class="c-tools"><span class="tool">촬영 디렉팅</span><span class="tool">컨셉 기획</span><span class="tool">협업 조율</span></div>
-          <a class="c-link" href="./casestudy/creative-direction.html">디렉팅 케이스 스터디 →</a>
+          <a class="c-link" href="./casestudy/creative-direction.html">디렉팅 케이스 스터디 →</a><span class="print-url">https://tasha0130.github.io/seodongim.github.io/casestudy/creative-direction.html</span>
         </div>
       </article>
       <article class="card reveal" data-cat="md">
@@ -643,7 +649,7 @@ a{color:inherit}
         </div>
         <div class="c-foot">
           <div class="c-tools"><span class="tool">오프라인 기획</span><span class="tool">콘텐츠 기획</span><span class="tool">B2B 제안</span><span class="tool">브랜드 전략</span></div>
-          <a class="c-link" href="./casestudy/brand-marketing.html">마케팅 케이스 스터디 →</a>
+          <a class="c-link" href="./casestudy/brand-marketing.html">마케팅 케이스 스터디 →</a><span class="print-url">https://tasha0130.github.io/seodongim.github.io/casestudy/brand-marketing.html</span>
         </div>
       </article>
 
@@ -674,7 +680,7 @@ a{color:inherit}
         <div class="c-grid"><div class="c-col"><h4>문제</h4><p>인하우스 제작 인력 부재로 콘텐츠 회전율 저하. 신규 SKU 출시 속도 미달.</p></div><div class="c-col"><h4>실행</h4><p>배너·상세 템플릿 자산화. 소재별 성과를 주 단위로 비교해 크리에이티브 교체 운영.</p></div><div class="c-col"><h4>결과</h4><p>단독 구성 상품 발굴로 광고비 없이 채널 랭킹 <strong>1~3위 진입·유지</strong></p></div></div>
         <div class="c-foot">
           <div class="c-tools"><span class="tool">상세페이지</span><span class="tool">퍼포먼스 광고</span><span class="tool">SNS 운영</span></div>
-          <a class="c-link" href="./casestudy/design-direction.html">디자인 디렉션 케이스 스터디 →</a>
+          <a class="c-link" href="./casestudy/design-direction.html">디자인 디렉션 케이스 스터디 →</a><span class="print-url">https://tasha0130.github.io/seodongim.github.io/casestudy/design-direction.html</span>
         </div>
       </article>
       <article class="card reveal" data-cat="md">
@@ -720,7 +726,7 @@ a{color:inherit}
         </div>
         <div class="c-foot">
           <div class="c-tools"><span class="tool tool-ai">AI 구현</span><span class="tool">Google Drive API</span><span class="tool">권한 관리</span><span class="tool">동기화</span></div>
-          <a class="c-link" href="./demo/drive-sync/index.html" target="_blank" rel="noopener">데모 열기 →</a>
+          <a class="c-link" href="./demo/drive-sync/index.html" target="_blank" rel="noopener">데모 열기 →</a><span class="print-url">https://tasha0130.github.io/seodongim.github.io/demo/drive-sync/index.html</span>
         </div>
       </article>
 
@@ -749,7 +755,7 @@ a{color:inherit}
         <div class="c-grid"><div class="c-col"><h4>문제</h4><p>검수 데이터가 종이·개인 엑셀에 산재. 불량 원인 추적과 공급처 클레임 근거 확보 불가.</p></div><div class="c-col"><h4>실행</h4><p>관리자·검수자 권한 분리 설계, 인증·세션 처리 구현, 호스팅 배포까지 단독 수행.</p></div><div class="c-col"><h4>결과</h4><p>불량 이력 데이터화. <strong>공급처별 불량률 산출 · 클레임 근거 확보</strong></p></div></div>
         <div class="c-foot">
           <div class="c-tools"><span class="tool tool-ai">AI 구현</span><span class="tool">JavaScript</span><span class="tool">Firebase</span><span class="tool">Hosting</span></div>
-          <a class="c-link" href="./demo/quality-control/" target="_blank" rel="noopener">데모 열기 (더미 데이터) →</a>
+          <a class="c-link" href="./demo/quality-control/" target="_blank" rel="noopener">데모 열기 (더미 데이터) →</a><span class="print-url">https://tasha0130.github.io/seodongim.github.io/demo/quality-control/</span>
         </div>
       </article>
       <article class="card reveal" data-cat="build">
@@ -764,7 +770,7 @@ a{color:inherit}
         <div class="c-grid"><div class="c-col"><h4>문제</h4><p>채널별 비용 구조 상이로 매출 상위 SKU와 수익 상위 SKU가 불일치. 판단 근거 부재.</p></div><div class="c-col"><h4>실행</h4><p>비용 항목 표준화 후 공헌이익 산식 설계. 채널·SKU별 수익성 랭킹 자동 갱신.</p></div><div class="c-col"><h4>결과</h4><p>매출이 아닌 <strong>공헌이익 기준 SKU 운영</strong>으로 전환. 저수익 SKU 조기 식별</p></div></div>
         <div class="c-foot">
           <div class="c-tools"><span class="tool tool-ai">AI 구현</span><span class="tool">Python</span><span class="tool">데이터 분석</span><span class="tool">대시보드</span></div>
-          <a class="c-link" href="./demo/promo-margin/" target="_blank" rel="noopener">데모 열기 (더미 데이터) →</a>
+          <a class="c-link" href="./demo/promo-margin/" target="_blank" rel="noopener">데모 열기 (더미 데이터) →</a><span class="print-url">https://tasha0130.github.io/seodongim.github.io/demo/promo-margin/</span>
         </div>
       </article>
       <article class="card reveal" data-cat="build">
@@ -779,7 +785,7 @@ a{color:inherit}
         <div class="c-grid"><div class="c-col"><h4>문제</h4><p>분할 출고 잔여 수량을 담당자 기억에 의존. 출고 누락과 거래처 클레임 발생.</p></div><div class="c-col"><h4>실행</h4><p>거래 단위 회차 추적 데이터 구조 설계 후 화면 구현.</p></div><div class="c-col"><h4>결과</h4><p>구글 스프레드시트 자동화로 수기 출고 작업 대체. <strong>출고 작업시간 50%+ 단축 · 출고 가능 재고 즉시 파악</strong></p></div></div>
         <div class="c-foot">
           <div class="c-tools"><span class="tool tool-ai">AI 구현</span><span class="tool">HTML/JS</span><span class="tool">Firestore</span></div>
-          <a class="c-link" href="./demo/b2b-shipment/" target="_blank" rel="noopener">데모 열기 (더미 데이터) →</a>
+          <a class="c-link" href="./demo/b2b-shipment/" target="_blank" rel="noopener">데모 열기 (더미 데이터) →</a><span class="print-url">https://tasha0130.github.io/seodongim.github.io/demo/b2b-shipment/</span>
         </div>
       </article>
       <article class="card reveal" data-cat="build">
@@ -794,7 +800,7 @@ a{color:inherit}
         <div class="c-grid"><div class="c-col"><h4>문제</h4><p>OMS와 3PL WMS의 SKU 코드 체계 불일치로 재고 대사를 수기 진행. 가용재고 실시간 파악 불가.</p></div><div class="c-col"><h4>실행</h4><p>OMS API 연동, SKU 매핑 로직, 등급별(A·R·X) 재고 분리, 권한·인증 처리까지 구축.</p></div><div class="c-col"><h4>결과</h4><p>수기 대사를 API 연동으로 대체. <strong>가용재고 실시간 산출 · 안전재고 자동 알림</strong></p></div></div>
         <div class="c-foot">
           <div class="c-tools"><span class="tool tool-ai">AI 구현</span><span class="tool">Python</span><span class="tool">FastAPI</span><span class="tool">SQLite</span><span class="tool">JWT</span><span class="tool">Railway</span></div>
-          <a class="c-link" href="./demo/stocksync/" target="_blank" rel="noopener">데모 열기 (더미 데이터) →</a>
+          <a class="c-link" href="./demo/stocksync/" target="_blank" rel="noopener">데모 열기 (더미 데이터) →</a><span class="print-url">https://tasha0130.github.io/seodongim.github.io/demo/stocksync/</span>
         </div>
       </article>
       </div>
@@ -821,7 +827,7 @@ a{color:inherit}
         <div class="c-grid"><div class="c-col"><h4>문제</h4><p>매출 기준 채널 판단으로 수수료·광고비 반영 후 실제 기여도 파악 불가.</p></div><div class="c-col"><h4>실행</h4><p>시장 성장률 대조, 채널 믹스 분해, 계절성 분리, 반품 사유 4분류 설계.</p></div><div class="c-col"><h4>결과</h4><p>매출·수익 괴리 채널 식별 기준 확립. <strong>채널 믹스 조정 · 발주 시점 판단 근거</strong></p></div></div>
         <div class="c-foot">
           <div class="c-tools"><span class="tool tool-ai">AI 구현</span><span class="tool">Python</span><span class="tool">데이터 분석</span><span class="tool">시각화</span><span class="tool">공공데이터</span></div>
-          <a class="c-link" href="./analysis/">분석 페이지 열기 →</a>
+          <a class="c-link" href="./analysis/">분석 페이지 열기 →</a><span class="print-url">https://tasha0130.github.io/seodongim.github.io/analysis/</span>
         </div>
       </article>
       <article class="card reveal" data-cat="data">
@@ -836,7 +842,7 @@ a{color:inherit}
         <div class="c-grid"><div class="c-col"><h4>문제</h4><p>고객군 구분 없는 무차별 쿠폰 배포로 마케팅 예산 효율 저하. 이탈 조기 감지 기준 부재.</p></div><div class="c-col"><h4>실행</h4><p>t-검정으로 표본 대표성 검증, RFM 6개 세그먼트 설계, 연관규칙(Apriori) 추출, 대시보드 구현.</p></div><div class="c-col"><h4>결과</h4><p>이탈군 대비 활동군 <strong>3.7배</strong> 격차 확인. <strong>세그먼트별 타겟 쿠폰 전략 도출</strong></p></div></div>
         <div class="c-foot">
           <div class="c-tools"><span class="tool tool-ai">AI 구현</span><span class="tool">Python</span><span class="tool">pandas</span><span class="tool">Streamlit</span><span class="tool">RFM</span><span class="tool">Apriori</span><span class="tool">t-test</span></div>
-          <a class="c-link" href="./casestudy/retail-analysis.html">분석 케이스 스터디 →</a>
+          <a class="c-link" href="./casestudy/retail-analysis.html">분석 케이스 스터디 →</a><span class="print-url">https://tasha0130.github.io/seodongim.github.io/casestudy/retail-analysis.html</span>
         </div>
       </article>
       </div>
@@ -948,22 +954,10 @@ a{color:inherit}
   apply('all');
 
   // ── PDF 인쇄 시 필터 해제하여 전체 프로젝트 표시 ──
-  var BASE='https://tasha0130.github.io/seodongim.github.io/';
+  // 필터로 숨긴 카드도 인쇄에 나오도록 (이벤트 미발동 브라우저 대비해 CSS로도 처리됨)
   window.addEventListener('beforeprint',function(){
-    // 필터 해제
     document.querySelectorAll('.card.hide,.catblock.hide').forEach(function(el){
       el.dataset.wasHidden='1'; el.classList.remove('hide');
-    });
-    // 각 링크(데모·케이스스터디·분석) 아래에 실제 URL 표기
-    document.querySelectorAll('.c-link').forEach(function(a){
-      if(a.dataset.urlAdded)return;
-      var href=a.getAttribute('href')||'';
-      var full=BASE+href.replace(/^\.\//,'');
-      var span=document.createElement('span');
-      span.className='print-url print-only';
-      span.textContent=full;
-      a.parentNode.insertBefore(span,a.nextSibling);
-      a.dataset.urlAdded='1';
     });
   });
   window.addEventListener('afterprint',function(){
