@@ -254,7 +254,7 @@ a{color:inherit}
 @media print{
   @page{size:A4;margin:14mm 12mm}
   *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
-  html,body{background:#fff!important;font-size:10.5pt}
+  html,body{background:#fff!important;font-size:10.5pt;overflow-x:hidden!important}
   .wrap{max-width:100%!important;padding:0!important}
 
   /* 화면 전용 요소 숨김 */
@@ -268,7 +268,7 @@ a{color:inherit}
   .htag{font-size:11pt!important;margin-top:8pt!important}
   .hlede{font-size:9.5pt!important;margin-top:8pt!important;max-width:100%!important}
   .hero-grid{gap:10mm!important}
-  .kpistrip{margin-top:8mm!important;break-inside:avoid}
+  .kpistrip{margin-top:8mm!important;break-inside:avoid;width:100%!important;box-sizing:border-box!important}
   .kpi-n{font-size:18pt!important}
 
   /* 섹션 간격 축소 + 페이지 나눔 제어 */
@@ -317,10 +317,16 @@ a{color:inherit}
   .cv-col h3{font-size:8pt!important}
   .hrow2 dd{font-size:9pt!important}
 
-  /* 연락처 */
-  .contact{background:#141F1C!important;color:#EDF0EF!important;padding:8mm 0!important;
-    break-inside:avoid}
+  /* 연락처 (다크 섹션 잘림 방지) */
+  .contact{background:#141F1C!important;color:#EDF0EF!important;
+    padding:7mm 6mm!important;break-inside:avoid;margin:0!important;
+    width:100%!important;box-sizing:border-box!important;overflow:hidden}
+  .contact .wrap{padding:0!important;max-width:100%!important}
   .ct-h{color:#6FD3AA!important}
+  .ct-grid{gap:6mm!important}
+  .ct-foot{margin-top:8mm!important;padding-top:4mm!important;font-size:7pt!important;
+    flex-wrap:wrap!important;gap:4mm!important}
+  .ct-item a{font-size:10pt!important;word-break:break-all}
 
   /* 링크 밑줄 제거 */
   a{text-decoration:none!important}
