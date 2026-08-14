@@ -54,34 +54,62 @@ a{color:inherit}
 @media(max-width:700px){.bar-nav{gap:15px;font-size:12.5px}.bar-name em{display:none}}
 
 /* ══ 히어로 ══ */
-.hero{padding:92px 0 0}
-.hero-grid{display:grid;grid-template-columns:1.35fr 1fr;gap:60px;align-items:end}
+.hero{position:relative;padding:96px 0 0;overflow:hidden}
+.hero-bg{position:absolute;inset:0;z-index:0;pointer-events:none;
+  background-image:
+    linear-gradient(var(--rule-soft) 1px,transparent 1px),
+    linear-gradient(90deg,var(--rule-soft) 1px,transparent 1px);
+  background-size:44px 44px;
+  -webkit-mask-image:radial-gradient(ellipse 80% 60% at 30% 0%,#000 0%,transparent 75%);
+  mask-image:radial-gradient(ellipse 80% 60% at 30% 0%,#000 0%,transparent 75%);
+  opacity:.6}
+.hero .wrap{position:relative;z-index:1}
+.hero-inner{max-width:44em}
 .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;
-  text-transform:uppercase;color:var(--ink-faint);margin-bottom:26px;
-  display:flex;align-items:center;gap:12px}
-.eyebrow::after{content:"";height:1px;flex:1;background:var(--rule)}
-.hname{font-size:clamp(42px,7vw,80px);font-weight:800;letter-spacing:-.05em;line-height:1}
-.hrole{font-size:clamp(17px,2.2vw,24px);font-weight:600;color:var(--green);
-  letter-spacing:-.02em;margin-top:14px}
-.htag{margin-top:18px;font-size:clamp(16px,1.9vw,20px);font-weight:700;
-  letter-spacing:-.025em;line-height:1.5;color:var(--ink)}
-.hlede{margin-top:18px;color:var(--ink-soft);font-size:15.5px;line-height:1.85;max-width:36em}
-.hside{padding-bottom:6px}
-.hside dl{border-top:1px solid var(--ink)}
-.hrow{display:flex;justify-content:space-between;gap:14px;padding:11px 0;
-  border-bottom:1px solid var(--rule-soft);font-size:13.5px}
-.hrow dt{color:var(--ink-faint);white-space:nowrap}
-.hrow dd{font-weight:600;text-align:right}
-@media(max-width:900px){.hero-grid{grid-template-columns:1fr;gap:36px}.hside{padding-bottom:0}}
+  text-transform:uppercase;color:var(--ink-faint);margin-bottom:24px;
+  display:inline-flex;align-items:center;gap:9px}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);
+  box-shadow:0 0 0 0 rgba(15,106,73,.5);animation:pulse 2.4s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(15,106,73,.45)}
+  70%{box-shadow:0 0 0 7px rgba(15,106,73,0)}100%{box-shadow:0 0 0 0 rgba(15,106,73,0)}}
+.hname{font-size:clamp(48px,8vw,88px);font-weight:800;letter-spacing:-.05em;line-height:.98;
+  background:linear-gradient(180deg,var(--ink) 60%,#2a3c37 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+.htag{margin-top:22px;font-size:clamp(17px,2vw,22px);font-weight:700;
+  letter-spacing:-.025em;line-height:1.55;color:var(--ink)}
+.htag em{font-style:normal;color:var(--green);position:relative;white-space:nowrap}
+.htag em::after{content:"";position:absolute;left:0;right:0;bottom:2px;height:6px;
+  background:var(--green-soft);z-index:-1}
+.hero-meta{margin-top:22px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  font-size:14px;color:var(--ink-soft)}
+.hm-item b{color:var(--ink);font-weight:700}
+.hm-sep{color:var(--rule)}
+.hero-cta{margin-top:30px;display:flex;gap:12px;flex-wrap:wrap}
+.btn-primary,.btn-ghost{font-size:14px;font-weight:600;text-decoration:none;
+  padding:12px 22px;border-radius:8px;transition:all .2s;display:inline-flex;align-items:center;gap:7px}
+.btn-primary{background:var(--green);color:var(--paper);
+  box-shadow:0 2px 12px rgba(15,106,73,.24)}
+.btn-primary:hover{background:#0B5238;transform:translateY(-1px);box-shadow:0 6px 20px rgba(15,106,73,.3)}
+.btn-ghost{background:transparent;color:var(--ink);border:1px solid var(--rule)}
+.btn-ghost:hover{border-color:var(--ink);background:var(--panel)}
+.pc-br{display:inline}
+@media(max-width:640px){.pc-br{display:none}}
 
 /* ══ KPI 스트립 ══ */
-.kpistrip{margin-top:56px;border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);
-  display:grid;grid-template-columns:repeat(4,1fr);background:var(--panel)}
-.kpi{padding:22px 24px 24px;border-left:1px solid var(--rule-soft)}
+.kpistrip{margin-top:60px;border-top:1.5px solid var(--ink);border-bottom:1.5px solid var(--ink);
+  display:grid;grid-template-columns:repeat(4,1fr);background:var(--panel);
+  position:relative;z-index:1}
+.kpi{padding:24px 24px 26px;border-left:1px solid var(--rule-soft);position:relative;
+  transition:background .2s}
 .kpi:first-child{border-left:none}
-.kpi-n{font-family:var(--mono);font-size:32px;font-weight:600;letter-spacing:-.03em;line-height:1.1}
+.kpi:hover{background:var(--panel2)}
+.kpi::before{content:"";position:absolute;top:0;left:0;width:0;height:2px;
+  background:var(--green);transition:width .4s ease}
+.kpi:hover::before{width:100%}
+.kpi-n{font-family:var(--mono);font-size:34px;font-weight:600;letter-spacing:-.03em;
+  line-height:1.1;color:var(--green)}
 .kpi-n small{font-size:15px;color:var(--ink-soft);margin-left:2px;font-weight:400}
-.kpi-l{font-size:12.5px;color:var(--ink-faint);margin-top:7px;line-height:1.5}
+.kpi-l{font-size:12.5px;color:var(--ink-faint);margin-top:8px;line-height:1.5}
 @media(max-width:760px){
   .kpistrip{grid-template-columns:repeat(2,1fr)}
   .kpi:nth-child(3){border-left:none}
@@ -378,34 +406,32 @@ a{color:inherit}
 
 <!-- ══ 히어로 ══ -->
 <section class="hero">
+  <div class="hero-bg" aria-hidden="true"></div>
   <div class="wrap">
-    <div class="hero-grid">
-      <div>
-        <p class="eyebrow">Portfolio 2026</p>
-        <h1 class="hname">서동임</h1>
-        <p class="hrole">E-commerce MD · 운영기획팀 팀장</p>
-        <p class="htag">상품 기획부터 12개 채널 운영까지 커머스 전 과정을 총괄하며, 운영의 병목은 직접 시스템으로 해결하는 이커머스 MD입니다.</p>
-        <p class="hlede">
-          생활용품 브랜드에서 소싱·상품기획부터 12개 채널 입점 운영, 재고·물류·정산까지 총괄합니다.
-          기획전과 단독 상품 발굴로 담당 채널 매출을 전년 대비 두 자릿수 성장시켰고,
-          발주·출고 같은 반복 공정은 직접 시스템으로 만들어 최대 90%까지 단축했습니다.
-        </p>
+    <div class="hero-inner">
+      <p class="eyebrow"><span class="live-dot"></span>Portfolio 2026 · E-commerce MD</p>
+      <h1 class="hname">서동임</h1>
+      <p class="htag">상품 기획부터 12개 채널 운영까지 커머스 전 과정을 총괄하고,<br class="pc-br">운영의 병목은 <em>직접 시스템으로 해결</em>하는 이커머스 MD입니다.</p>
+
+      <div class="hero-meta">
+        <span class="hm-item"><b>진심감성</b> 운영기획팀 팀장</span>
+        <span class="hm-sep">·</span>
+        <span class="hm-item">MD 4년차</span>
+        <span class="hm-sep">·</span>
+        <span class="hm-item">서울</span>
       </div>
-      <div class="hside">
-        <dl>
-          <div class="hrow"><dt>소속</dt><dd>진심감성</dd></div>
-          <div class="hrow"><dt>직무</dt><dd>MD · 운영기획</dd></div>
-          <div class="hrow"><dt>경력</dt><dd>5년 4개월</dd></div>
-          <div class="hrow"><dt>거점</dt><dd>서울</dd></div>
-        </dl>
+
+      <div class="hero-cta">
+        <a href="#work" class="btn-primary">프로젝트 17건 보기</a>
+        <a href="#contact" class="btn-ghost">연락처</a>
       </div>
     </div>
 
     <div class="kpistrip">
-      <div class="kpi"><div class="kpi-n">12<small>개</small></div><div class="kpi-l">운영 판매 채널</div></div>
-      <div class="kpi"><div class="kpi-n">7<small>종</small></div><div class="kpi-l">직접 구축·배포한 사내 시스템</div></div>
-      <div class="kpi"><div class="kpi-n">+47<small>%</small></div><div class="kpi-l">담당 채널 1분기 매출 신장 (전년비)</div></div>
-      <div class="kpi"><div class="kpi-n">90<small>%</small></div><div class="kpi-l">발주 소요시간 단축 (OMS 도입)</div></div>
+      <div class="kpi"><div class="kpi-n" data-count="12">12<small>개</small></div><div class="kpi-l">운영 판매 채널</div></div>
+      <div class="kpi"><div class="kpi-n" data-count="7">7<small>종</small></div><div class="kpi-l">직접 구축·배포한 사내 시스템</div></div>
+      <div class="kpi"><div class="kpi-n">+47<small>%</small></div><div class="kpi-l">담당 채널 매출 신장 (전년비)</div></div>
+      <div class="kpi"><div class="kpi-n">90<small>%</small></div><div class="kpi-l">발주 소요시간 단축</div></div>
     </div>
   </div>
 </section>
@@ -448,17 +474,16 @@ a{color:inherit}
       </div>
       <div class="skill reveal">
         <p class="sk-n">AI · Data</p>
-        <h3>AI 활용 · 데이터 분석</h3>
+        <h3>AI 활용 · 데이터</h3>
         <ul>
-          <li>RFM 고객 세분화</li>
-          <li>장바구니 연관분석 (Apriori)</li>
-          <li>통계 검정 (t-test) · 상관분석</li>
-          <li>수요 예측 · 시즌성 분해</li>
           <li>AI 도구 기반 시스템 구축</li>
           <li>Antigravity · Cursor 활용</li>
           <li>Gemini · ChatGPT · Claude</li>
           <li>대시보드 기획 · 배포</li>
-          <li>Excel 고급 · 자동화 시트</li>
+          <li>Excel · 구글시트 자동화</li>
+          <li>기획전 · 판매 데이터 관리</li>
+          <li>RFM · 연관분석 (교육 프로젝트)</li>
+          <li>통계 검정 · 상관분석 (교육)</li>
         </ul>
       </div>
     </div>
@@ -825,12 +850,12 @@ a{color:inherit}
         <div class="c-head">
           <div class="c-headL">
             <div class="c-top"><span class="c-year">2026</span><span class="tag system">시스템</span><span class="tag commerce">커머스</span></div>
-            <h3 class="c-title">채널 · 수요 데이터 분석</h3>
-            <p class="c-sum">공개 시장 통계와 자사 채널 데이터를 대조해 채널 믹스와 발주 시점을 판단합니다.</p>
+            <h3 class="c-title">채널 · 수요 분석 프레임워크 설계</h3>
+            <p class="c-sum">공개 시장 통계를 기준선으로, 실무에서 다룰 수 있는 채널·수요·반품 데이터를 어떻게 분석할지 프레임워크를 설계했습니다.</p>
           </div>
-          <div class="c-kpi text-only"><div class="kl2">채널 믹스 판단</div></div>
+          <div class="c-kpi text-only"><div class="kl2">분석 관점 · 지표 설계</div></div>
         </div>
-        <div class="c-grid"><div class="c-col"><h4>문제</h4><p>매출 기준 채널 판단으로 수수료·광고비 반영 후 실제 기여도 파악 불가.</p></div><div class="c-col"><h4>실행</h4><p>시장 성장률 대조, 채널 믹스 분해, 계절성 분리, 반품 사유 4분류 설계.</p></div><div class="c-col"><h4>결과</h4><p>매출·수익 괴리 채널 식별 기준 확립. <strong>채널 믹스 조정 · 발주 시점 판단 근거</strong></p></div></div>
+        <div class="c-grid"><div class="c-col"><h4>문제</h4><p>매출 규모만으로 채널을 판단하면 수수료·광고비 반영 후 실제 기여도를 놓치게 됨.</p></div><div class="c-col"><h4>실행</h4><p>시장 성장률 대조, 채널 믹스·수익 구성비 괴리도, 계절성 분리, 반품 사유 4분류 등 분석 관점과 지표를 정의.</p></div><div class="c-col"><h4>결과</h4><p>공개 시장 통계 분석은 반영 완료. <strong>운영 데이터 분석 관점·지표 프레임 확립</strong></p></div></div>
         <div class="c-foot">
           <div class="c-tools"><span class="tool tool-ai">AI 구현</span><span class="tool">Python</span><span class="tool">데이터 분석</span><span class="tool">시각화</span><span class="tool">공공데이터</span></div>
           <a class="c-link" href="./analysis/">분석 페이지 열기 →</a><span class="print-url">https://tasha0130.github.io/seodongim.github.io/analysis/</span>
@@ -871,11 +896,13 @@ a{color:inherit}
         <h3>Experience</h3>
         <dl>
           <div class="hrow2"><dt>2025.04 — 재직중</dt>
-            <dd>진심감성 · 브랜드 운영기획팀 팀장<span>MD · 상품기획, 매출관리, 재고·입출고 총괄</span></dd></div>
+            <dd>진심감성 · 브랜드 운영기획팀 팀장<span>MD · 상품기획, 12개 채널 운영, 재고·물류·정산 총괄</span></dd></div>
           <div class="hrow2"><dt>2022.09 — 2025.04</dt>
-            <dd>진심감성 · 운영기획팀<span>플랫폼 운영, 기획전, 물류·재고, SNS, 인사, 발주</span></dd></div>
+            <dd>진심감성 · 운영기획팀<span>발주·CX → MD 전환, 기획전·물류·재고·SNS·인사</span></dd></div>
           <div class="hrow2"><dt>2022.03 — 2022.07</dt>
             <dd>대한안전진단연구원 · 진단 1팀<span>건축물 안전점검 지원</span></dd></div>
+          <div class="hrow2"><dt>~ 2022.02</dt>
+            <dd>순천향대 RIS사업단 · 아산시교육청 외<span>사무·문서관리, 국가근로 (재학 중)</span></dd></div>
         </dl>
       </div>
 
@@ -981,6 +1008,29 @@ a{color:inherit}
     document.querySelectorAll('.reveal').forEach(function(el){io.observe(el)});
   }else{
     document.querySelectorAll('.reveal').forEach(function(el){el.classList.add('in')});
+  }
+
+  // ── KPI 카운트업 애니메이션 ──
+  function countUp(el){
+    var target=parseInt(el.dataset.count,10);
+    var small=el.querySelector('small');
+    var suffix=small?small.outerHTML:'';
+    var dur=900, start=performance.now();
+    function tick(now){
+      var p=Math.min((now-start)/dur,1);
+      var val=Math.round((1-Math.pow(1-p,3))*target);
+      el.innerHTML=val+suffix;
+      if(p<1)requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+  if('IntersectionObserver' in window){
+    var kio=new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(e.isIntersecting){countUp(e.target);kio.unobserve(e.target);}
+      });
+    },{threshold:.5});
+    document.querySelectorAll('.kpi-n[data-count]').forEach(function(el){kio.observe(el);});
   }
 })();
 </script>
